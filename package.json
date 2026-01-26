@@ -1,0 +1,21 @@
+{
+  "name": "tax-invoice-issuer-fc",
+  "version": "1.0.0",
+  "description": "Tax Invoice Issuer to Study Design Patterns in Full Cycle MBA",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC/issues"
+  },
+  "homepage": "https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC#readme"
+}
