@@ -24,13 +24,13 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.1.0",
     "@types/swagger-ui-express": "^4.1.8",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "cors": "^2.8.6",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
     "express": "^5.2.1",
     "inversify": "^7.11.0",
     "inversify-inject-decorators": "^3.1.0",
