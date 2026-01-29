@@ -24,6 +24,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "cors": "^2.8.6"
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
   }
 }
