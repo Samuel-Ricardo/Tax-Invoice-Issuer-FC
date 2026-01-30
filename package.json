@@ -4,7 +4,8 @@
   "description": "Tax Invoice Issuer to Study Design Patterns in Full Cycle MBA",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:conf": "ts-jest config:init"
   },
   "repository": {
     "type": "git",
