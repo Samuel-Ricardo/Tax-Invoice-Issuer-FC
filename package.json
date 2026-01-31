@@ -11,15 +11,20 @@
     "format:fix": "prettier --check --write --ignore-path .gitignore ./src/**/*.{ts,js}",
     "format:check": "prettier --check --ignore-path .gitignore ./src/**/*.{ts,js}",
     "test": "jest --passWithNoTests --color",
+    "test:coverage": "jest --coverage --passWithNoTests --color",
     "test:staged": "jest --passWithNoTests --color --findRelatedTests",
     "test:dev": "jest --watchAll --coverage --passWithNoTests --color",
     "test:docker": "npm run test:coverage && npm run test:dev",
+    "docs::swagger": "node ./swagger.js",
     "test:init": "ts-jest config:init",
     "lint:init": "eslint --init",
     "type:init": "tsc --init",
     "type:check": "tsc --noEmit",
     "husky:init": "husky init",
-    "prepare": "husky"
+    "prepare": "husky",
+    "code:ci": "npm run format:fix && npm run lint:fix && npm run test:coverage",
+    "db:sync": "prisma generate && prisma db push",
+    "husky:prepare": "husky init"
   },
   "lint-staged": {
     "*.{json,md}": [
