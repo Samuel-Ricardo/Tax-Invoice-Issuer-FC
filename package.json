@@ -7,7 +7,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:init": "ts-jest config:init",
     "lint:init": "eslint --init",
-    "type:init": "tsc --init"
+    "type:init": "tsc --init",
+    "type:check": "tsc --noEmit",
+    "husky:init": "husky init",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "repository": {
     "type": "git",
