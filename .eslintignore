@@ -1,8 +1,0 @@
-node_modules/
-dist/
-build/
-coverage/
-*.config.js
-*.config.mjs
-jest.config.js
-.env
