@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   app:
@@ -7,3 +7,14 @@ services:
       - 3000:3000
     env_file:
       - .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    env_file: .env.postgres
+    volumes:
+      - ./.docker/data/db:/data/db
