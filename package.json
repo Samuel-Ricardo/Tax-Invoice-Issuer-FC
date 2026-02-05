@@ -4,7 +4,31 @@
   "description": "Tax Invoice Issuer to Study Design Patterns in Full Cycle MBA",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run docs:swagger && node ./dist/main.js",
+    "start:dev": "npm run docs::swagger && ts-node src/main.ts",
+    "start:docker": "npm run start",
+    "lint:fix": "eslint ./src/**/*.{ts,js} --fix",
+    "format:fix": "prettier --check --write --ignore-path .gitignore ./src/**/*.{ts,js}",
+    "format:check": "prettier --check --ignore-path .gitignore ./src/**/*.{ts,js}",
+    "test": "jest --passWithNoTests --color",
+    "test:coverage": "jest --coverage --passWithNoTests --color",
+    "test:staged": "jest --passWithNoTests --color --findRelatedTests",
+    "test:dev": "jest --watchAll --coverage --passWithNoTests --color",
+    "test:docker": "npm run test:coverage && npm run test:dev",
+    "docs::swagger": "node ./swagger.js",
+    "test:init": "ts-jest config:init",
+    "lint:init": "eslint --init",
+    "type:init": "tsc --init",
+    "husky:init": "husky init",
+    "prepare": "husky",
+    "code:ci": "npm run format:fix && npm run lint:fix && npm run test:coverage",
+    "db:sync": "prisma generate && prisma db push",
+    "husky:prepare": "husky init"
+  },
+  "lint-staged": {
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "repository": {
     "type": "git",
@@ -19,8 +43,38 @@
   },
   "homepage": "https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC#readme",
   "devDependencies": {
-    "@types/node": "^25.0.10",
+    "@eslint/js": "^9.39.2",
+    "@types/cors": "^2.8.19",
+    "@types/eslint__js": "^8.42.3",
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.1.0",
+    "@types/supertest": "^6.0.3",
+    "@types/swagger-ui-express": "^4.1.8",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "inversify": "^7.11.0",
+    "inversify-inject-decorators": "^3.1.0",
+    "prisma": "^7.3.0",
+    "reflect-metadata": "^0.2.2",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.3.6"
   }
 }
