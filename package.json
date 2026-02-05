@@ -19,7 +19,6 @@
     "test:init": "ts-jest config:init",
     "lint:init": "eslint --init",
     "type:init": "tsc --init",
-    "type:check": "tsc --noEmit",
     "husky:init": "husky init",
     "prepare": "husky",
     "code:ci": "npm run format:fix && npm run lint:fix && npm run test:coverage",
