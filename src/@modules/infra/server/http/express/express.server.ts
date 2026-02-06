@@ -7,6 +7,7 @@ import {
   AsyncLogger,
   LoggableAsync,
 } from "../../../../../@decorators/async/logger.decorator";
+import { ServerCallback } from "../../../../../@types/http/callback.type";
 
 @AsyncLogger()
 @injectable()
@@ -14,7 +15,7 @@ export class ExpressServerAdapter extends LoggableAsync implements HttpServer {
   @inject(MODULE.INFRA.ENGINE.SERVER.HTTP.EXPRESS._)
   private readonly server: TExpress;
 
-  on(method: HttpMethod, url: string, callback: Function): void {
+  on(method: HttpMethod, url: string, callback: ServerCallback): void {
     this.server[method](url, async function (req, res) {
       const output = await callback(req.params, req.body, req.headers);
       res.json(output);
