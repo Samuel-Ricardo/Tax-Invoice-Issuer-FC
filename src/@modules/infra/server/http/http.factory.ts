@@ -1,5 +1,5 @@
 import { HTTP_SERVER_MODULE } from "./http.module";
-import { merge } from "../../../../@utils/module/merge.util";
+import { merge } from "../../../../@utils/module/load.util";
 import { HttpServer } from "./http.server";
 import { HTTP_SERVER_REGISTRY } from "./http.registry";
 

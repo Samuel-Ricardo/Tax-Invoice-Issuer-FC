@@ -2,7 +2,6 @@ import { inject, injectable } from "inversify";
 import { HttpServer } from "../http.server";
 import { TExpress } from "../../../../../@types/engine/server/http/express.type";
 import { MODULE } from "../../../../app.registry";
-import { DataLogger } from "../../../../../@decorators/log/data.decorator";
 import { HttpMethod } from "../../../../../@types/http/methods.type";
 import {
   AsyncLogger,
