@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { Invoice } from "../../../domain/entity/invoice.entity";
-import { InvoiceService } from "./invoice.interface";
+import { InvoiceService } from "../../../domain/service/invoice/invoice.interface";
 import { GenerateInvoiceDTO } from "../../../domain/DTO/invoice/generate.dto";
-import { GenerateInvoiceUseCase } from "../../use-case/invoice/generate.interface";
+import { GenerateInvoiceUseCase } from "../../../domain/use-case/invoice/generate.interface";
 
 @injectable()
 export class InvoiceServiceImpl implements InvoiceService {
