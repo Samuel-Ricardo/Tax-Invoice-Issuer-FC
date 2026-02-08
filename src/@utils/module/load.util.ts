@@ -6,12 +6,11 @@ export const merge = (module: ContainerModule[]): Container => {
   return _MODULE;
 };
 
-export const load = (module: ContainerModule, singleton = true): Container => {
-  const _MODULE = new Container(
-    singleton
-      ? { autobind: true, defaultScope: "Singleton" }
-      : { autobind: true },
-  );
+export const load = (
+  module: ContainerModule,
+  defaultScope: "Singleton" | "Transient" | "Request" = "Singleton",
+): Container => {
+  const _MODULE = new Container({ autobind: true, defaultScope: defaultScope });
   _MODULE.loadSync(module);
   return _MODULE;
 };
