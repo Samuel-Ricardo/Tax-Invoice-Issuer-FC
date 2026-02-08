@@ -1,0 +1,3 @@
+export const CONTROLLER_REGISTRY = {
+  INVOICE: Symbol.for("MODULE:APP:CONTROLLER:INVOICE"),
+};
