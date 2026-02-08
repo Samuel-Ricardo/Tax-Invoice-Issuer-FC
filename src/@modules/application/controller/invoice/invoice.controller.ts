@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import { InvoiceService } from "../../service/invoice/invoice.interface";
+import { InvoiceService } from "../../../domain/service/invoice/invoice.interface";
 import { HttpServer } from "../../../infra/server/http/http.server";
 import { MODULE } from "../../../app.registry";
-import { Controller } from "../controller.interface";
+import { Controller } from "../../../domain/controller/controller.interface";
 import { Presenter } from "../../../infra/presenter/presenter.interface";
 
 @injectable()
