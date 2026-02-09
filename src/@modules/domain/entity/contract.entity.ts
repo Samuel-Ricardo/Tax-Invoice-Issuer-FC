@@ -16,4 +16,10 @@ export class Contract {
   addPayment(payment: Payment) {
     this.payments.push(payment);
   }
+
+  getBalance() {
+    let balance = this.amounts;
+    this.payments.forEach((p) => (balance -= p.amount));
+    return balance;
+  }
 }
