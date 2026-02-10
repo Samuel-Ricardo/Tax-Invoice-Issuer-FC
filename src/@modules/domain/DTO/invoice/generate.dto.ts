@@ -1,3 +1,7 @@
+import { Contract } from "../../entity/contract.entity";
+import { InvoiceDTO } from "../invoice.dto";
+
 export interface GenerateInvoiceDTO {
-  name: string;
+  contracts: Contract[];
+  invoice: InvoiceDTO;
 }
