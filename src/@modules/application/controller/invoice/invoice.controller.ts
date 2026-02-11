@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { InvoiceService } from "../../../domain/service/invoice/invoice.interface";
+import { InvoiceService } from "../../../domain/service/invoice/invoice.service";
 import { HttpServer } from "../../../infra/server/http/http.server";
 import { MODULE } from "../../../app.registry";
 import { Controller } from "../../../domain/controller/controller.interface";
