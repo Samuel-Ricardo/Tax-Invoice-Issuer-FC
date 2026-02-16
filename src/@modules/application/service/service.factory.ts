@@ -8,4 +8,5 @@ const _MODULE = load(SERVICE_MODULE);
 
 export const SERVICE_FACTORY = {
   INVOICE: () => _MODULE.get<InvoiceService>(SERVICE_REGISTRY.INVOICE),
+  EMAIL: () => _MODULE.get<EmailService>(SERVICE_REGISTRY.EMAIL),
 };
