@@ -1,0 +1,2 @@
+DROPschema samcascade;
+CREATEschema sam;
