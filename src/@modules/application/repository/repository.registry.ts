@@ -1,0 +1,6 @@
+export const REPOSITORY_REGISTRY = {
+  SQL: {
+    CONTRACT: Symbol.for("MODULE:APP:REPOSITORY:CONTRACT"),
+    PAYMENT: Symbol.for("MODULE:APP:REPOSITORY:PAYMENT"),
+  },
+};
