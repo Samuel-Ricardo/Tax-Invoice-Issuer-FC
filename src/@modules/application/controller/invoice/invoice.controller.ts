@@ -22,7 +22,7 @@ export class InvoiceController implements Controller {
   }
 
   private generateInvoice() {
-    this.server.on("post", "/invoice", async (params, body, headers) =>
+    this.server.on("post", "/invoice", async (_params, body, _headers) =>
       this.service.generate(body).then(this.presenter.present),
     );
   }
