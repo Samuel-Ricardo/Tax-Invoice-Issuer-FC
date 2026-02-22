@@ -12,7 +12,7 @@ export class InvoiceController implements Controller {
     private readonly server: HttpServer,
     @inject(MODULE.INFRA.PRESENTER.JSON)
     private readonly presenter: Presenter,
-    //    @inject()
+    @inject(MODULE.APPLICATION.SERVICE.INVOICE)
     private readonly service: InvoiceService,
   ) {}
 
