@@ -16,5 +16,25 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: "coverage",
   coverageProvider: "v8",
+  
+  // Test configuration
+  testMatch: [
+    "**/test-ai/**/*.spec.ts",
+    "**/test/**/*.spec.ts",
+  ],
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "/dist/",
+    "/build/",
+    "/coverage/",
+  ],
+  
+  // Coverage configuration
+  collectCoverageFrom: [
+    "src/**/*.{ts,js}",
+    "!src/**/*.d.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts",
+  ],
 };
 
