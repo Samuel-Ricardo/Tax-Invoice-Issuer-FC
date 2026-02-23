@@ -16,8 +16,11 @@ export class InvoiceController implements Controller {
     private readonly service: InvoiceService,
   ) {}
 
-  public startup() {
+  public async setup() {
     this.generateInvoice();
+  }
+
+  public async start() {
     this.server.listen();
   }
 
