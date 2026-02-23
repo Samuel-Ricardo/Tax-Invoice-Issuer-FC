@@ -7,4 +7,4 @@ invoice.setup();
 
 const SERVER = invoice;
 
-export { SERVER };
+export { SERVER, MODULES };
