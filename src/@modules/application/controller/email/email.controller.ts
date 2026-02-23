@@ -19,12 +19,14 @@ export class EmailController implements Controller {
     private readonly service: EmailService,
   ) {}
 
-  public startup() {
+  public async setup() {
     this.mediator.on(
       this.EVENT.INVOICE.GENERATED,
       this.sendMailOnInvoiceGenereted,
     );
   }
+
+  public async start() {}
 
   private async sendMailOnInvoiceGenereted(data: Invoice[]) {
     await this.service.sendInvoices(data);
