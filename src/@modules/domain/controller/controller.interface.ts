@@ -1,3 +1,4 @@
 export interface Controller {
-  startup(): void;
+  setup(): Promise<any | void>;
+  start(): Promise<any | void>;
 }
