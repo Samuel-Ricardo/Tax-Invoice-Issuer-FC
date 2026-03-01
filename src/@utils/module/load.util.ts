@@ -1,11 +1,5 @@
 import { Container, ContainerModule } from "inversify";
 
-/**
- * ESTRATÉGIA PADRÃO: Lança erro se houver duplicação
- *
- * ⚠️ IMPORTANTE: O erro só é lançado quando você tenta .get() uma dependência,
- * não durante o .load(). O .load() apenas registra os bindings.
- */
 export const loads = (modules: ContainerModule[]): Container => {
   const _MODULE = new Container({ autobind: true });
   _MODULE.load(...Array.from(new Set(modules)));
