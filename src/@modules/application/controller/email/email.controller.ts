@@ -5,6 +5,7 @@ import { MODULE } from "../../../app.registry";
 import { Invoice } from "../../../domain/entity/invoice.entity";
 import { Events } from "../../../../@types/config/events.type";
 import { EmailService } from "../../../domain/service/email/email.service";
+import { InputLogger } from "../../../../@decorators/log/data.decorator";
 
 @injectable()
 export class EmailController implements Controller {
@@ -28,6 +29,7 @@ export class EmailController implements Controller {
 
   public async start() {}
 
+  @InputLogger()
   private async sendMailOnInvoiceGenereted(data: Invoice[]) {
     await this.service.sendInvoices(data);
   }
