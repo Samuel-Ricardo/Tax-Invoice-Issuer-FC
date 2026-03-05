@@ -1,4 +1,6 @@
-drop schema sam cascade;
+drop schema if exists sam cascade;
+
+create extension if not exists "uuid-ossp";
 
 create schema sam;
 
