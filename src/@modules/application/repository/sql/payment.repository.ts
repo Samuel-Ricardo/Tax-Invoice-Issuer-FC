@@ -20,7 +20,7 @@ export class PaymentRepositorySQL implements PaymentRepository {
     );
 
     for (const p of paymentsDB) {
-      payments.push(new Payment(p.id_payment, p.date, parseFloat(p.amount)));
+      payments.push(new Payment(p.id_payment, p.date, parseFloat(p.amount))); //TODO: MAPPER
     }
 
     return payments;
