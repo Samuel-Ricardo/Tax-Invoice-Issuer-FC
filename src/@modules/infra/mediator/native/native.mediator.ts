@@ -1,13 +1,16 @@
+import { InputLogger } from "../../../../@decorators/log/data.decorator";
 import { Observer } from "../../../../@types/mediator/observer.type";
 import { Mediator } from "../mediator.interface";
 
 export class NativeMediator implements Mediator {
   observers: Observer[] = [];
 
+  @InputLogger("MEDIATOR::ON")
   on(event: string, callback: Function) {
     this.observers.push({ event, callback });
   }
 
+  @InputLogger("MEDIATOR::PUBLISH")
   async publish(event: string, data: any) {
     this.observers.forEach(
       async (observer) =>
