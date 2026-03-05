@@ -23,10 +23,12 @@ export class ListContractUseCaseImpl implements ListContractUseCase {
   }
 
   private async attachPayment(contracts: Contract[]) {
-    contracts.forEach((c) =>
-      this.payment
-        .list({ contrarId: c.idContract })
-        .then((p) => this.addPayment(p, c)),
+    await Promise.all(
+      contracts.map((c) =>
+        this.payment
+          .list({ contrarId: c.idContract })
+          .then((p) => this.addPayment(p, c)),
+      ),
     );
 
     return contracts;
