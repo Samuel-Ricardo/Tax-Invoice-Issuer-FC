@@ -42,3 +42,22 @@ export function OutputLogger(
     return descriptor;
   };
 }
+
+export function DataLogger(config?: LogInput, ...data: any[]): MethodDecorator {
+  return (_target, _propertyKey, descriptor: PropertyDescriptor) => {
+    const original = descriptor.value as (...args: any[]) => any;
+
+    descriptor.value = async function (...args: any[]) {
+      const context = config?.context || "DATA";
+      const message = config.message;
+
+      console.info(`[${context}] | ${message}`, { args }, ...data);
+
+      const result = await original.apply(this, args);
+
+      console.info(`[${context}] | ${message}`, { result }, ...data);
+
+      return result;
+    };
+  };
+}
