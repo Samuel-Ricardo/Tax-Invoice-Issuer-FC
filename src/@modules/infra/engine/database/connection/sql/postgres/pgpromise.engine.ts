@@ -40,15 +40,15 @@ export class PgPromiseConnectionAdapter
     //  this.connection = pgp()(url);
   }
 
-  @OutputLogger("QUERY")
+  @OutputLogger({ context: "DATABASE", message: "QUERY" })
   async query(statement: string, params: any): Promise<any> {
-    this.info(
+    /*    this.info(
       {
         context: "DATABASE",
         message: `Realizing Query`,
       },
       { statement, params },
-    );
+    );*/
     return await this.connection.query(statement, params);
   }
 
