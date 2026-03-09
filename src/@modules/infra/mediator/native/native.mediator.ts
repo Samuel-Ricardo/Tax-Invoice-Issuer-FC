@@ -5,12 +5,12 @@ import { Mediator } from "../mediator.interface";
 export class NativeMediator implements Mediator {
   observers: Observer[] = [];
 
-  @InputLogger("MEDIATOR::ON")
+  @InputLogger({ context: "MEDIATOR", message: "ON" })
   on(event: string, callback: Function) {
     this.observers.push({ event, callback });
   }
 
-  @InputLogger("MEDIATOR::PUBLISH")
+  @InputLogger({ context: "MEDIATOR", message: "PUBLISH" })
   async publish(event: string, data: any) {
     this.observers.forEach(
       async (observer) =>
