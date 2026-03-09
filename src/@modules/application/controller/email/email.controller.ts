@@ -29,7 +29,7 @@ export class EmailController implements Controller {
 
   public async start() {}
 
-  @InputLogger()
+  @InputLogger({ context: "CONTROLLER", message: "EMAIL" })
   private async sendMailOnInvoiceGenereted(data: Invoice[]) {
     await this.service.sendInvoices(data);
   }
