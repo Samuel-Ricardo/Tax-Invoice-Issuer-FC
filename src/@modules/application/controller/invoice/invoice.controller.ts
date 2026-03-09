@@ -34,7 +34,7 @@ export class InvoiceController implements Controller {
   }
 
   //TODO: VALIDATION WITH ZOD & ERROR HANDLING DECORATORS
-  @DataLogger()
+  @DataLogger({ context: "CONTROLLER", message: "INVOICE" })
   private async generateInvoice(_params, body: InvoiceDTO, _headers) {
     if (!body || !body.month || !body.year || !body.type) {
       throw new Error(
