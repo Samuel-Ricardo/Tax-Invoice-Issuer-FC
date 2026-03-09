@@ -4,6 +4,7 @@ import { ListPaymentDTO } from "../../../domain/DTO/payment/list.dto";
 import Payment from "../../../domain/entity/payment.entity";
 import { SQLDatabaseConnection } from "../../../infra/engine/database/connection/sql/sql.connection";
 import { MODULE } from "../../../app.registry";
+//import { OutputLogger } from "../../../../@decorators/log/data.decorator";
 
 @injectable()
 export class PaymentRepositorySQL implements PaymentRepository {
@@ -12,6 +13,7 @@ export class PaymentRepositorySQL implements PaymentRepository {
     private readonly database: SQLDatabaseConnection,
   ) {}
 
+  //  @OutputLogger({ context: "REPOSITORY", message: "PAYMENT LIST" })
   async list({ contrarId }: ListPaymentDTO) {
     const payments: Payment[] = [];
     const paymentsDB = await this.database.query(
