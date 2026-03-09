@@ -3,6 +3,7 @@ import { ContractRepository } from "../../../domain/repository/contract.reposito
 import { SQLDatabaseConnection } from "../../../infra/engine/database/connection/sql/sql.connection";
 import { MODULE } from "../../../app.registry";
 import { Contract } from "../../../domain/entity/contract.entity";
+//import { OutputLogger } from "../../../../@decorators/log/data.decorator";
 
 @injectable()
 export class ContractRepositorySQL implements ContractRepository {
@@ -11,6 +12,7 @@ export class ContractRepositorySQL implements ContractRepository {
     private readonly database: SQLDatabaseConnection,
   ) {}
 
+  //  @OutputLogger({ context: "REPOSITORY", message: "CONTRACT LIST" })
   async list() {
     const contracts: Contract[] = [];
     const contractsDB = await this.database.query(
