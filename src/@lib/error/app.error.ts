@@ -18,4 +18,8 @@ export class AppError extends Error implements IError {
       data: this.data,
     };
   }
+
+  static fromStruct(error: IError): AppError {
+    return new AppError(error.message, error.status, error.data, error.error);
+  }
 }
