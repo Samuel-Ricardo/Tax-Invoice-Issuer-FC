@@ -9,4 +9,13 @@ export class AppError extends Error implements IError {
   ) {
     super(message);
   }
+
+  toStruct(): IError {
+    return {
+      error: this.error,
+      message: this.message,
+      status: this.status,
+      data: this.data,
+    };
+  }
 }
