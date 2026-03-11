@@ -1,0 +1,12 @@
+import { IError } from "../../@types/lib/error.type";
+
+export class AppError extends Error implements IError {
+  constructor(
+    public readonly message: string,
+    public readonly status: number = 500,
+    public readonly data?: any,
+    public readonly error: boolean = true,
+  ) {
+    super(message);
+  }
+}
