@@ -13,7 +13,7 @@ export function InputLogger(
       const context = config?.context || "DATA::INPUT";
       const message = config.message;
 
-      console.info(`[${context}] | ${message}`, { input }, ...data);
+      console.info(`[${context}] | ${message} [INPUT]`, { input }, ...data);
       return await original.apply(this, input);
     } as any;
 
@@ -35,8 +35,17 @@ export function OutputLogger(
       const context = config?.context || "DATA::OUTPUT";
       const message = config.message;
 
-      console.info(`[${context}] | ${message}`, { output }, ...data);
-      return output;
+      try {
+        console.info(`[${context}] | ${message} [OUTPUT]`, { output }, ...data);
+        return output;
+      } catch (error) {
+        console.error(
+          `[${context}] | ${message} [ERROR]`,
+          { error: error instanceof Error ? error.message : error },
+          ...data,
+        );
+        throw error;
+      }
     } as any;
 
     return descriptor;
@@ -51,13 +60,20 @@ export function DataLogger(config?: LogInput, ...data: any[]): MethodDecorator {
       const context = config?.context || "DATA";
       const message = config.message;
 
-      console.info(`[${context}] | ${message}`, { args }, ...data);
+      console.info(`[${context}] | ${message} [INPUT]`, { args }, ...data);
 
-      const result = await original.apply(this, args);
-
-      console.info(`[${context}] | ${message}`, { result }, ...data);
-
-      return result;
+      try {
+        const result = await original.apply(this, args);
+        console.info(`[${context}] | ${message} [OUTPUT]`, { result }, ...data);
+        return result;
+      } catch (error) {
+        console.error(
+          `[${context}] | ${message} [ERROR]`,
+          { error: error instanceof Error ? error.message : error },
+          ...data,
+        );
+        throw error;
+      }
     };
   };
 }
