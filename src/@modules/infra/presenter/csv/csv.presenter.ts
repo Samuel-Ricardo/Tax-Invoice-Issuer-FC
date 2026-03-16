@@ -3,7 +3,7 @@ import { Presenter } from "../presenter.interface";
 import { DataLogger } from "../../../../@decorators/log/data.decorator";
 
 export default class CsvPresenter implements Presenter {
-  @DataLogger("PRESENTER")
+  @DataLogger({ context: "PRESENTER", message: "CSV" })
   present(data: any[]) {
     return data
       .flatMap((d) =>
