@@ -6,6 +6,7 @@ import { Controller } from "../../../domain/controller/controller.interface";
 import { Presenter } from "../../../infra/presenter/presenter.interface";
 import { DataLogger } from "../../../../@decorators/log/data.decorator";
 import { InvoiceDTO } from "../../../domain/DTO/invoice.dto";
+import { ErrorHandler } from "../../../../@decorators/error/handler.decorator";
 
 @injectable()
 export class InvoiceController implements Controller {
@@ -33,7 +34,7 @@ export class InvoiceController implements Controller {
     }));
   }
 
-  //TODO: VALIDATION WITH ZOD & ERROR HANDLING DECORATORS
+  @ErrorHandler()
   @DataLogger({ context: "CONTROLLER", message: "INVOICE" })
   private async generateInvoice(_params, body: InvoiceDTO, _headers) {
     if (!body || !body.month || !body.year || !body.type) {
