@@ -1,7 +1,7 @@
 import { Container, ContainerModule } from "inversify";
 
 export const loads = (modules: ContainerModule[]): Container => {
-  const _MODULE = new Container({ autobind: true });
+  const _MODULE = new Container({ autobind: true, defaultScope: "Singleton" });
   _MODULE.load(...Array.from(new Set(modules)));
   return _MODULE;
 };
