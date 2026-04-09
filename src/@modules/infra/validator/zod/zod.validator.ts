@@ -1,11 +1,12 @@
 import { inject, injectable } from "inversify";
 import {
+  ValidationError,
   ValidationResult,
   Validator,
 } from "../../../domain/validator/validator.interface";
 import { ZOD } from "../../../../@types/engine/validation/zod.type";
 import { MODULE } from "../../../app.registry";
-import { ZodObject } from "zod";
+import { ZodError, ZodIssue, ZodObject } from "zod";
 
 @injectable()
 export class ZodValidator implements Validator<any> {
@@ -16,10 +17,18 @@ export class ZodValidator implements Validator<any> {
     private readonly engine: ZOD,
   ) {}
 
-  validate(value: any): ValidationResult {
-    throw new Error("Method not implemented.");
+  validate(value: any): ValidationResult<ZodError, Record<string, any>> {
+    const result = this.schema.safeParse(value);
+    return {
+      error: result.error,
+      isValid: result.success,
+      value: result.data,
+    };
   }
-  validateAsync(value: any): Promise<ValidationResult> {
+
+  validateAsync(
+    value: any,
+  ): Promise<ValidationResult<ZodError, Record<string, any>>> {
     throw new Error("Method not implemented.");
   }
   parse(value: any) {
