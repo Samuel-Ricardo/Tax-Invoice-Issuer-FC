@@ -1,23 +1,22 @@
 import { inject, injectable } from "inversify";
 import {
-  ValidationError,
   ValidationResult,
   Validator,
 } from "../../../domain/validator/validator.interface";
 import { ZOD } from "../../../../@types/engine/validation/zod.type";
 import { MODULE } from "../../../app.registry";
-import { ZodError, ZodIssue, ZodObject } from "zod";
+import { ZodError, ZodObject } from "zod";
 
 @injectable()
-export class ZodValidator implements Validator<any> {
+export class ZodValidator<T> implements Validator<T> {
   private schema: ZodObject;
 
   constructor(
     @inject(MODULE.INFRA.ENGINE.VALIDATION.ZOD)
-    private readonly engine: ZOD,
+    public readonly engine: ZOD,
   ) {}
 
-  validate(value: any): ValidationResult<ZodError, Record<string, any>> {
+  validate(value: T): ValidationResult<ZodError, Record<string, any>> {
     const result = this.schema.safeParse(value);
     return {
       error: result.error,
@@ -26,14 +25,17 @@ export class ZodValidator implements Validator<any> {
     };
   }
 
-  validateAsync(
-    value: any,
+  async validateAsync(
+    value: T,
   ): Promise<ValidationResult<ZodError, Record<string, any>>> {
-    throw new Error("Method not implemented.");
+    const result = await this.schema.safeParseAsync(value);
+    return {
+      error: result.error,
+      isValid: result.success,
+      value: result.data,
+    };
   }
-  parse(value: any) {
-    throw new Error("Method not implemented.");
-  }
+
   setSchema(schema: any): void {
     this.schema = schema as ZodObject;
   }
