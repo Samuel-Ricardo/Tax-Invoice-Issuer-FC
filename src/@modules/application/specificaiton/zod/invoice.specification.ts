@@ -18,4 +18,13 @@ export class InvoiceSpecificationZod implements Specification<Invoice> {
   not(): Specification<Invoice> {
     throw new Error("Method not implemented.");
   }
+
+  private setupRules(): void {
+    this.validator.setRules(
+      this.validator.engine.object({
+        date: this.validator.engine.date(),
+        amount: this.validator.engine.number(),
+      }),
+    );
+  }
 }
