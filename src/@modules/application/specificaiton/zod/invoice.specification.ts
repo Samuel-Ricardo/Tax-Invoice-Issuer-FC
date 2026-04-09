@@ -7,7 +7,9 @@ export class InvoiceSpecificationZod implements Specification<Invoice> {
     this.setupRules();
   }
 
-  isSatisfiedBy(cadidate: Invoice): boolean {}
+  isSatisfiedBy(cadidate: Invoice): boolean {
+    return this.validator.validate(cadidate).isValid;
+  }
 
   and(other: Specification<Invoice>): Specification<Invoice> {
     throw new Error("Method not implemented.");
