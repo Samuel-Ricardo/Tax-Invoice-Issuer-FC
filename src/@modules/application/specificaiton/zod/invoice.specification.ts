@@ -11,11 +11,11 @@ export class InvoiceSpecificationZod implements Specification<Invoice> {
     return this.validator.validate(cadidate).isValid;
   }
 
-  and(cadidate: Invoice, other: Specification<Invoice>): boolean {
+  and(other: Specification<Invoice>, cadidate: Invoice): boolean {
     return this.isSatisfiedBy(cadidate) && other.isSatisfiedBy(cadidate);
   }
-  or(other: Specification<Invoice>): boolean {
-    throw new Error("Method not implemented.");
+  or(other: Specification<Invoice>, cadidate: Invoice): boolean {
+    return this.isSatisfiedBy(cadidate) || other.isSatisfiedBy(cadidate);
   }
   not(): Specification<Invoice> {
     throw new Error("Method not implemented.");
