@@ -5,10 +5,10 @@ export interface ValidationRule<T> {
   specification(): Specification<T>;
 }
 
-export interface ValidationResult {
+export interface ValidationResult<E, V> {
   isValid: boolean;
-  error: ValidationError[];
-  value?: any;
+  error: E;
+  value?: V;
 }
 
 export interface ValidationError {
@@ -19,8 +19,7 @@ export interface ValidationError {
 }
 
 export interface Validator<T> {
-  validate(value: T): ValidationResult;
-  validateAsync(value: T): Promise<ValidationResult>;
-  parse(value: any): T;
-  setSchema(schema: any): void;
+  validate(value: T): ValidationResult<any, any>;
+  validateAsync(value: T): Promise<ValidationResult<any, any>>;
+  setRules(rules: any): void;
 }

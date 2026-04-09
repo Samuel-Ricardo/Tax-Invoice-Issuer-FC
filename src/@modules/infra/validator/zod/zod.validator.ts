@@ -36,7 +36,7 @@ export class ZodValidator<T> implements Validator<T> {
     };
   }
 
-  setSchema(schema: any): void {
+  setRules(schema: any): void {
     this.schema = schema as ZodObject;
   }
 }
