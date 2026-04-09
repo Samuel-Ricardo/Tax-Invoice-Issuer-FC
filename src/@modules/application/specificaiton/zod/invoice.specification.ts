@@ -17,8 +17,8 @@ export class InvoiceSpecificationZod implements Specification<Invoice> {
   or(other: Specification<Invoice>, cadidate: Invoice): boolean {
     return this.isSatisfiedBy(cadidate) || other.isSatisfiedBy(cadidate);
   }
-  not(): Specification<Invoice> {
-    throw new Error("Method not implemented.");
+  not(cadidate: Invoice): boolean {
+    return !this.isSatisfiedBy(cadidate);
   }
 
   private setupRules(): void {
