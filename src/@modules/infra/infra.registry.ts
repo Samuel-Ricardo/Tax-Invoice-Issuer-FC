@@ -3,6 +3,7 @@ import { ENGINE_REGISTRY } from "./engine/engine.registry";
 import { MEDIATOR_REGISTRY } from "./mediator/mediator.registry";
 import { PRESENTER_REGISTRY } from "./presenter/presenter.registry";
 import { SERVER_REGISTRY } from "./server/server.registry";
+import { VALIDATOR_REGISTRY } from "./validator/validator.registry";
 
 export const INFRA_REGISTRY = {
   ENGINE: ENGINE_REGISTRY,
@@ -10,4 +11,5 @@ export const INFRA_REGISTRY = {
   CONFIG: CONFIG_REGISTRY,
   PRESENTER: PRESENTER_REGISTRY,
   MEDIATOR: MEDIATOR_REGISTRY,
+  VALIDATOR: VALIDATOR_REGISTRY,
 };
