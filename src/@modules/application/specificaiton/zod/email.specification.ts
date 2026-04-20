@@ -30,4 +30,13 @@ export class EmailSpecificationZod implements Specification<Invoice> {
   not(cadidate: Invoice): boolean {
     throw new Error("Method not implemented.");
   }
+
+  private setupRules() {
+    this.validator.setRules(
+      this.validator.engine.object({
+        date: this.validator.engine.date(),
+        amount: this.validator.engine.number(),
+      }),
+    );
+  }
 }
