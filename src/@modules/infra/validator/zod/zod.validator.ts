@@ -5,7 +5,8 @@ import {
 } from "../../../domain/validator/validator.interface";
 import { ZOD } from "../../../../@types/engine/validation/zod.type";
 import { MODULE } from "../../../app.registry";
-import { ZodError, ZodObject } from "zod";
+import { ZodError, ZodObject, ZodSafeParseResult } from "zod";
+import { InvalidDataError } from "../../../../@lib/error/validation/data.error";
 
 @injectable()
 export class ZodValidator<T> implements Validator<T> {
@@ -16,8 +17,12 @@ export class ZodValidator<T> implements Validator<T> {
     public readonly engine: ZOD,
   ) {}
 
-  validate(value: T): ValidationResult<ZodError, Record<string, any>> {
-    const result = this.schema.safeParse(value);
+  validate(
+    value: T,
+    schema?: ZodObject,
+  ): ValidationResult<ZodError, Record<string, any>> {
+    const result = (schema || this.schema).safeParse(value);
+    this.handleError(result);
     return {
       error: result.error,
       isValid: result.success,
@@ -27,8 +32,10 @@ export class ZodValidator<T> implements Validator<T> {
 
   async validateAsync(
     value: T,
+    schema?: ZodObject,
   ): Promise<ValidationResult<ZodError, Record<string, any>>> {
-    const result = await this.schema.safeParseAsync(value);
+    const result = await (schema || this.schema).safeParseAsync(value);
+    this.handleError(result);
     return {
       error: result.error,
       isValid: result.success,
@@ -38,5 +45,14 @@ export class ZodValidator<T> implements Validator<T> {
 
   setRules(schema: any): void {
     this.schema = schema as ZodObject;
+  }
+
+  private async handleError(
+    result: ZodSafeParseResult<Record<string, unknown>>,
+  ) {
+    if (!result.success)
+      throw result.error
+        ? new InvalidDataError(result.error.message, 422, result.error)
+        : new InvalidDataError();
   }
 }
