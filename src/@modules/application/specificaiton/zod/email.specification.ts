@@ -28,7 +28,7 @@ export class EmailSpecificationZod implements Specification<Invoice> {
   }
 
   not(cadidate: Invoice): boolean {
-    throw new Error("Method not implemented.");
+    return !this.isSatisfiedBy(cadidate);
   }
 
   private setupRules() {
