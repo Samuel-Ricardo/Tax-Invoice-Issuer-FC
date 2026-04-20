@@ -6,6 +6,6 @@ import { VALIDATOR_MODULE } from "../../infra/validator/validator.module";
 export const SPECIFICATION_MODULE = [
   ...VALIDATOR_MODULE,
   new ContainerModule(({ bind }) => {
-    bind(SPECIFICATION_REGISTRY.INVOICE).to(InvoiceSpecificationZod);
+    bind(SPECIFICATION_REGISTRY.ZOD.INVOICE).to(InvoiceSpecificationZod);
   }),
 ];

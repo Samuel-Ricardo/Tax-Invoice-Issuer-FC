@@ -6,6 +6,8 @@ import { InvoiceSpecificationZod } from "./zod/invoice.specification";
 const _MODULE = loads(SPECIFICATION_MODULE);
 
 export const SPECIFICATION_FACTORY = {
-  INVOICE: () =>
-    _MODULE.get<InvoiceSpecificationZod>(SPECIFICATION_REGISTRY.INVOICE),
+  ZOD: {
+    INVOICE: () =>
+      _MODULE.get<InvoiceSpecificationZod>(SPECIFICATION_REGISTRY.ZOD.INVOICE),
+  },
 };
