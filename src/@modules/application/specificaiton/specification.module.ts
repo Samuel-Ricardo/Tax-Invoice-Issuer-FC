@@ -7,5 +7,6 @@ export const SPECIFICATION_MODULE = [
   ...VALIDATOR_MODULE,
   new ContainerModule(({ bind }) => {
     bind(SPECIFICATION_REGISTRY.ZOD.INVOICE).to(InvoiceSpecificationZod);
+    bind(SPECIFICATION_REGISTRY.ZOD.EMAIL).to(InvoiceSpecificationZod);
   }),
 ];
