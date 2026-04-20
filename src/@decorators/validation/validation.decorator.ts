@@ -17,16 +17,17 @@ export function Validate(
 
       log.info(
         { context: "VALIDATION", message: "Validating input:" },
-        { data },
+        { body: args[1] },
       );
 
       //eslint-disable-next-line
       try {
-        const result = specification.isSatisfiedBy(data["body"]);
+        const body = args[1];
+        const result = specification.isSatisfiedBy(body);
         if (!result)
           log.info(
-            { context: "VALIDATION", message: "Input is valid" },
-            { data },
+            { context: "VALIDATION", message: "Input is invalid" },
+            { body },
           );
       } catch (error) {
         throw error;
