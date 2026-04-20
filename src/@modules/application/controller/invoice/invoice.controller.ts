@@ -12,9 +12,6 @@ import { Specification } from "../../../domain/specification/specification.inter
 
 @injectable()
 export class InvoiceController implements Controller {
-  @inject(MODULE.APPLICATION.SPECIFICATION.INVOICE)
-  private readonly specification: Specification<InvoiceDTO>;
-
   constructor(
     @inject(MODULE.INFRA.SERVER.HTTP.EXPRESS)
     private readonly server: HttpServer,
@@ -22,6 +19,8 @@ export class InvoiceController implements Controller {
     private readonly presenter: Presenter,
     @inject(MODULE.APPLICATION.SERVICE.INVOICE)
     private readonly service: InvoiceService,
+    @inject(MODULE.APPLICATION.SPECIFICATION.ZOD.INVOICE)
+    private readonly specification: Specification<InvoiceDTO>,
   ) {}
 
   public async setup() {
