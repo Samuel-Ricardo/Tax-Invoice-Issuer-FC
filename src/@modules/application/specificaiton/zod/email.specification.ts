@@ -16,7 +16,7 @@ export class EmailSpecificationZod implements Specification<Invoice> {
   }
 
   isSatisfiedBy(cadidate: Invoice): boolean {
-    throw new Error("Method not implemented.");
+    return this.validator.validate(cadidate).isValid;
   }
 
   and(other: Specification<Invoice>, cadidate: Invoice): boolean {
