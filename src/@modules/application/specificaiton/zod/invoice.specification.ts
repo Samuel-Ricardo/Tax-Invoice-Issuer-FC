@@ -1,5 +1,4 @@
 import { inject } from "inversify";
-import { Invoice } from "../../../domain/entity/invoice.entity";
 import { Specification } from "../../../domain/specification/specification.interface";
 import { ZodValidator } from "../../../infra/validator/zod/zod.validator";
 import { MODULE } from "../../../app.registry";
@@ -30,8 +29,10 @@ export class InvoiceSpecificationZod implements Specification<InvoiceDTO> {
   private setupRules(): void {
     this.validator.setRules(
       this.validator.engine.object({
-        date: this.validator.engine.date(),
-        amount: this.validator.engine.number(),
+        month: this.validator.engine.number(),
+        year: this.validator.engine.number(),
+        type: this.validator.engine.enum(["cash", "accrual"]),
+        format: this.validator.engine.string().optional(),
       }),
     );
   }
