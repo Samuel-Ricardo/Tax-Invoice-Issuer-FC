@@ -6,6 +6,8 @@ import { Invoice } from "../../../domain/entity/invoice.entity";
 import { Events } from "../../../../@types/config/events.type";
 import { EmailService } from "../../../domain/service/email/email.service";
 import { InputLogger } from "../../../../@decorators/log/data.decorator";
+import { Specification } from "../../../domain/specification/specification.interface";
+import { Validate } from "../../../../@decorators/validation/validation.decorator";
 
 @injectable()
 export class EmailController implements Controller {
@@ -18,6 +20,9 @@ export class EmailController implements Controller {
 
     @inject(MODULE.APPLICATION.SERVICE.EMAIL)
     private readonly service: EmailService,
+
+    @inject(MODULE.APPLICATION.SPECIFICATION.ZOD.EMAIL)
+    private readonly specification: Specification<Invoice>,
   ) {}
 
   public async setup() {
@@ -30,6 +35,7 @@ export class EmailController implements Controller {
   public async start() {}
 
   @InputLogger({ context: "CONTROLLER", message: "EMAIL" })
+  @Validate("specification")
   private async sendMailOnInvoiceGenereted(data: Invoice[]) {
     await this.service.sendInvoices(data);
   }
