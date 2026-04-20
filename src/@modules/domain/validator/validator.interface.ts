@@ -19,7 +19,7 @@ export interface ValidationError {
 }
 
 export interface Validator<T> {
-  validate(value: T): ValidationResult<any, any>;
-  validateAsync(value: T): Promise<ValidationResult<any, any>>;
+  validate(value: T, rules?: any): ValidationResult<any, any>;
+  validateAsync(value: T, rules?: any): Promise<ValidationResult<any, any>>;
   setRules(rules: any): void;
 }
