@@ -20,7 +20,7 @@ export class EmailSpecificationZod implements Specification<Invoice> {
   }
 
   and(other: Specification<Invoice>, cadidate: Invoice): boolean {
-    throw new Error("Method not implemented.");
+    return this.isSatisfiedBy(cadidate) && other.isSatisfiedBy(cadidate);
   }
 
   or(other: Specification<Invoice>, cadidate: Invoice): boolean {
