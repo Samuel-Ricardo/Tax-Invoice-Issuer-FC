@@ -7,9 +7,14 @@ import { Presenter } from "../../../infra/presenter/presenter.interface";
 import { DataLogger } from "../../../../@decorators/log/data.decorator";
 import { InvoiceDTO } from "../../../domain/DTO/invoice.dto";
 import { ErrorHandler } from "../../../../@decorators/error/handler.decorator";
+import { Validate } from "../../../../@decorators/validation/validation.decorator";
+import { Specification } from "../../../domain/specification/specification.interface";
 
 @injectable()
 export class InvoiceController implements Controller {
+  @inject(MODULE.APPLICATION.SPECIFICATION.INVOICE)
+  private readonly specification: Specification<InvoiceDTO>;
+
   constructor(
     @inject(MODULE.INFRA.SERVER.HTTP.EXPRESS)
     private readonly server: HttpServer,
@@ -36,12 +41,8 @@ export class InvoiceController implements Controller {
 
   @ErrorHandler()
   @DataLogger({ context: "CONTROLLER", message: "INVOICE" })
+  @Validate("specification")
   private async generateInvoice(_params, body: InvoiceDTO, _headers) {
-    if (!body || !body.month || !body.year || !body.type) {
-      throw new Error(
-        "Invalid request body. Required fields: month, year, type",
-      );
-    }
     return this.service.generate(body).then(this.presenter.present);
   }
 }
