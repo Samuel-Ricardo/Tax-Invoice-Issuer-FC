@@ -47,9 +47,7 @@ export class ZodValidator<T> implements Validator<T> {
     this.schema = schema as ZodObject;
   }
 
-  private async handleError(
-    result: ZodSafeParseResult<Record<string, unknown>>,
-  ) {
+  private handleError(result: ZodSafeParseResult<Record<string, unknown>>) {
     if (!result.success)
       throw result.error
         ? new InvalidDataError(result.error.message, 422, result.error)
