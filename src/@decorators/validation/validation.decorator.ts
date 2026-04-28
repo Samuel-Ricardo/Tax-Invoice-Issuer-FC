@@ -3,7 +3,7 @@ import { Specification } from "../../@modules/domain/specification/specification
 
 export function Validate(
   specificationOrKey: Specification<any> | string,
-  ...data: any[]
+  ..._data: any[]
 ): MethodDecorator {
   return (_target, _propertyKey, descriptor: PropertyDescriptor) => {
     const original = descriptor.value;
