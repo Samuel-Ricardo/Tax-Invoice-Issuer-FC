@@ -1,4 +1,7 @@
+.avanade-method
+.github
 .docker
+install-avanade-method-complete.ps1
 
 # Logs
 logs
