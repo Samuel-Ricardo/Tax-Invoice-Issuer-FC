@@ -20,6 +20,7 @@ export class InvoiceController implements Controller {
     @inject(MODULE.APPLICATION.SERVICE.INVOICE)
     private readonly service: InvoiceService,
     @inject(MODULE.APPLICATION.SPECIFICATION.ZOD.INVOICE)
+    // @ts-expect-error - Used by @Validate decorator via reflection
     private readonly specification: Specification<InvoiceDTO>,
   ) {}
 
@@ -38,9 +39,9 @@ export class InvoiceController implements Controller {
     }));
   }
 
-  @ErrorHandler()
   @DataLogger({ context: "CONTROLLER", message: "INVOICE" })
   @Validate("specification")
+  @ErrorHandler()
   private async generateInvoice(_params, body: InvoiceDTO, _headers) {
     return this.service.generate(body).then(this.presenter.present);
   }

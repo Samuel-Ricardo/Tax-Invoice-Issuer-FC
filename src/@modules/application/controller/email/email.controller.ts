@@ -22,6 +22,7 @@ export class EmailController implements Controller {
     private readonly service: EmailService,
 
     @inject(MODULE.APPLICATION.SPECIFICATION.ZOD.EMAIL)
+    // @ts-expect-error - Used by @Validate decorator via reflection
     private readonly specification: Specification<Invoice>,
   ) {}
 
