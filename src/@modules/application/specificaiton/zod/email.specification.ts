@@ -2,9 +2,7 @@ import { inject, injectable } from "inversify";
 import { MODULE } from "../../../app.registry";
 import { Invoice } from "../../../domain/entity/invoice.entity";
 import { Specification } from "../../../domain/specification/specification.interface";
-import { Validator } from "../../../domain/validator/validator.interface";
 import { ZodValidator } from "../../../infra/validator/zod/zod.validator";
-import { date } from "zod";
 
 @injectable()
 export class EmailSpecificationZod implements Specification<Invoice> {
