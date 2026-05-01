@@ -1,0 +1,5 @@
+import { TEST_HTTP_SERVER_ENGINE_FACTORY } from "./http/http.factory";
+
+export const TEST_SERVER_ENGINE_FACTORY = {
+  HTTP: TEST_HTTP_SERVER_ENGINE_FACTORY,
+};
