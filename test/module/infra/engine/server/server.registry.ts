@@ -1,0 +1,5 @@
+import { TEST_HTTP_SERVER_ENGINE_REGISTRY } from "./http/http.registry";
+
+export const TEST_SERVER_ENGINE_REGISTRY = {
+  HTTP: TEST_HTTP_SERVER_ENGINE_REGISTRY,
+};
