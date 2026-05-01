@@ -1,0 +1,3 @@
+import { TEST_HTTP_SERVER_ENGINE_MODULE } from "./http/http.module";
+
+export const TEST_SERVER_ENGINE_MODULE = [TEST_HTTP_SERVER_ENGINE_MODULE];
