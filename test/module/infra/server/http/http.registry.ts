@@ -1,4 +1,4 @@
-export const TEST_HTTP_REGISTRY = {
+export const TEST_HTTP_SERVER_REGISTRY = {
   SERVER: {
     HTTP: {
       EXPRESS: {
