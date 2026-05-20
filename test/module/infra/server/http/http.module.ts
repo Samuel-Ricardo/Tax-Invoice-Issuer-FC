@@ -6,7 +6,7 @@ import {
   simulateExpressServerAdapter,
 } from "./express/express.server";
 
-export const TEST_HTTP_MODULE = [
+export const TEST_HTTP_SERVER_MODULE = [
   TEST_HTTP_SERVER_ENGINE_MODULE,
   new ContainerModule(({ bind }) => {
     bind(TEST_HTTP_SERVER_REGISTRY.SERVER.HTTP.EXPRESS.MOCK).toConstantValue(
