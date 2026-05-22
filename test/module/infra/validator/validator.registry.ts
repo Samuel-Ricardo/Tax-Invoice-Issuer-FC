@@ -1,0 +1,6 @@
+export const TEST_VALIDATOR_REGISTRY = {
+  ZOD: {
+    MOCK: Symbol.for("MODULE:INFRA:VALIDATOR:ZOD:MOCK"),
+    SIMULATE: Symbol.for("MODULE:INFRA:VALIDATOR:ZOD:SIMULATE"),
+  },
+};
