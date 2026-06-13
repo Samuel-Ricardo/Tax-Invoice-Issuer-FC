@@ -3,6 +3,9 @@ import { EmailController } from "../../../../../src/@modules/application/control
 import { ResolutionContext } from "inversify";
 import { TEST_MODULE } from "../../../app.registry";
 import { Mediator } from "../../../infra/mediator/mediator.interface";
+import { Events } from "../../../../../src/@types/config/events.type";
+import { EmailService } from "../../../../../src/@modules/domain/service/email/email.service";
+import { EmailSpecificationZod } from "../../../../../src/@modules/application/specificaiton/zod/email.specification";
 
 export const mockNativeEmailController = mockDeep<EmailController>();
 
@@ -14,13 +17,18 @@ export const simulateNativeEmailController = (module: ResolutionContext) => {
     TEST_MODULE.INFRA.CONFIG.EVENT.S,
   );
   const service = module.get<DeepMockProxy<EmailService>>(
-    TEST_MODULE.APPLICATION.SERVICE.EMAIL,
+    TEST_MODULE.APPLICATION.SERVICE.EMAIL.MOCK,
   );
-  const specification = module.get<DeepMockProxy<Specification<Invoice>>>(
-    TEST_MODULE.APPLICATION.SPECIFICATION.ZOD.EMAIL,
+  const specification = module.get<DeepMockProxy<EmailSpecificationZod>>(
+    TEST_MODULE.APPLICATION.SPECIFICATION.ZOD.EMAIL.MOCK,
   );
 
-  const controller = new EmailController(mediator);
+  const controller = new EmailController(
+    mediator,
+    events,
+    service,
+    specification,
+  );
 
-  return { controller, mediator };
+  return { controller, mediator, events, service, specification };
 };
