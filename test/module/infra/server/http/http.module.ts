@@ -9,11 +9,11 @@ import {
 export const TEST_HTTP_SERVER_MODULE = [
   TEST_HTTP_SERVER_ENGINE_MODULE,
   new ContainerModule(({ bind }) => {
-    bind(TEST_HTTP_SERVER_REGISTRY.SERVER.HTTP.EXPRESS.MOCK).toConstantValue(
+    bind(TEST_HTTP_SERVER_REGISTRY.HTTP.EXPRESS.MOCK).toConstantValue(
       mockExpressServerAdapter,
     );
 
-    bind(TEST_HTTP_SERVER_REGISTRY.SERVER.HTTP.EXPRESS.SIMULATE).toDynamicValue(
+    bind(TEST_HTTP_SERVER_REGISTRY.HTTP.EXPRESS.SIMULATE).toDynamicValue(
       simulateExpressServerAdapter,
     );
   }),
