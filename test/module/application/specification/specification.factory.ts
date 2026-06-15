@@ -1,6 +1,4 @@
-import { Mock } from "node:test";
 import { loads } from "../../../../src/@utils/module/load.util";
-import { TEST_MODULE } from "../../app.registry";
 import { TEST_SPECIFICATION_MODULE } from "./specification.module";
 import { TEST_SPECIFICATION_REGISTRY } from "./specification.registry";
 import { DeepMockProxy } from "jest-mock-extended";
