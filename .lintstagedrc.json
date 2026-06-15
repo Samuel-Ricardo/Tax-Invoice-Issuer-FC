@@ -1,4 +1,4 @@
 {
-  "*.ts": ["npm run format:fix", "npm run lint:fix"],
+  "*.ts": ["npm run format:fix", "npm run lint:fix", "npm run test"],
   "*.{json,md}": ["prettier --write"]
 }
