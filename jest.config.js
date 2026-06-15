@@ -12,10 +12,17 @@ module.exports = {
   //MY-I
   preset: "ts-jest",
 
+  // Setup - carrega env vars antes dos testes
+  setupFiles: ["./test/setup-env.ts"],
+
   //MY-II
   collectCoverage: true,
   coverageDirectory: "coverage",
   coverageProvider: "v8",
+  
+  // Force exit after tests (pg-promise deixa pool aberto)
+  forceExit: true,
+  testTimeout: 10000,
   
   // Test configuration
   testMatch: [
