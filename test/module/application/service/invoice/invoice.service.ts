@@ -2,13 +2,15 @@ import { DeepMockProxy, mockDeep } from "jest-mock-extended";
 import { InvoiceServiceImpl } from "../../../../../src/@modules/application/service/invoice/invoice.service";
 import { ResolutionContext } from "inversify";
 import { TEST_MODULE } from "../../../app.registry";
-import { Contract } from "../../../../../src/@modules/domain/entity/contract.entity";
 import { ListContractUseCaseImpl } from "../../../../../src/@modules/application/use-case/contract/list.use-case";
 import { GenerateInvoiceUseCaseImpl } from "../../../../../src/@modules/application/use-case/invoice/generate.use-case";
+import { SimulatedInvoiceService } from "../../../../@types/service/invoice/simulated.type";
 
 export const mockInvoiceService = mockDeep<InvoiceServiceImpl>();
 
-export const simulateInvoiceService = (module: ResolutionContext) => {
+export const simulateInvoiceService = (
+  module: ResolutionContext,
+): SimulatedInvoiceService => {
   const generateInvoice = module.get<DeepMockProxy<GenerateInvoiceUseCaseImpl>>(
     TEST_MODULE.APPLICATION.USE_CASE.INVOICE.MOCK,
   );
