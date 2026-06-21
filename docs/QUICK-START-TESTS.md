@@ -11,35 +11,74 @@ npm install
 # Build do projeto
 npm run build
 
-# Iniciar servidor
-npm run start
+# Subir banco de dados (Docker necessário)
+docker-compose up -d postgres
 ```
 
-**Servidor rodando em**: http://localhost:3000
+**PostgreSQL rodando em**: `localhost:5432` (user: postgres, pass: postgres, db: invoicesdb)
 
-### 2. Importar no Postman
+### 2. Rodar Testes E2E (Jest + Supertest)
 
-1. Abra o Postman
-2. **Import** → **Folder** → Selecione `postman/`
-3. Selecione environment **"Tax Invoice Issuer - Local"**
+```bash
+# Rodar apenas testes E2E
+npm run test -- test/E2E/ --runInBand
 
-### 3. Primeiro Teste
+# Rodar todos os testes com cobertura
+npm run test
 
-Execute: **Health Check → GET /**
-
-✅ **Esperado**:
-
-```json
-{
-  "hello": "world"
-}
+# Pipeline completo (format + lint + tests)
+npm run code:ci
 ```
 
-### 4. Teste Completo (Happy Path)
+**Resultado esperado**:
 
-Execute: **Happy Path → POST /invoice - Cash Basis Success**
+```
+Test Suites: 3 passed, 3 total
+Tests:       3 passed, 3 total
+```
 
-✅ **Esperado**: Array de invoices com status 200
+### 3. Testes via Postman (Opcional)
+
+1. Suba a aplicação: `npm run start:dev`
+2. Abra o Postman
+3. **Import** → **Folder** → Selecione `postman/`
+4. Selecione environment **"Tax Invoice Issuer - Local"**
+
+### 4. Primeiro Teste Manual
+
+```bash
+curl http://localhost:3000/
+# Esperado: {"hello":"world"}
+
+curl -X POST http://localhost:3000/invoice \
+  -H "Content-Type: application/json" \
+  -d '{"month": 1, "year": 2024, "type": "cash"}'
+# Esperado: array de invoices JSON
+```
+
+---
+
+## 🧪 Testes E2E Implementados
+
+| Arquivo                    | Teste            | Valida                                                |
+| -------------------------- | ---------------- | ----------------------------------------------------- |
+| `test/E2E/server.spec.ts`  | HEALTH CHECK     | `GET /` → status 200, body `{ hello: "world" }`       |
+| `test/E2E/invoice.spec.ts` | GENERATE INVOICE | `POST /invoice` → status 200, array com date e amount |
+
+### Pré-requisitos
+
+- **Docker com PostgreSQL rodando** na porta 5432
+- Credenciais: `postgres:postgres@localhost:5432/invoicesdb`
+- O `test/setup-env.ts` define `DATABASE_URL` automaticamente
+
+### Troubleshooting
+
+| Erro                                     | Causa                               | Solução                                                 |
+| ---------------------------------------- | ----------------------------------- | ------------------------------------------------------- |
+| `password authentication failed`         | DB não está rodando ou senha errada | `docker-compose up -d postgres`                         |
+| `connect ECONNREFUSED`                   | PostgreSQL não acessível            | Verificar `docker ps`                                   |
+| `relation "sam.contract" does not exist` | Schema não criado                   | Migration: `migration/create.sql` executado pelo Docker |
+| `Jest did not exit`                      | Pool DB não fechado                 | Verificar `afterAll` com `shutdownDatabase()`           |
 
 ---
 
