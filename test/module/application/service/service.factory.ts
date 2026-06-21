@@ -4,6 +4,8 @@ import { TEST_SERVICE_MODULE } from "./service.module";
 import { TEST_SERVICE_REGISTRY } from "./service.registry";
 import { EmailServiceImpl } from "../../../../src/@modules/application/service/email/email.service";
 import { InvoiceServiceImpl } from "../../../../src/@modules/application/service/invoice/invoice.service";
+import { SimulatedInvoiceService } from "../../../@types/service/invoice/simulated.type";
+import { SimulatedEmailService } from "../../../@types/service/email/simulated.type";
 
 const _MODULE = loads(TEST_SERVICE_MODULE);
 
