@@ -2,6 +2,8 @@
 
 Índice completo de toda a documentação e recursos de teste do projeto.
 
+**Última atualização**: Junho 2026
+
 ---
 
 ## 🗂️ Estrutura de Documentação
@@ -14,7 +16,7 @@
 **Conteúdo**:
 
 - Sumário executivo da análise
-- Problemas críticos identificados
+- Problemas críticos identificados (bug lógica invertida)
 - Recomendações prioritárias
 - Análise de riscos
 - Próximos passos
@@ -28,12 +30,13 @@
 **Para**: Desenvolvedores, Arquitetos, Tech Reviewers  
 **Conteúdo**:
 
-- Arquitetura detalhada
-- Padrões de design utilizados
-- Fluxo de execução completo
-- Bugs e problemas técnicos
-- Melhorias recomendadas
-- Análise de segurança
+- Arquitetura detalhada (8 Design Patterns)
+- Fluxo de execução completo (8 etapas)
+- Modelo de dados PostgreSQL
+- Bugs e problemas (11 itens catalogados)
+- Métricas de cobertura (74% statements)
+- Análise de segurança (6 categorias)
+- Roadmap de 3 sprints
 
 **Tempo de leitura**: 30 minutos
 
@@ -44,11 +47,11 @@
 **Para**: QA Engineers, Desenvolvedores, Qualquer pessoa testando  
 **Conteúdo**:
 
-- Setup em 5 minutos
-- Testes prioritários
-- Interpretação de resultados
+- Setup em 5 minutos (Docker + Jest)
+- Testes E2E com Supertest
+- Testes Postman (23 requests)
 - Troubleshooting
-- Checklist pré-deploy
+- Interpretação de resultados
 
 **Tempo de leitura**: 5 minutos
 
