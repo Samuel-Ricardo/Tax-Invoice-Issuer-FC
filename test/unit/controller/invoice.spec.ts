@@ -63,4 +63,29 @@ describe("[INVOICE] - CONTROLLER", () => {
     expect(module.presenter.present).toHaveBeenCalledWith(fakeInvoices);
     expect(result).toBe(fakePresentedData);
   });
+
+  it("[UNIT] | INVOICE - GENERATE - validates input via specification", async () => {
+    const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
+
+    module.service.generate.mockClear();
+    module.specification.isSatisfiedBy.mockImplementation(() => {
+      throw new Error("Invalid input");
+    });
+
+    await module.controller.setup();
+
+    const postCall = module.server.on.mock.calls.find(
+      (call) => call[0] === "post" && call[1] === "/invoice",
+    );
+    const generateCallback = postCall![2];
+
+    // @DataLogger re-throws after logging, @ErrorHandler is below @Validate
+    // so validation errors propagate as thrown exceptions
+    await expect(
+      generateCallback({}, { month: "invalid" }, {}),
+    ).rejects.toThrow("Invalid input");
+
+    // Service should NOT have been called for this invalid request
+    expect(module.service.generate).not.toHaveBeenCalled();
+  });
 });
