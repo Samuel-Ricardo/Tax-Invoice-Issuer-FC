@@ -64,7 +64,7 @@ describe("[INVOICE] - CONTROLLER", () => {
     expect(result).toBe(fakePresentedData);
   });
 
-  it("[UNIT] | INVOICE - GENERATE - validates input via specification", async () => {
+  it("[UNIT] | INVOICE - VALIDATES > [INPUT] VIA [SPECIFICATION]", async () => {
     const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
 
     module.service.generate.mockClear();
@@ -87,5 +87,13 @@ describe("[INVOICE] - CONTROLLER", () => {
 
     // Service should NOT have been called for this invalid request
     expect(module.service.generate).not.toHaveBeenCalled();
+  });
+
+  it("[UNIT] | INVOICE - GENERATE - start calls server.listen", async () => {
+    const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
+
+    await module.controller.start();
+
+    expect(module.server.listen).toHaveBeenCalled();
   });
 });
