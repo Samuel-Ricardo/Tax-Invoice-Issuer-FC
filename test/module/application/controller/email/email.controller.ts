@@ -6,10 +6,13 @@ import { Mediator } from "../../../infra/mediator/mediator.interface";
 import { Events } from "../../../../../src/@types/config/events.type";
 import { EmailService } from "../../../../../src/@modules/domain/service/email/email.service";
 import { EmailSpecificationZod } from "../../../../../src/@modules/application/specificaiton/zod/email.specification";
+import { SimulatedEmailController } from "../../../../@types/controller/email/simulated.type";
 
 export const mockNativeEmailController = mockDeep<EmailController>();
 
-export const simulateNativeEmailController = (module: ResolutionContext) => {
+export const simulateNativeEmailController = (
+  module: ResolutionContext,
+): SimulatedEmailController => {
   const mediator = module.get<DeepMockProxy<Mediator>>(
     TEST_MODULE.INFRA.MEDIATOR.NATIVE,
   );
