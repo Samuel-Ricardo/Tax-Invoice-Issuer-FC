@@ -20,24 +20,24 @@ export const load = (
 };
 
 // ============================================================================
-// ESTRATÉGIAS PARA LIDAR COM DUPLICAÇÃO
+// STRATEGIES FOR HANDLING DUPLICATION
 // ============================================================================
 
 /**
- * SKIP: Remove módulos duplicados antes de carregar (por referência)
+ * SKIP: Removes duplicate modules before loading (by reference)
  *
- * A forma mais confiável de evitar problemas: não carregar o mesmo módulo duas vezes.
- * Usa Set para manter apenas referências únicas de módulos.
+ * The most reliable way to avoid problems: don't load the same module twice.
+ * Uses Set to maintain only unique module references.
  *
- * ⚠️  IMPORTANTE: Isto remove MÓDULOS duplicados, não BINDINGS duplicados.
- * Se dois MÓDULOS DIFERENTES registram o MESMO BINDING, ainda dará erro.
+ * ⚠️  IMPORTANT: This removes DUPLICATE MODULES, not DUPLICATE BINDINGS.
+ * If two DIFFERENT MODULES register the SAME BINDING, it will still error.
  *
  * @example
  * ```typescript
  * const container = loadsWithSkip([
- *   MODULE_A,  // ✅ Carregado
- *   MODULE_A,  // ⏭️  Ignorado (mesma referência)
- *   MODULE_B,  // ✅ Carregado
+ *   MODULE_A,  // ✅ Loaded
+ *   MODULE_A,  // ⏭️  Ignored (same reference)
+ *   MODULE_B,  // ✅ Loaded
  * ]);
  * ```
  */
@@ -47,7 +47,7 @@ export const loadsWithSkip = (modules: ContainerModule[]): Container => {
 
   if (uniqueModules.length < modules.length) {
     console.warn(
-      `⚠️  Removidos ${modules.length - uniqueModules.length} módulos duplicados`,
+      `⚠️  Removed ${modules.length - uniqueModules.length} duplicate modules`,
     );
   }
 
@@ -56,18 +56,18 @@ export const loadsWithSkip = (modules: ContainerModule[]): Container => {
 };
 
 /**
- * REBIND: Cria wrappers que fazem unbind antes de bind
+ * REBIND: Creates wrappers that do unbind before bind
  *
- * ⚠️  LIMITAÇÃO: O Inversify 7.x não permite interceptar bindings facilmente.
- * Esta função fornece uma versão SIMPLIFICADA que:
- * 1. Carrega primeiro módulo normalmente
- * 2. Para módulos seguintes, cria wrappers que fazem unbind antes de bind
+ * ⚠️  LIMITATION: Inversify 7.x doesn't easily allow binding interception.
+ * This function provides a SIMPLIFIED version that:
+ * 1. Loads first module normally
+ * 2. For following modules, creates wrappers that do unbind before bind
  *
- * Para controle total, você precisa criar módulos manualmente usando rebind:
+ * For full control, you need to manually create modules using rebind:
  *
  * ```typescript
  * const OVERRIDE_MODULE = new ContainerModule(({ rebind }) => {
- *   rebind("Logger").toConstantValue(newLogger); // ✅ Sobrescreve
+ *   rebind("Logger").toConstantValue(newLogger); // ✅ Overwrites
  * });
  * ```
  *
@@ -75,7 +75,7 @@ export const loadsWithSkip = (modules: ContainerModule[]): Container => {
  * ```typescript
  * const container = loadsWithRebind([
  *   BASE_MODULE,   // Logger → ConsoleLogger
- *   TEST_MODULE,   // Logger → MockLogger ✅ Tenta sobrescrever
+ *   TEST_MODULE,   // Logger → MockLogger ✅ Tries to override
  * ]);
  * ```
  */
@@ -84,16 +84,16 @@ export const loadsWithRebind = (modules: ContainerModule[]): Container => {
 
   if (modules.length === 0) return _MODULE;
 
-  // Carrega primeiro módulo normalmente
+  // Loads first module normally
   _MODULE.load(modules[0]);
 
-  // Para módulos subsequentes, avisa que eles podem causar duplicação
+  // For subsequent modules, warns that they may cause duplication
   if (modules.length > 1) {
     console.warn(
-      `⚠️  loadsWithRebind: Carregando ${modules.length - 1} módulos adicionais.`,
+      `⚠️  loadsWithRebind: Loading ${modules.length - 1} additional modules.`,
     );
     console.warn(
-      `   Se houver bindings duplicados, crie módulos com rebind() manualmente.`,
+      `   If there are duplicate bindings, create modules with rebind() manually.`,
     );
 
     modules.slice(1).forEach((module) => {
@@ -105,12 +105,12 @@ export const loadsWithRebind = (modules: ContainerModule[]): Container => {
 };
 
 /**
- * Escolhe estratégia dinamicamente
+ * Dynamically chooses strategy
  *
  * @param strategy
- *   - "error": Lança erro (padrão Inversify)
- *   - "rebind": Sobrescreve (última vence)
- *   - "skip": Ignora (primeira vence)
+ *   - "error": Throws error (Inversify default)
+ *   - "rebind": Overwrites (last wins)
+ *   - "skip": Ignores (first wins)
  */
 export const loadsWithStrategy = (
   modules: ContainerModule[],
