@@ -1,5 +1,5 @@
 // ============================================================================
-// INVALID INPUTS - Cenários de Validação (400)
+// INVALID INPUTS - Validation Scenarios (400)
 // ============================================================================
 
 // --- Missing Required Fields ---
@@ -35,7 +35,7 @@ export const INVOICE_UPPERCASE_TYPE_INPUT = {
   type: "CASH",
 };
 
-// --- Wrong Data Types ---
+// --- Incorrect Data Types ---
 
 export const INVOICE_MONTH_AS_STRING_INPUT = {
   month: "6",

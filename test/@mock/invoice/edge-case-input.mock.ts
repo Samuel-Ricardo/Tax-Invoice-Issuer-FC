@@ -1,5 +1,5 @@
 // ============================================================================
-// EDGE CASE INPUTS - Boundaries e Valores Extremos (200 - aceitos sem range validation)
+// EDGE CASE INPUTS - Boundaries and Extreme Values (200 - accepted without range validation)
 // ============================================================================
 
 // --- Month Boundaries ---
@@ -16,7 +16,7 @@ export const INVOICE_MONTH_BOUNDARY_MAX_INPUT = {
   type: "cash",
 };
 
-// --- Month Out of Range ---
+// --- Out-of-Range Months ---
 
 export const INVOICE_MONTH_ZERO_INPUT = {
   month: 0,

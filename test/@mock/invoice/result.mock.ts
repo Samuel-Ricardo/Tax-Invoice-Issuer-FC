@@ -1,7 +1,7 @@
 import { Invoice } from "../../../src/@modules/domain/entity/invoice.entity";
 
 // ============================================================================
-// INVOICE RESULTS - Dados de retorno para mocks de service
+// INVOICE RESULTS - Service Mock Return Data
 // ============================================================================
 
 export const INVOICE_RESULT_LIST = [

@@ -39,7 +39,7 @@ describe("[E2E] | INVOICE", () => {
   afterAll(async () => await shutdownDatabase());
 
   // ============================================================================
-  // HAPPY PATH - Sucesso
+  // HAPPY PATH - Success
   // ============================================================================
 
   it("[E2E] | GENERATE [INVOICE] - Cash Basis Success", async () => {
@@ -97,7 +97,7 @@ describe("[E2E] | INVOICE", () => {
   });
 
   // ============================================================================
-  // VALIDAÇÃO - Campos Obrigatórios
+  // VALIDATION - Required Fields
   // ============================================================================
 
   it("[E2E] | GENERATE [INVOICE] - Missing Required Field (month)", async () => {
@@ -207,7 +207,7 @@ describe("[E2E] | INVOICE", () => {
       .send(INVOICE_MONTH_ZERO_INPUT);
 
     expect(response.status).toBe(200);
-    // Sem validação de range, aceita valores fora do intervalo 1-12
+    // Range validation not implemented yet - accepts values outside 1-12
   });
 
   it("[E2E] | GENERATE [INVOICE] - Invalid Month (13)", async () => {
@@ -251,7 +251,7 @@ describe("[E2E] | INVOICE", () => {
   });
 
   // ============================================================================
-  // VALIDAÇÃO - Tipos de Dados Incorretos
+  // VALIDATION - Incorrect Data Types
   // ============================================================================
 
   it("[E2E] | GENERATE [INVOICE] - Month as String", async () => {
@@ -306,7 +306,7 @@ describe("[E2E] | INVOICE", () => {
   });
 
   // ============================================================================
-  // VALIDAÇÃO - Valores Null e Undefined
+  // VALIDATION - Null and Undefined Values
   // ============================================================================
 
   it("[E2E] | GENERATE [INVOICE] - Month is Null", async () => {
@@ -361,7 +361,7 @@ describe("[E2E] | INVOICE", () => {
   });
 
   // ============================================================================
-  // VALIDAÇÃO - Payload Vazio
+  // VALIDATION - Empty Payload
   // ============================================================================
 
   it("[E2E] | GENERATE [INVOICE] - Empty Payload", async () => {
@@ -382,7 +382,7 @@ describe("[E2E] | INVOICE", () => {
   });
 
   // ============================================================================
-  // VALIDAÇÃO - Campos Extras (deve ser ignorado)
+  // VALIDATION - Extra Fields (should be ignored)
   // ============================================================================
 
   it("[E2E] | GENERATE [INVOICE] - Extra Fields Ignored", async () => {
@@ -415,7 +415,7 @@ describe("[E2E] | INVOICE", () => {
       .send(INVOICE_MONTH_FLOAT_INPUT);
 
     expect(response.status).toBe(200);
-    // Float pode ser aceito dependendo da validação
+    // Float values may be accepted depending on validation rules
   });
 
   it("[E2E] | GENERATE [INVOICE] - Year as Float", async () => {
@@ -429,7 +429,7 @@ describe("[E2E] | INVOICE", () => {
   });
 
   // ============================================================================
-  // VALIDAÇÃO - Casos Limite (Edge Cases)
+  // VALIDATION - Boundary Cases
   // ============================================================================
 
   it("[E2E] | GENERATE [INVOICE] - Month Boundary (1)", async () => {
@@ -470,6 +470,6 @@ describe("[E2E] | INVOICE", () => {
       .send(INVOICE_YEAR_FAR_FUTURE_INPUT);
 
     expect(response.status).toBe(200);
-    // Pode não ter dados mas não deve quebrar
+    // May not have data but should not crash
   });
 });

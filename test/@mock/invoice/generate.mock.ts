@@ -1,5 +1,5 @@
 // ============================================================================
-// VALID INPUTS - Cenários de Sucesso
+// VALID INPUTS - Success Scenarios
 // ============================================================================
 
 export const INVOICE_GENERATE_VALID_INPUT = {
