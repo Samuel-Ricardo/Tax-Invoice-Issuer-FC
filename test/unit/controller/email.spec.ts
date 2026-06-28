@@ -10,4 +10,15 @@ describe("[EMAIL] - CONTROLLER", () => {
     expect(module.service).toBeDefined();
     expect(module.specification).toBeDefined();
   });
+
+  it("[UNIT] | [EMAIL] - REGISTERS > [ROUTES]", async () => {
+    const module = TEST_MODULES.APPLICATION.CONTROLLER.EMAIL.SIMULATE();
+
+    await module.controller.setup();
+
+    expect(module.mediator.on).toHaveBeenCalledWith(
+      module.events.INVOICE.GENERATED,
+      expect.any(Function),
+    );
+  });
 });
