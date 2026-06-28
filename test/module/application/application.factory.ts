@@ -1,3 +1,4 @@
+import { TEST_CONTROLLER_FACTORY } from "./controller/controller.factory";
 import { TEST_REPOSITORY_FACTORY } from "./repository/repository.factory";
 import { TEST_SERVICE_FACTORY } from "./service/service.factory";
 import { TEST_SPECIFICATION_FACTORY } from "./specification/specification.factory";
@@ -8,4 +9,5 @@ export const TEST_APPLICATION_FACTORY = {
   USE_CASE: TEST_USE_CASE_FACTORY,
   SERVICE: TEST_SERVICE_FACTORY,
   SPECIFICATION: TEST_SPECIFICATION_FACTORY,
+  CONTROLLER: TEST_CONTROLLER_FACTORY,
 };
