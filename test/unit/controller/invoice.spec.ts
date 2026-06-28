@@ -6,7 +6,7 @@ import {
 } from "../../@mock/invoice/result.mock";
 
 describe("[INVOICE] - CONTROLLER", () => {
-  it("[UNIT] | Controller created with correct dependencies", () => {
+  it("[UNIT] | [INVOICE] - [CONTROLLER] > created with correct dependencies", () => {
     const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
 
     expect(module.controller).toBeDefined();
@@ -16,7 +16,7 @@ describe("[INVOICE] - CONTROLLER", () => {
     expect(module.specification).toBeDefined();
   });
 
-  it("[UNIT] | INVOICE - REGISTERS > [ROUTES]", async () => {
+  it("[UNIT] | [INVOICE] - REGISTERS > [ROUTES]", async () => {
     const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
 
     await module.controller.setup();
@@ -34,7 +34,7 @@ describe("[INVOICE] - CONTROLLER", () => {
     );
   });
 
-  it("[UNIT] | INVOICE - CALLS > [SERVICE] & [PRESENTER]", async () => {
+  it("[UNIT] | [INVOICE] - CALLS > [SERVICE] & [PRESENTER]", async () => {
     const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
 
     module.specification.isSatisfiedBy.mockReturnValue(true);
@@ -59,7 +59,7 @@ describe("[INVOICE] - CONTROLLER", () => {
     expect(result).toBe(INVOICE_RESULT_PRESENTED);
   });
 
-  it("[UNIT] | INVOICE - VALIDATES > [INPUT] VIA [SPECIFICATION]", async () => {
+  it("[UNIT] | [INVOICE] - VALIDATES > [INPUT] VIA [SPECIFICATION]", async () => {
     const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
 
     module.service.generate.mockClear();
@@ -81,7 +81,7 @@ describe("[INVOICE] - CONTROLLER", () => {
     expect(module.service.generate).not.toHaveBeenCalled();
   });
 
-  it("[UNIT] | INVOICE - GENERATE - start calls server.listen", async () => {
+  it("[UNIT] | [INVOICE] - GENERATE > start calls server.listen", async () => {
     const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
 
     await module.controller.start();
