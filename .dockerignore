@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+npm-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+coverage/
+.tsbuildinfo
+
+# Development
+.eslintcache
+.prettierignore
+.env.local
+.env.*.local
+
+# Testing
+test/
+test-ai/
+test-ai.old/
+.jest_cache/
+*.spec.ts
+*.test.ts
+jest.config.js
+
+# Documentation
+docs/
+README.md
+AAAAAAAAAAAAAAAAA/
+
+# Version control
+.git/
+.gitignore
+.github/
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Other
+.dockerignore
+docker-compose.yaml
+Dockerfile
+postman/
+migration/
+.env
+.env.example
+Makefile
