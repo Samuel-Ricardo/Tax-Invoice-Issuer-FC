@@ -1,33 +1,33 @@
-# 📊 Relatório Executivo - Tax Invoice Issuer FC
+# 📊 Executive Report - Tax Invoice Issuer FC
 
-**Data**: Junho 2026 (atualizado)  
-**Versão**: 1.0.0  
-**Status**: ✅ Testes E2E Implementados e Passando  
+**Date**: June 2026 (updated)  
+**Version**: 1.0.0  
+**Status**: ✅ E2E Tests Implemented and Passing  
 **Branch**: `feature/test-temp`  
-**Analista**: Avanade Supervisor
+**Analyst**: Avanade Supervisor
 
 ---
 
-## 🎯 Objetivo
+## 🎯 Objective
 
-Análise profunda do sistema Tax Invoice Issuer FC e criação de suite completa de testes automatizados para validação da API.
+Deep analysis of the Tax Invoice Issuer FC system and creation of comprehensive automated test suite for API validation.
 
 ---
 
-## ✅ Entregáveis
+## ✅ Deliverables
 
-### 1. Coleção Postman Completa
+### 1. Complete Postman Collection
 
-📦 **Localização**: `postman/`
+📦 **Location**: `postman/`
 
-**Conteúdo**:
+**Content**:
 
-- ✅ **23 requests** organizados por categoria
-- ✅ **~60 assertions** automáticas
-- ✅ Environment de desenvolvimento local
-- ✅ Documentação completa de uso
+- ✅ **23 requests** organized by category
+- ✅ **~60 automated** assertions
+- ✅ Local development environment
+- ✅ Complete usage documentation
 
-**Cobertura**:
+**Coverage**:
 | Categoria | Requests | Assertions | Objetivo |
 |-----------|----------|------------|----------|
 | Health Check | 1 | 2 | Verificar disponibilidade |
