@@ -114,7 +114,7 @@ describe("[E2E] | INVOICE", () => {
         ? JSON.parse(response.body)
         : response.body;
 
-    // Erro de validação Zod retorna {error, status}
+    // Zod validation error returns {error, status}
     expect(body).toHaveProperty("error");
     expect(body).toHaveProperty("status");
     expect(body.status).toBe(400);
