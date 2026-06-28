@@ -261,6 +261,14 @@ taskkill /PID <PID> /F
 
 ---
 
+<br>
+
+- Test Name Pattern: [TEST_TYPE] | [ENTITY] - [SCOPE] > ACTION
+
+<br>
+
+---
+
 ## 📞 Suporte
 
 ### Encontrou um Bug?
