@@ -145,3 +145,11 @@ vite.config.ts.timestamp-*
 
 # Exclude the AAAAAAAAAAAAAAAAA folder
 AAAAAAAAAAAAAAAAA/
+
+# Test artifacts and temporary test outputs
+test-output.txt
+full-test.txt
+t.txt
+test2.txt
+test3.txt
+eslint-output.json
