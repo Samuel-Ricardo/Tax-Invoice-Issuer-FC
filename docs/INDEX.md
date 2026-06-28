@@ -1,144 +1,144 @@
-# 📚 Documentação - Tax Invoice Issuer FC
+# 📚 Documentation - Tax Invoice Issuer FC
 
-Índice completo de toda a documentação e recursos de teste do projeto.
+Complete index of all project documentation and test resources.
 
-**Última atualização**: Junho 2026
-
----
-
-## 🗂️ Estrutura de Documentação
-
-### 📊 Relatórios e Análises
-
-#### 1. [Relatório Executivo](./RELATORIO-EXECUTIVO.md) 🎯
-
-**Para**: Management, Product Owners, Tech Leads  
-**Conteúdo**:
-
-- Sumário executivo da análise
-- Problemas críticos identificados (bug lógica invertida)
-- Recomendações prioritárias
-- Análise de riscos
-- Próximos passos
-
-**Tempo de leitura**: 10 minutos
+**Last updated**: June 2026
 
 ---
 
-#### 2. [Análise Profunda](./ANALISE-PROFUNDA.md) 🔍
+## 🗂️ Documentation Structure
 
-**Para**: Desenvolvedores, Arquitetos, Tech Reviewers  
-**Conteúdo**:
+### 📊 Reports and Analysis
 
-- Arquitetura detalhada (8 Design Patterns)
-- Fluxo de execução completo (8 etapas)
-- Modelo de dados PostgreSQL
-- Bugs e problemas (11 itens catalogados)
-- Métricas de cobertura (74% statements)
-- Análise de segurança (6 categorias)
-- Roadmap de 3 sprints
+#### 1. [Executive Report](./RELATORIO-EXECUTIVO.md) 🎯
 
-**Tempo de leitura**: 30 minutos
+**For**: Management, Product Owners, Tech Leads  
+**Content**:
+
+- Executive summary of analysis
+- Critical issues identified (inverted logic bug)
+- Prioritized recommendations
+- Risk analysis
+- Next steps
+
+**Reading time**: 10 minutes
+
+---
+
+#### 2. [Deep Analysis](./ANALISE-PROFUNDA.md) 🔍
+
+**For**: Developers, Architects, Tech Reviewers  
+**Content**:
+
+- Detailed architecture (8 Design Patterns)
+- Complete execution flow (8 steps)
+- PostgreSQL data model
+- Bugs and issues (11 cataloged items)
+- Coverage metrics (74% statements)
+- Security analysis (6 categories)
+- 3-sprint roadmap
+
+**Reading time**: 30 minutes
 
 ---
 
 #### 3. [Quick Start - Testing Guide](./QUICK-START-TESTS.md) 🚀
 
-**Para**: QA Engineers, Desenvolvedores, Qualquer pessoa testando  
-**Conteúdo**:
+**For**: QA Engineers, Developers, Anyone testing  
+**Content**:
 
-- Setup em 5 minutos (Docker + Jest)
-- Testes E2E com Supertest
-- Testes Postman (23 requests)
+- 5-minute setup (Docker + Jest)
+- E2E tests with Supertest
+- Postman tests (23 requests)
 - Troubleshooting
-- Interpretação de resultados
+- Result interpretation
 
-**Tempo de leitura**: 5 minutos
-
----
-
-### 🧪 Recursos de Teste
-
-#### 4. [Coleção Postman - README](../postman/README.md) 📦
-
-**Para**: QA Engineers, Testers  
-**Conteúdo**:
-
-- Como importar a coleção
-- Estrutura de testes (23 requests)
-- Cenários cobertos
-- Modelo de dados
-- Métricas esperadas
-- Personalização
-
-**Tempo de leitura**: 15 minutos
+**Reading time**: 5 minutes
 
 ---
 
-#### 5. [Coleção Postman - JSON](../postman/Tax-Invoice-Issuer.postman_collection.json) 📄
+### 🧪 Testing Resources
 
-**Tipo**: Arquivo Postman Collection v2.1  
-**Conteúdo**:
+#### 4. [Postman Collection - README](../postman/README.md) 📦
 
-- 23 requests organizados
-- ~60 assertions automáticas
-- 6 categorias de testes
-- Scripts de validação
+**For**: QA Engineers, Testers  
+**Content**:
 
-**Como usar**: Importar no Postman
+- How to import the collection
+- Test structure (23 requests)
+- Covered scenarios
+- Data model
+- Expected metrics
+- Customization
+
+**Reading time**: 15 minutes
 
 ---
 
-#### 6. [Environment Postman - JSON](../postman/Tax-Invoice-Issuer.postman_environment.json) 🌍
+#### 5. [Postman Collection - JSON](../postman/Tax-Invoice-Issuer.postman_collection.json) 📄
 
-**Tipo**: Arquivo Postman Environment  
-**Conteúdo**:
+**Type**: Postman Collection v2.1 File  
+**Content**:
+
+- 23 organized requests
+- ~60 automated assertions
+- 6 test categories
+- Validation scripts
+
+**How to use**: Import in Postman
+
+---
+
+#### 6. [Postman Environment - JSON](../postman/Tax-Invoice-Issuer.postman_environment.json) 🌍
+
+**Type**: Postman Environment File  
+**Content**:
 
 - baseUrl: http://localhost:3000
 - host: localhost
 - port: 3000
 
-**Como usar**: Importar e selecionar no Postman
+**How to use**: Import and select in Postman
 
 ---
 
-### 📖 Documentação Original
+### 📖 Original Documentation
 
-#### 7. [README Principal](../README.md)
+#### 7. [Main README](../README.md)
 
-Descrição básica do projeto original
+Basic description of the original project
 
 #### 8. [Swagger JSON](./swagger.json)
 
-Schema OpenAPI (atualmente vazio - precisa ser gerado)
+OpenAPI schema (currently empty - needs to be generated)
 
 ---
 
-## 🎯 Guia de Navegação Rápida
+## 🎯 Quick Navigation Guide
 
-### "Preciso testar a API agora!"
+### "I need to test the API now!"
 
-➡️ Vá para: [Quick Start - Testing Guide](./QUICK-START-TESTS.md)
+➡️ Go to: [Quick Start - Testing Guide](./QUICK-START-TESTS.md)
 
-### "Quero entender a arquitetura"
+### "I want to understand the architecture"
 
-➡️ Vá para: [Análise Profunda](./ANALISE-PROFUNDA.md) - Seção "Arquitetura"
+➡️ Go to: [Deep Analysis](./ANALISE-PROFUNDA.md) - "Architecture" section
 
-### "Quais são os problemas críticos?"
+### "What are the critical issues?"
 
-➡️ Vá para: [Relatório Executivo](./RELATORIO-EXECUTIVO.md) - Seção "Problemas Críticos"
+➡️ Go to: [Executive Report](./RELATORIO-EXECUTIVO.md) - "Critical Issues" section
 
-### "Como uso a coleção Postman?"
+### "How do I use the Postman collection?"
 
-➡️ Vá para: [Coleção Postman - README](../postman/README.md)
+➡️ Go to: [Postman Collection - README](../postman/README.md)
 
-### "Quais testes foram criados?"
+### "What tests were created?"
 
-➡️ Vá para: [Relatório Executivo](./RELATORIO-EXECUTIVO.md) - Seção "Entregáveis"
+➡️ Go to: [Executive Report](./RELATORIO-EXECUTIVO.md) - "Deliverables" section
 
-### "O que fazer primeiro?"
+### "What should I do first?"
 
-➡️ Vá para: [Relatório Executivo](./RELATORIO-EXECUTIVO.md) - Seção "Próximos Passos"
+➡️ Go to: [Executive Report](./RELATORIO-EXECUTIVO.md) - "Next Steps" section
 
 ---
 
@@ -147,172 +147,172 @@ Schema OpenAPI (atualmente vazio - precisa ser gerado)
 ```
 Tax-Invoice-Issuer-FC/
 │
-├── docs/                                    # 📚 Documentação
-│   ├── INDEX.md                            # 📑 Este arquivo (índice geral)
-│   ├── RELATORIO-EXECUTIVO.md              # 📊 Relatório executivo
-│   ├── ANALISE-PROFUNDA.md                 # 🔍 Análise técnica completa
-│   ├── QUICK-START-TESTS.md                # 🚀 Guia rápido de testes
-│   ├── swagger.json                        # 📄 Schema OpenAPI
-│   └── zod-example.md                      # 💡 Exemplo de Zod
+├── docs/                                    # 📚 Documentation
+│   ├── INDEX.md                            # 📑 This file (general index)
+│   ├── RELATORIO-EXECUTIVO.md              # 📊 Executive report
+│   ├── ANALISE-PROFUNDA.md                 # 🔍 Complete technical analysis
+│   ├── QUICK-START-TESTS.md                # 🚀 Quick testing guide
+│   ├── swagger.json                        # 📄 OpenAPI schema
+│   └── zod-example.md                      # 💡 Zod example
 │
-├── postman/                                 # 🧪 Testes Postman
-│   ├── README.md                           # 📖 Guia da coleção
-│   ├── Tax-Invoice-Issuer.postman_collection.json   # 📦 Coleção (23 requests)
-│   └── Tax-Invoice-Issuer.postman_environment.json  # 🌍 Environment local
+├── postman/                                 # 🧪 Postman Tests
+│   ├── README.md                           # 📖 Collection guide
+│   ├── Tax-Invoice-Issuer.postman_collection.json   # 📦 Collection (23 requests)
+│   └── Tax-Invoice-Issuer.postman_environment.json  # 🌍 Local environment
 │
-├── src/                                     # 💻 Código fonte
+├── src/                                     # 💻 Source code
 │   ├── @decorators/                        # 🎨 Decorators
-│   ├── @lib/                               # 📚 Bibliotecas
-│   ├── @modules/                           # 🧩 Módulos principais
-│   ├── @types/                             # 📝 Tipos TypeScript
-│   └── @utils/                             # 🔧 Utilitários
+│   ├── @lib/                               # 📚 Libraries
+│   ├── @modules/                           # 🧩 Main modules
+│   ├── @types/                             # 📝 TypeScript types
+│   └── @utils/                             # 🔧 Utilities
 │
-├── test/                                    # ✅ Testes (estrutura)
-├── package.json                             # 📦 Dependências
-├── tsconfig.json                            # ⚙️ Config TypeScript
-└── README.md                                # 📖 README principal
+├── test/                                    # ✅ Tests (structure)
+├── package.json                             # 📦 Dependencies
+├── tsconfig.json                            # ⚙️ TypeScript config
+└── README.md                                # 📖 Main README
 ```
 
 ---
 
-## 🔥 Principais Entregáveis
+## 🔥 Main Deliverables
 
-### ✅ Completados
+### ✅ Completed
 
-1. **Coleção Postman Completa**
+1. **Complete Postman Collection**
    - 23 requests
    - 60+ assertions
-   - 100% cobertura de endpoints
+   - 100% endpoint coverage
 
-2. **Documentação Técnica**
-   - Análise profunda
-   - Relatório executivo
-   - Guia rápido
+2. **Technical Documentation**
+   - Deep analysis
+   - Executive report
+   - Quick guide
 
-3. **Identificação de Problemas**
-   - 1 bug crítico identificado
-   - 2 melhorias de segurança
-   - 3 melhorias de validação
+3. **Problem Identification**
+   - 1 critical bug identified
+   - 2 security improvements
+   - 3 validation improvements
 
-4. **Recomendações Priorizadas**
-   - Roadmap de 3 sprints
-   - Análise de riscos
-   - Checklist de qualidade
+4. **Prioritized Recommendations**
+   - 3-sprint roadmap
+   - Risk analysis
+   - Quality checklist
 
 ---
 
-## 🎓 Glossário de Termos
+## 🎓 Glossary of Terms
 
-### Padrões de Design
+### Design Patterns
 
-- **Strategy Pattern**: Algoritmos intercambiáveis (Cash vs Accrual)
-- **Specification Pattern**: Validação de regras de negócio
-- **Repository Pattern**: Acesso a dados abstraído
-- **Factory Pattern**: Criação de objetos complexos
-- **Mediator Pattern**: Comunicação desacoplada
-- **Decorator Pattern**: Funcionalidades adicionadas dinamicamente
-- **Dependency Injection**: Inversão de controle
+- **Strategy Pattern**: Interchangeable algorithms (Cash vs Accrual)
+- **Specification Pattern**: Business rule validation
+- **Repository Pattern**: Abstracted data access
+- **Factory Pattern**: Complex object creation
+- **Mediator Pattern**: Decoupled communication
+- **Decorator Pattern**: Dynamically added features
+- **Dependency Injection**: Inversion of control
 
-### Arquitetura
+### Architecture
 
-- **Clean Architecture**: Separação em camadas (Domain, Application, Infra)
+- **Clean Architecture**: Layered separation (Domain, Application, Infra)
 - **DDD**: Domain-Driven Design
 - **IoC**: Inversion of Control
-- **SOLID**: Princípios de design orientado a objetos
+- **SOLID**: Object-oriented design principles
 
-### Stack Técnico
+### Tech Stack
 
-- **TypeScript**: Superset tipado de JavaScript
-- **Express**: Framework web para Node.js
-- **InversifyJS**: Container de DI para TypeScript
+- **TypeScript**: Typed superset of JavaScript
+- **Express**: Web framework for Node.js
+- **InversifyJS**: DI container for TypeScript
 - **Zod**: Schema validation library
-- **PostgreSQL**: Banco de dados relacional
+- **PostgreSQL**: Relational database
 
 ---
 
-## 📊 Métricas de Cobertura
+## 📊 Coverage Metrics
 
-### Documentação
+### Documentation
 
-- ✅ **5 documentos** criados
-- ✅ **100% endpoints** documentados
-- ✅ **7 padrões** de design identificados
-- ✅ **3 bugs** críticos/médios encontrados
+- ✅ **5 documents** created
+- ✅ **100% endpoints** documented
+- ✅ **7 design** patterns identified
+- ✅ **3 critical/medium** bugs found
 
-### Testes
+### Tests
 
 - ✅ **23 requests** Postman
-- ✅ **60+ assertions** automáticas
-- ✅ **6 categorias** de teste
-- ✅ **100% endpoints** cobertos
+- ✅ **60+ automated** assertions
+- ✅ **6 test** categories
+- ✅ **100% endpoints** covered
 
-### Análise
+### Analysis
 
-- ✅ **Arquitetura** completa analisada
-- ✅ **Segurança** avaliada
-- ✅ **Performance** considerada
-- ✅ **Manutenibilidade** medida
-
----
-
-## 🚦 Status do Projeto
-
-| Aspecto              | Status      | Detalhes                                   |
-| -------------------- | ----------- | ------------------------------------------ |
-| **Arquitetura**      | 🟢 Boa      | Clean Architecture bem implementada        |
-| **Funcionalidade**   | 🔴 Crítico  | Bug na lógica de strategies                |
-| **Testes**           | 🟡 Parcial  | Coleção Postman criada, unitários faltando |
-| **Segurança**        | 🟡 Média    | Validações OK, falta rate limiting         |
-| **Documentação**     | 🟢 Completa | Documentação criada nesta análise          |
-| **Production Ready** | 🔴 Não      | Precisa correção do bug crítico            |
+- ✅ **Architecture** fully analyzed
+- ✅ **Security** evaluated
+- ✅ **Performance** considered
+- ✅ **Maintainability** measured
 
 ---
 
-## 🎯 Casos de Uso por Persona
+## 🚦 Project Status
+
+| Aspect               | Status      | Details                                        |
+| -------------------- | ----------- | ---------------------------------------------- |
+| **Architecture**     | 🟢 Good     | Clean Architecture well implemented            |
+| **Functionality**    | 🔴 Critical | Bug in strategy logic                          |
+| **Tests**            | 🟡 Partial  | Postman collection created, unit tests missing |
+| **Security**         | 🟡 Medium   | Validations OK, missing rate limiting          |
+| **Documentation**    | 🟢 Complete | Documentation created in this analysis         |
+| **Production Ready** | 🔴 No       | Needs critical bug fix                         |
+
+---
+
+## 🎯 Use Cases by Persona
 
 ### 👨‍💼 Product Manager / Tech Lead
 
-**Leia primeiro**:
+**Read first**:
 
-1. [Relatório Executivo](./RELATORIO-EXECUTIVO.md)
-2. [Análise Profunda](./ANALISE-PROFUNDA.md) - Seções de "Melhorias" e "Roadmap"
+1. [Executive Report](./RELATORIO-EXECUTIVO.md)
+2. [Deep Analysis](./ANALISE-PROFUNDA.md) - "Improvements" and "Roadmap" sections
 
-### 👨‍💻 Desenvolvedor
+### 👨‍💻 Developer
 
-**Leia primeiro**:
+**Read first**:
 
-1. [Análise Profunda](./ANALISE-PROFUNDA.md)
+1. [Deep Analysis](./ANALISE-PROFUNDA.md)
 2. [Quick Start - Testing Guide](./QUICK-START-TESTS.md)
-3. Código em `src/`
+3. Code in `src/`
 
 ### 🧪 QA Engineer / Tester
 
-**Leia primeiro**:
+**Read first**:
 
-1. [Coleção Postman - README](../postman/README.md)
+1. [Postman Collection - README](../postman/README.md)
 2. [Quick Start - Testing Guide](./QUICK-START-TESTS.md)
-3. Importe a coleção e execute testes
+3. Import the collection and run tests
 
-### 🏗️ Arquiteto
+### 🏗️ Architect
 
-**Leia primeiro**:
+**Read first**:
 
-1. [Análise Profunda](./ANALISE-PROFUNDA.md) - Seções de "Arquitetura" e "Padrões"
-2. [Relatório Executivo](./RELATORIO-EXECUTIVO.md) - Seção "Recomendações"
+1. [Deep Analysis](./ANALISE-PROFUNDA.md) - "Architecture" and "Patterns" sections
+2. [Executive Report](./RELATORIO-EXECUTIVO.md) - "Recommendations" section
 
-### 🆕 Novo no Projeto
+### 🆕 New to Project
 
-**Leia primeiro**:
+**Read first**:
 
-1. [README Principal](../README.md)
+1. [Main README](../README.md)
 2. [Quick Start - Testing Guide](./QUICK-START-TESTS.md)
-3. [Análise Profunda](./ANALISE-PROFUNDA.md) - Seção "Visão Geral"
+3. [Deep Analysis](./ANALISE-PROFUNDA.md) - "Overview" section
 
 ---
 
-## 🔗 Links Externos
+## 🔗 External Links
 
-### Documentação de Tecnologias
+### Technology Documentation
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [Express](https://expressjs.com/)

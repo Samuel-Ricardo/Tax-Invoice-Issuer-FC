@@ -1,32 +1,32 @@
-# Exemplo Simples de Ponta a Ponta - Zod
+# Simple End-to-End Example - Zod
 
-## 1️⃣ Exemplo Mais Simples Possível
+## 1️⃣ Simplest Possible Example
 
 ```typescript
 import { z } from "zod";
 
-// 1. Definir o schema
+// 1. Define the schema
 const userSchema = z.object({
   name: z.string(),
   age: z.number(),
 });
 
-// 2. Validar dados
-const validData = { name: "João", age: 25 };
-const result = userSchema.parse(validData); // ✅ Sucesso!
-console.log(result); // { name: "João", age: 25 }
+// 2. Validate data
+const validData = { name: "John", age: 25 };
+const result = userSchema.parse(validData); // ✅ Success!
+console.log(result); // { name: "John", age: 25 }
 
-// 3. Dados inválidos lançam erro
+// 3. Invalid data throws error
 try {
-  userSchema.parse({ name: "Maria", age: "25" }); // ❌ age é string
+  userSchema.parse({ name: "Maria", age: "25" }); // ❌ age is string
 } catch (error) {
-  console.error(error.errors); // Mostra os erros de validação
+  console.error(error.errors); // Shows validation errors
 }
 ```
 
 ---
 
-## 2️⃣ Exemplo com SafeParse (Sem Lançar Erro)
+## 2️⃣ Example with SafeParse (Without Throwing Error)
 
 ```typescript
 import { z } from "zod";
@@ -36,31 +36,31 @@ const userSchema = z.object({
   age: z.number(),
 });
 
-// safeParse retorna um objeto com success/error
+// safeParse returns object with success/error
 const result = userSchema.safeParse({ name: "Pedro", age: "30" });
 
 if (result.success) {
-  console.log("Dados válidos:", result.data);
+  console.log("Valid data:", result.data);
 } else {
-  console.log("Erros:", result.error.errors);
+  console.log("Errors:", result.error.errors);
 }
 ```
 
 ---
 
-## 3️⃣ Exemplo de Ponta a Ponta - API REST
+## 3️⃣ End-to-End Example - REST API
 
-### Schema de Validação
+### Validation Schema
 
 ```typescript
 // schemas/user.schema.ts
 import { z } from "zod";
 
 export const createUserSchema = z.object({
-  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  email: z.string().email("Email inválido"),
-  age: z.number().min(18, "Idade mínima é 18 anos").max(120),
-  cpf: z.string().regex(/^\d{11}$/, "CPF deve ter 11 dígitos"),
+  name: z.string().min(3, "Name must have at least 3 characters"),
+  email: z.string().email("Invalid email"),
+  age: z.number().min(18, "Minimum age is 18 years").max(120),
+  cpf: z.string().regex(/^\d{11}$/, "CPF must have 11 digits"),
 });
 
 export type CreateUserDTO = z.infer<typeof createUserSchema>;
@@ -76,18 +76,18 @@ import { createUserSchema } from "../schemas/user.schema";
 export class UserController {
   async create(req: Request, res: Response) {
     try {
-      // Valida os dados da requisição
+      // Validates request data
       const validatedData = createUserSchema.parse(req.body);
 
-      // Aqui você tem certeza que os dados estão válidos
-      // validatedData é tipado automaticamente!
+      // Here you're sure that data is valid
+      // validatedData is automatically typed!
       const user = await this.userService.create(validatedData);
 
       return res.status(201).json(user);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
-          message: "Dados inválidos",
+          message: "Invalid data",
           errors: error.errors.map((err) => ({
             field: err.path.join("."),
             message: err.message,
@@ -95,7 +95,7 @@ export class UserController {
         });
       }
 
-      return res.status(500).json({ message: "Erro interno" });
+      return res.status(500).json({ message: "Internal error" });
     }
   }
 }
@@ -109,8 +109,8 @@ import { CreateUserDTO } from "../schemas/user.schema";
 
 export class UserService {
   async create(data: CreateUserDTO) {
-    // data já está validado e tipado
-    // TypeScript sabe exatamente quais campos existem
+    // data is already validated and typed
+    // TypeScript knows exactly which fields exist
 
     return {
       id: Math.random().toString(),
@@ -124,17 +124,17 @@ export class UserService {
 }
 ```
 
-### Teste
+### Test
 
 ```typescript
 // user.spec.ts
 import { createUserSchema } from "../schemas/user.schema";
 
 describe("User Schema Validation", () => {
-  it("deve validar dados corretos", () => {
+  it("should validate correct data", () => {
     const validData = {
-      name: "João Silva",
-      email: "joao@example.com",
+      name: "John Silva",
+      email: "john@example.com",
       age: 25,
       cpf: "12345678901",
     };
@@ -143,10 +143,10 @@ describe("User Schema Validation", () => {
     expect(result.success).toBe(true);
   });
 
-  it("deve rejeitar email inválido", () => {
+  it("should reject invalid email", () => {
     const invalidData = {
       name: "Maria",
-      email: "email-invalido",
+      email: "invalid-email",
       age: 30,
       cpf: "12345678901",
     };
@@ -154,7 +154,7 @@ describe("User Schema Validation", () => {
     const result = createUserSchema.safeParse(invalidData);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain("Email inválido");
+      expect(result.error.errors[0].message).toContain("Invalid email");
     }
   });
 });
@@ -162,7 +162,7 @@ describe("User Schema Validation", () => {
 
 ---
 
-## 4️⃣ Validações Comuns
+## 4️⃣ Common Validations
 
 ```typescript
 import { z } from "zod";
@@ -183,10 +183,10 @@ const schema = z.object({
   // Date
   birthDate: z.date(),
 
-  // Opcional
+  // Optional
   phone: z.string().optional(),
 
-  // Com valor padrão
+  // With default value
   role: z.string().default("user"),
 
   // Array
@@ -195,7 +195,7 @@ const schema = z.object({
   // Enum
   status: z.enum(["active", "inactive", "pending"]),
 
-  // Objeto aninhado
+  // Nested object
   address: z.object({
     street: z.string(),
     number: z.number(),
@@ -206,48 +206,48 @@ const schema = z.object({
 
 ---
 
-## 5️⃣ Fluxo Completo de Ponta a Ponta
+## 5️⃣ Complete End-to-End Flow
 
 ```
 ┌─────────────┐
-│   Cliente   │
+│   Client    │
 └──────┬──────┘
        │ POST /users
-       │ { "name": "João", "email": "joao@example.com", "age": 25, "cpf": "12345678901" }
+       │ { "name": "John", "email": "john@example.com", "age": 25, "cpf": "12345678901" }
        ▼
 ┌─────────────────┐
-│   Controller    │ ◄─── Valida com Zod Schema
+│   Controller    │ ◄─── Validates with Zod Schema
 └────────┬────────┘
-         │ Dados validados ✅
+         │ Validated data ✅
          ▼
 ┌─────────────────┐
-│    Service      │ ◄─── Recebe dados tipados
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│   Repository    │ ◄─── Salva no banco
+│    Service      │ ◄─── Receives typed data
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│   Response      │ ◄─── Retorna usuário criado
+│   Repository    │ ◄─── Saves to database
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Response      │ ◄─── Returns created user
 └─────────────────┘
 ```
 
 ---
 
-## 📝 Resumo
+## 📝 Summary
 
-1. **Defina o schema** com `z.object()` e suas validações
-2. **Valide com `.parse()`** (lança erro) ou `.safeParse()` (retorna objeto)
-3. **Extraia o tipo** com `z.infer<typeof schema>`
-4. **Trate erros** de validação com `ZodError`
-5. **Use em toda a aplicação** para garantir type-safety
+1. **Define the schema** with `z.object()` and its validations
+2. **Validate with `.parse()`** (throws error) or `.safeParse()` (returns object)
+3. **Extract the type** with `z.infer<typeof schema>`
+4. **Handle validation** errors with `ZodError`
+5. **Use throughout the application** to guarantee type-safety
 
-### Vantagens
+### Advantages
 
-✅ Validação em runtime  
+✅ Runtime validation  
 ✅ Tipagem automática do TypeScript  
 ✅ Mensagens de erro customizáveis  
 ✅ Performance excelente  

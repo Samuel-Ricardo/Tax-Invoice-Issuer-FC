@@ -1,100 +1,100 @@
 # 🚀 Quick Start - Testing Guide
 
-## ⚡ Início Rápido (5 minutos)
+## ⚡ Quick Start (5 minutes)
 
-### 1. Setup do Projeto
+### 1. Project Setup
 
 ```bash
-# Instalar dependências (se ainda não fez)
+# Install dependencies (if not done yet)
 npm install
 
-# Build do projeto
+# Build project
 npm run build
 
-# Subir banco de dados (Docker necessário)
+# Start database (Docker required)
 docker-compose up -d postgres
 ```
 
-**PostgreSQL rodando em**: `localhost:5432` (user: postgres, pass: postgres, db: invoicesdb)
+**PostgreSQL running at**: `localhost:5432` (user: postgres, pass: postgres, db: invoicesdb)
 
-### 2. Rodar Testes E2E (Jest + Supertest)
+### 2. Run E2E Tests (Jest + Supertest)
 
 ```bash
-# Rodar apenas testes E2E
+# Run only E2E tests
 npm run test -- test/E2E/ --runInBand
 
-# Rodar todos os testes com cobertura
+# Run all tests with coverage
 npm run test
 
-# Pipeline completo (format + lint + tests)
+# Complete pipeline (format + lint + tests)
 npm run code:ci
 ```
 
-**Resultado esperado**:
+**Expected result**:
 
 ```
 Test Suites: 3 passed, 3 total
 Tests:       3 passed, 3 total
 ```
 
-### 3. Testes via Postman (Opcional)
+### 3. Tests via Postman (Optional)
 
-1. Suba a aplicação: `npm run start:dev`
-2. Abra o Postman
-3. **Import** → **Folder** → Selecione `postman/`
-4. Selecione environment **"Tax Invoice Issuer - Local"**
+1. Start the application: `npm run start:dev`
+2. Open Postman
+3. **Import** → **Folder** → Select `postman/`
+4. Select environment **"Tax Invoice Issuer - Local"**
 
-### 4. Primeiro Teste Manual
+### 4. First Manual Test
 
 ```bash
 curl http://localhost:3000/
-# Esperado: {"hello":"world"}
+# Expected: {"hello":"world"}
 
 curl -X POST http://localhost:3000/invoice \
   -H "Content-Type: application/json" \
   -d '{"month": 1, "year": 2024, "type": "cash"}'
-# Esperado: array de invoices JSON
+# Expected: array of invoices JSON
 ```
 
 ---
 
-## 🧪 Testes E2E Implementados
+## 🧪 Implemented E2E Tests
 
-| Arquivo                    | Teste            | Valida                                                |
-| -------------------------- | ---------------- | ----------------------------------------------------- |
-| `test/E2E/server.spec.ts`  | HEALTH CHECK     | `GET /` → status 200, body `{ hello: "world" }`       |
-| `test/E2E/invoice.spec.ts` | GENERATE INVOICE | `POST /invoice` → status 200, array com date e amount |
+| File                       | Test             | Validates                                       |
+| -------------------------- | ---------------- | ----------------------------------------------- |
+| `test/E2E/server.spec.ts`  | HEALTH CHECK     | `GET /` → status 200, body `{ hello: "world" }` |
+| `test/E2E/invoice.spec.ts` | GENERATE INVOICE | `POST /invoice` → status 200, array with date   |
 
-### Pré-requisitos
+### Prerequisites
 
-- **Docker com PostgreSQL rodando** na porta 5432
-- Credenciais: `postgres:postgres@localhost:5432/invoicesdb`
-- O `test/setup-env.ts` define `DATABASE_URL` automaticamente
+- **Docker with PostgreSQL running** on port 5432
+- Credentials: `postgres:postgres@localhost:5432/invoicesdb`
+- The `test/setup-env.ts` sets `DATABASE_URL` automatically
 
 ### Troubleshooting
 
-| Erro                                     | Causa                               | Solução                                                 |
-| ---------------------------------------- | ----------------------------------- | ------------------------------------------------------- |
-| `password authentication failed`         | DB não está rodando ou senha errada | `docker-compose up -d postgres`                         |
-| `connect ECONNREFUSED`                   | PostgreSQL não acessível            | Verificar `docker ps`                                   |
-| `relation "sam.contract" does not exist` | Schema não criado                   | Migration: `migration/create.sql` executado pelo Docker |
-| `Jest did not exit`                      | Pool DB não fechado                 | Verificar `afterAll` com `shutdownDatabase()`           |
+| Error                                    | Cause                            | Solution                                        |
+| ---------------------------------------- | -------------------------------- | ----------------------------------------------- |
+| `password authentication failed`         | DB not running or wrong password | `docker-compose up -d postgres`                 |
+| `connect ECONNREFUSED`                   | PostgreSQL not accessible        | Check `docker ps`                               |
+| `relation "sam.contract" does not exist` | Schema not created               | Migration: `migration/create.sql` run by Docker |
+| `Jest did not exit`                      | DB pool not closed               | Check `afterAll` with `shutdownDatabase()`      |
 
 ---
 
-## 🎯 Testes Prioritários
+## 🎯 Priority Tests
 
-### 1️⃣ Smoke Test (OBRIGATÓRIO)
+### 1️⃣ Smoke Test (MANDATORY)
 
 ```
 ✓ GET / - Health Check
 ✓ POST /invoice - Cash Basis Success
 ```
 
-**Tempo**: 30 segundos  
-**Objetivo**: Verificar se API está funcional
+**Time**: 30 seconds  
+**Goal**: Verify API is functional
 
-### 2️⃣ Core Functionality (RECOMENDADO)
+### 2️⃣ Core Functionality (RECOMMENDED)
 
 ```
 ✓ POST /invoice - Cash Basis Success
