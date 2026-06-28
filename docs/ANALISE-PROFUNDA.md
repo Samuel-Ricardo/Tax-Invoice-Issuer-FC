@@ -1,50 +1,50 @@
-# 🔍 Análise Profunda - Tax Invoice Issuer FC
+# 🔍 Deep Analysis - Tax Invoice Issuer FC
 
-**Data da Análise**: Junho 2026  
-**Versão**: 1.0.0  
+**Analysis Date**: June 2026  
+**Version**: 1.0.0  
 **Branch**: `feature/test-temp`  
-**Analista**: Avanade Supervisor
+**Analyst**: Avanade Supervisor
 
 ---
 
-## 📊 Visão Geral do Projeto
+## 📊 Project Overview
 
-| Item                  | Valor                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------- |
-| **Nome**              | Tax Invoice Issuer FC                                                                 |
-| **Objetivo**          | Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de cálculo |
-| **Stack**             | Node.js, TypeScript, Express 5, InversifyJS 7, Zod 4, PostgreSQL, pg-promise          |
-| **Arquitetura**       | Clean Architecture + DDD + Design Patterns                                            |
-| **Arquivos src/**     | 133 arquivos TypeScript                                                               |
-| **Arquivos test/**    | 85 arquivos TypeScript                                                                |
-| **Cobertura (Stmts)** | 74%                                                                                   |
-| **Testes passando**   | 3/3 suites, 3/3 tests                                                                 |
+| Item                 | Valor                                                                        |
+| -------------------- | ---------------------------------------------------------------------------- |
+| **Name**             | Tax Invoice Issuer FC                                                        |
+| **Objective**        | Invoice issuance system with support for multiple calculation strategies     |
+| **Stack**            | Node.js, TypeScript, Express 5, InversifyJS 7, Zod 4, PostgreSQL, pg-promise |
+| **Architecture**     | Clean Architecture + DDD + Design Patterns                                   |
+| **src/ Files**       | 133 TypeScript files                                                         |
+| **test/ Files**      | 85 TypeScript files                                                          |
+| **Coverage (Stmts)** | 74%                                                                          |
+| **Tests Passing**    | 3/3 suites, 3/3 tests                                                        |
 
 ---
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
-### Camadas Principais
+### Main Layers
 
 ```
 src/
 ├── @decorators/          # Cross-cutting concerns (Validation, Logging, Error Handling)
-│   ├── async/            # @AsyncLogger - decorators assíncronos
-│   ├── error/            # @ErrorHandler - captura exceções
+│   ├── async/            # @AsyncLogger - asynchronous decorators
+│   ├── error/            # @ErrorHandler - exception capture
 │   ├── log/              # @DataLogger, @InputLogger, @OutputLogger
-│   └── validation/       # @Validate - validação via Specification Pattern
-├── @lib/                 # Bibliotecas compartilhadas
+│   └── validation/       # @Validate - validation via Specification Pattern
+├── @lib/                 # Shared libraries
 │   ├── log.lib.ts        # Console logger wrapper
 │   └── error/            # AppError, DatabaseError, ValidationError
-├── @modules/             # Módulos principais (DDD)
+├── @modules/             # Main modules (DDD)
 │   ├── application/      # Use Cases, Controllers, Repositories, Specifications
-│   ├── domain/           # Entidades, Interfaces, Strategy, DTOs
+│   ├── domain/           # Entities, Interfaces, Strategy, DTOs
 │   └── infra/            # Engine (DB, HTTP, Validation), Mediator, Presenter
-├── @types/               # Definições de tipos TypeScript
-└── @utils/               # Utilitários (DI container loading, metadata)
+├── @types/               # TypeScript type definitions
+└── @utils/               # Utilities (DI container loading, metadata)
 ```
 
-### Diagrama de Dependências entre Camadas
+### Dependency Graph between Layers
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -75,65 +75,65 @@ src/
 
 ---
 
-## 🎨 Padrões de Design Identificados (8 padrões)
+## 🎎 Design Patterns Identified (8 patterns)
 
 ### 1. Strategy Pattern
 
-Implementação de múltiplas estratégias de cálculo de invoices:
+Implementation of multiple invoice calculation strategies:
 
-| Estratégia        | Classe                 | Lógica                                     |
-| ----------------- | ---------------------- | ------------------------------------------ |
-| **Cash Basis**    | `CashBasisStrategy`    | Filtra pagamentos efetivos por mês/ano     |
-| **Accrual Basis** | `AccrualBasisStrategy` | Calcula períodos contratuais proporcionais |
+| Strategy          | Class                  | Logic                                    |
+| ----------------- | ---------------------- | ---------------------------------------- |
+| **Cash Basis**    | `CashBasisStrategy`    | Filters actual payments by month/year    |
+| **Accrual Basis** | `AccrualBasisStrategy` | Calculates proportional contract periods |
 
-**Factory**: `InvoiceGenerationStrategyFactory.create(type)` → retorna a estratégia correta.
+**Factory**: `InvoiceGenerationStrategyFactory.create(type)` → returns correct strategy.
 
 ### 2. Specification Pattern (Zod)
 
-- `InvoiceSpecificationZod` — Valida `InvoiceDTO` (month, year, type, format?)
-- `EmailSpecificationZod` — Valida `Invoice` (date, amount)
-- Integrado via `@Validate("specification")` decorator
+- `InvoiceSpecificationZod` — Validates `InvoiceDTO` (month, year, type, format?)
+- `EmailSpecificationZod` — Validates `Invoice` (date, amount)
+- Integrated via `@Validate("specification")` decorator
 
 ### 3. Repository Pattern
 
-- `ContractRepositorySQL` — Lista contratos do PostgreSQL
-- `PaymentRepositorySQL` — Lista pagamentos por contrato
-- Abstração: interfaces em `domain/repository/`
+- `ContractRepositorySQL` — Lists contracts from PostgreSQL
+- `PaymentRepositorySQL` — Lists payments by contract
+- Abstraction: interfaces in `domain/repository/`
 
 ### 4. Factory Pattern
 
-Cada módulo expõe uma Factory que encapsula a resolução do container DI:
+Each module exposes a Factory that encapsulates DI container resolution:
 
 - `CONTROLLER_FACTORY`, `SERVICE_FACTORY`, `REPOSITORY_FACTORY`
 - `ENGINE_FACTORY`, `CONFIG_FACTORY`, `MEDIATOR_FACTORY`
 
 ### 5. Mediator Pattern
 
-- `NativeMediator` — Publish/Subscribe in-process
-- Eventos: `INVOICE_GENERATED` → dispara envio de email
-- Desacoplamento entre `InvoiceController` e `EmailController`
+- `NativeMediator` — In-process Publish/Subscribe
+- Events: `INVOICE_GENERATED` → triggers email dispatch
+- Decouples `InvoiceController` from `EmailController`
 
 ### 6. Decorator Pattern (TypeScript Decorators)
 
-| Decorator       | Responsabilidade                     | Aplicado em             |
-| --------------- | ------------------------------------ | ----------------------- |
-| `@Validate`     | Validação de input via Specification | Controllers             |
-| `@DataLogger`   | Log de input + output                | Controllers, Presenters |
-| `@InputLogger`  | Log apenas do input                  | Mediator, Email         |
-| `@OutputLogger` | Log apenas do output                 | Database queries        |
-| `@ErrorHandler` | Captura exceções → retorna `IError`  | Controllers             |
-| `@AsyncLogger`  | Métodos de log para classes          | Classes com logging     |
+| Decorator       | Responsibility                         | Applied to              |
+| --------------- | -------------------------------------- | ----------------------- |
+| `@Validate`     | Input validation via Specification     | Controllers             |
+| `@DataLogger`   | Log of input + output                  | Controllers, Presenters |
+| `@InputLogger`  | Log input only                         | Mediator, Email         |
+| `@OutputLogger` | Log output only                        | Database queries        |
+| `@ErrorHandler` | Captures exceptions → returns `IError` | Controllers             |
+| `@AsyncLogger`  | Logging methods for classes            | Classes with logging    |
 
 ### 7. Dependency Injection (InversifyJS 7)
 
-- IoC Container com autobind e Singleton scope
-- Symbols como service identifiers
-- `@inject()` + `@injectable()` para resolução automática
+- IoC Container with autobind and Singleton scope
+- Symbols as service identifiers
+- `@inject()` + `@injectable()` for automatic resolution
 
 ### 8. Presenter Pattern
 
 - `JsonPresenter` — `JSON.stringify(data)`
-- `CsvPresenter` — Formata como CSV com moment.js
+- `CsvPresenter` — Formats as CSV with moment.js
 
 ---
 
@@ -174,7 +174,7 @@ Content-Type: application/json
 "[{\"date\":\"2022-01-05T13:00:00.000Z\",\"amount\":6000}]"
 ```
 
-**Response Error (200)** — Erro capturado pelo `@ErrorHandler`:
+**Response Error (200)** — Exception captured by `@ErrorHandler`:
 
 ```json
 {
@@ -185,11 +185,11 @@ Content-Type: application/json
 }
 ```
 
-> ⚠️ **Nota**: O controller sempre retorna HTTP 200. Erros internos são encapsulados no body pelo `@ErrorHandler`.
+> ⚠️ **Note**: Controller always returns HTTP 200. Internal errors are encapsulated in body by `@ErrorHandler`.
 
 ---
 
-## 🔄 Fluxo de Execução Completo
+## 🔄 Complete Execution Flow
 
 ```
 1. POST /invoice (body: InvoiceDTO)
@@ -228,7 +228,7 @@ Content-Type: application/json
 
 ---
 
-## 🗄️ Modelo de Dados (PostgreSQL)
+## 📄 Data Model (PostgreSQL)
 
 ### Schema: `sam`
 
@@ -257,33 +257,33 @@ Contract (1) ←→ (N) Payment
 
 ---
 
-## 🐛 Bugs e Problemas Identificados
+## 🐛 Bugs and Problems Identified
 
-### 🔴 Críticos
+### 🔴 Critical
 
-| #   | Problema                            | Status       | Localização                                     |
-| --- | ----------------------------------- | ------------ | ----------------------------------------------- |
-| 1   | **Lógica Invertida nas Strategies** | ⚠️ PENDENTE  | `cash.strategy.ts:24`, `accrual.strategy.ts:20` |
-| 2   | **Binding DI Incorreto**            | ✅ CORRIGIDO | `email.specification` apontava para `invoice`   |
+| #   | Problem                          | Status     | Location                                        |
+| --- | -------------------------------- | ---------- | ----------------------------------------------- |
+| 1   | **Inverted Logic in Strategies** | ⚠️ PENDING | `cash.strategy.ts:24`, `accrual.strategy.ts:20` |
+| 2   | **Incorrect DI Binding**         | ✅ FIXED   | `email.specification` pointed to `invoice`      |
 
-#### Bug #1 — Lógica Invertida (CRÍTICO)
+#### Bug #1 — Inverted Logic (CRITICAL)
 
-A condição `isValid` nas strategies usa `!==` quando deveria usar `===`:
+The `isValid` condition in strategies uses `!==` when it should use `===`:
 
 **Cash Basis Strategy** (`cash.strategy.ts`):
 
 ```typescript
 private isValid(payment: Payment, month: number, year: number) {
   return (
-    payment.date.getMonth() + 1 !== month ||  // ← INVERTIDO
-    payment.date.getFullYear() !== year        // ← INVERTIDO
+    payment.date.getMonth() + 1 !== month ||  // ← INVERTED
+    payment.date.getFullYear() !== year        // ← INVERTED
   );
 }
 ```
 
-**Efeito**: Retorna invoices para **todos os meses EXCETO** o solicitado.
+**Effect**: Returns invoices for **all months EXCEPT** the requested one.
 
-**Correção necessária**:
+**Needed Fix**:
 
 ```typescript
 private isValid(payment: Payment, month: number, year: number) {
@@ -302,29 +302,29 @@ private isValid(date: Date, month: number, year: number) {
 }
 ```
 
-**Efeito**: O `while` loop para quando **encontra** o mês solicitado (deveria parar quando **não encontra mais**). Gera invoices para todos os meses anteriores.
+**Effect**: The `while` loop stops when **found** the requested month (should stop when **doesn't find more**). Generates invoices for all previous months.
 
 ---
 
-### 🟡 Médio
+### 🟡 Medium
 
-| #   | Problema                      | Status      | Detalhes                                       |
-| --- | ----------------------------- | ----------- | ---------------------------------------------- |
-| 3   | Falta validação de range      | ⚠️ PENDENTE | month aceita 0, 13, -1; year aceita negativos  |
-| 4   | `console.log` em produção     | ⚠️ PENDENTE | `cash.strategy.ts:12`                          |
-| 5   | Response HTTP sempre 200      | ⚠️ DESIGN   | Erros internos vêm no body, não no status code |
-| 6   | `JsonPresenter` double-encode | ⚠️ DESIGN   | Express faz double-JSON-encode                 |
-| 7   | Containers DI isolados        | ✅ MITIGADO | Teardown corrigido via `CONTROLLER_CONTAINER`  |
+| #   | Problem                    | Status       | Details                                         |
+| --- | -------------------------- | ------------ | ----------------------------------------------- |
+| 3   | Missing range validation   | ⚠️ PENDING   | month accepts 0, 13, -1; year accepts negatives |
+| 4   | `console.log` in prod      | ⚠️ PENDING   | `cash.strategy.ts:12`                           |
+| 5   | HTTP Response always 200   | ⚠️ DESIGN    | Internal errors come in body, not status code   |
+| 6   | `JsonPresenter` double-enc | ⚠️ DESIGN    | Express does double-JSON-encode                 |
+| 7   | Isolated DI Containers     | ✅ MITIGATED | Teardown fixed via `CONTROLLER_CONTAINER`       |
 
 #### Bug #6 — Double JSON Encoding
 
-O `JsonPresenter.present()` faz `JSON.stringify(data)`, depois o Express faz `res.json(output)` que chama `JSON.stringify()` novamente. Resultado: response body é uma **string JSON escapada**, não um objeto:
+The `JsonPresenter.present()` does `JSON.stringify(data)`, then Express does `res.json(output)` which calls `JSON.stringify()` again. Result: response body is an **escaped JSON string**, not an object:
 
 ```
 "[{\"date\":\"2022-01-05T13:00:00.000Z\",\"amount\":6000}]"
 ```
 
-Em vez de:
+Instead of:
 
 ```json
 [{ "date": "2022-01-05T13:00:00.000Z", "amount": 6000 }]
@@ -332,20 +332,20 @@ Em vez de:
 
 ---
 
-### 🟢 Menor
+### 🟢 Minor
 
-| #   | Problema                    | Status       | Detalhes                                      |
-| --- | --------------------------- | ------------ | --------------------------------------------- |
-| 8   | Swagger vazio               | ⚠️ PENDENTE  | `docs/swagger.json` sem paths                 |
-| 9   | Typo em pasta               | ℹ️ COSMÉTICO | `specificaiton` → deveria ser `specification` |
-| 10  | `moment.js` deprecado       | ℹ️ SUGESTÃO  | Substituir por `date-fns` ou `luxon`          |
-| 11  | `strict: false` no tsconfig | ℹ️ SUGESTÃO  | Habilitar para type safety                    |
+| #   | Problem                | Status      | Details                                     |
+| --- | ---------------------- | ----------- | ------------------------------------------- |
+| 8   | Empty Swagger          | ⚠️ PENDING  | `docs/swagger.json` without paths           |
+| 9   | Typo in folder         | ℹ️ COSMETIC | `specificaiton` → should be `specification` |
+| 10  | `moment.js` deprecated | ℹ️ SUGGEST  | Replace with `date-fns` or `luxon`          |
+| 11  | `strict: false` tsconf | ℹ️ SUGGEST  | Enable for type safety                      |
 
 ---
 
-## 🔐 Análise de Segurança
+## 🔐 Security Analysis
 
-### Vulnerabilidades Potenciais
+### Potential Vulnerabilities
 
 | Categoria            | Risco | Status                                                |
 | -------------------- | ----- | ----------------------------------------------------- |
@@ -376,9 +376,9 @@ app.use(helmet());
 
 ---
 
-## 🧪 Cobertura de Testes
+## 🧪 Test Coverage
 
-### Métricas Atuais (Junho 2026)
+### Current Metrics (June 2026)
 
 | Métrica         | Valor    |
 | --------------- | -------- |
@@ -390,47 +390,47 @@ app.use(helmet());
 | **Tests**       | 3 passed |
 | **Tempo**       | ~6s      |
 
-### Testes E2E Implementados
+### E2E Tests Implemented
 
-| Arquivo                    | Teste            | Descrição                                          |
-| -------------------------- | ---------------- | -------------------------------------------------- |
-| `test/E2E/server.spec.ts`  | HEALTH CHECK     | `GET /` → verifica `{ hello: "world" }`            |
-| `test/E2E/invoice.spec.ts` | GENERATE INVOICE | `POST /invoice` → verifica array com date e amount |
+| File                       | Test             | Description                                |
+| -------------------------- | ---------------- | ------------------------------------------ |
+| `test/E2E/server.spec.ts`  | HEALTH CHECK     | `GET /` → verifies `{ hello: "world" }`    |
+| `test/E2E/invoice.spec.ts` | GENERATE INVOICE | `POST /invoice` → verifies array with date |
 
-### Infraestrutura de Teste
+### Test Infrastructure
 
-| Componente | Tecnologia                   | Descrição                                    |
-| ---------- | ---------------------------- | -------------------------------------------- |
-| Runner     | Jest 30                      | Test runner e assertions                     |
-| HTTP       | Supertest 7                  | Testes de API sem levantar servidor          |
-| Setup      | `test/setup-env.ts`          | Define `DATABASE_URL` para PostgreSQL Docker |
-| Teardown   | `test/util/database.util.ts` | Fecha pool pg-promise via container DI       |
-| Mocks      | `test/@mock/`                | Dados de teste reutilizáveis                 |
-| Config     | `jest.config.js`             | ts-jest, coverage v8, timeout 10s            |
+| Component | Technology                   | Description                               |
+| --------- | ---------------------------- | ----------------------------------------- |
+| Runner    | Jest 30                      | Test runner and assertions                |
+| HTTP      | Supertest 7                  | API tests without running server          |
+| Setup     | `test/setup-env.ts`          | Sets `DATABASE_URL` for PostgreSQL Docker |
+| Teardown  | `test/util/database.util.ts` | Closes pg-promise pool via DI container   |
+| Mocks     | `test/@mock/`                | Reusable test data                        |
+| Config    | `jest.config.js`             | ts-jest, coverage v8, timeout 10s         |
 
-### Gaps de Cobertura
+### Coverage Gaps
 
-- [ ] Testes unitários para Strategies (CashBasis, AccrualBasis)
-- [ ] Testes unitários para Validators (ZodValidator)
-- [ ] Testes unitários para Entities (Contract, Invoice)
-- [ ] Testes unitários para Use Cases
-- [ ] Testes de integração para Repositories
-- [ ] Testes de validação (inputs inválidos)
-- [ ] Testes de erro (DB offline, dados corrompidos)
-- [ ] Testes para EmailController/Mediator
-- [ ] Testes para AccrualBasisStrategy (E2E)
+- [ ] Unit tests for Strategies (CashBasis, AccrualBasis)
+- [ ] Unit tests for Validators (ZodValidator)
+- [ ] Unit tests for Entities (Contract, Invoice)
+- [ ] Unit tests for Use Cases
+- [ ] Integration tests for Repositories
+- [ ] Validation tests (invalid inputs)
+- [ ] Error tests (DB offline, corrupted data)
+- [ ] Tests for EmailController/Mediator
+- [ ] Tests for AccrualBasisStrategy (E2E)
 
 ---
 
-## 🏭 Infraestrutura e DevOps
+## 🏭 Infrastructure and DevOps
 
 ### Docker
 
-| Serviço    | Imagem                     | Porta     | Função         |
-| ---------- | -------------------------- | --------- | -------------- |
-| `app`      | Build local (node:25-slim) | 3000:3000 | Aplicação      |
-| `postgres` | postgres:latest            | 5432:5432 | Banco de dados |
-| `pgadmin`  | dpage/pgadmin4             | 5050:80   | Admin DB       |
+| Service    | Image                      | Port      | Function    |
+| ---------- | -------------------------- | --------- | ----------- |
+| `app`      | Local build (node:25-slim) | 3000:3000 | Application |
+| `postgres` | postgres:latest            | 5432:5432 | Database    |
+| `pgadmin`  | dpage/pgadmin4             | 5050:80   | DB Admin    |
 
 ### Build Pipeline
 
@@ -441,15 +441,15 @@ npm run start:dev    # ts-node src/server.ts
 npm run code:ci      # format:fix && lint:fix && test:coverage
 ```
 
-### Qualidade de Código
+### Code Quality
 
-| Ferramenta  | Versão | Configuração                                                      |
-| ----------- | ------ | ----------------------------------------------------------------- |
-| TypeScript  | 5.9.3  | Target ES2022, strict: false                                      |
-| ESLint      | 9.39   | typescript-eslint, prettier integration, argsIgnorePattern: "^\_" |
-| Prettier    | 3.8.1  | Check + write                                                     |
-| Husky       | 9.1.7  | Pre-commit hooks                                                  |
-| lint-staged | 16.2.7 | JSON/MD formatting                                                |
+| Tool        | Version | Configuration                                                     |
+| ----------- | ------- | ----------------------------------------------------------------- |
+| TypeScript  | 5.9.3   | Target ES2022, strict: false                                      |
+| ESLint      | 9.39    | typescript-eslint, prettier integration, argsIgnorePattern: "^\_" |
+| Prettier    | 3.8.1   | Check + write                                                     |
+| Husky       | 9.1.7   | Pre-commit hooks                                                  |
+| lint-staged | 16.2.7  | JSON/MD formatting                                                |
 
 ---
 
