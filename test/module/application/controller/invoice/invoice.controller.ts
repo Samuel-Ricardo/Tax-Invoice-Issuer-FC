@@ -7,10 +7,13 @@ import { InvoiceService } from "../../../../../src/@modules/domain/service/invoi
 import { Presenter } from "../../../../../src/@modules/infra/presenter/presenter.interface";
 import { Specification } from "../../../../../src/@modules/domain/specification/specification.interface";
 import { InvoiceDTO } from "../../../../../src/@modules/domain/DTO/invoice.dto";
+import { SimulatedInvoiceController } from "../../../../@types/controller/invoice/simulated.type";
 
 export const mockInvoiceController = mockDeep<InvoiceController>();
 
-export const simulateInvoiceController = (module: ResolutionContext) => {
+export const simulateInvoiceController = (
+  module: ResolutionContext,
+): SimulatedInvoiceController => {
   const server = module.get<DeepMockProxy<HttpServer>>(
     TEST_MODULE.INFRA.SERVER.HTTP.EXPRESS.MOCK,
   );
@@ -34,5 +37,11 @@ export const simulateInvoiceController = (module: ResolutionContext) => {
     specification,
   );
 
-  return { controller, server, presenter, service, specification };
+  return {
+    controller,
+    server,
+    presenter,
+    service,
+    specification,
+  };
 };
