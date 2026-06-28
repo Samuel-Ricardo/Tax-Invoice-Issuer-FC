@@ -21,4 +21,24 @@ describe("[EMAIL] - CONTROLLER", () => {
       expect.any(Function),
     );
   });
+
+  it("[UNIT] | [EMAIL] - CALLS > [SERVICE] ", async () => {
+    const module = TEST_MODULES.APPLICATION.CONTROLLER.EMAIL.SIMULATE();
+
+    module.specification.isSatisfiedBy.mockReturnValue(true);
+    module.service.sendInvoices.mockResolvedValue(undefined);
+
+    await module.controller.setup();
+
+    const postCall = module.mediator.on.mock.calls.find(
+      (call) => call[0] === module.events.INVOICE.GENERATED,
+    );
+
+    const generateCallback = postCall![1];
+
+    const result = await generateCallback({});
+
+    expect(module.service.sendInvoices).toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
 });

@@ -29,7 +29,7 @@ export class EmailController implements Controller {
   public async setup() {
     this.mediator.on(
       this.EVENT.INVOICE.GENERATED,
-      this.sendMailOnInvoiceGenereted,
+      this.sendMailOnInvoiceGenereted.bind(this),
     );
   }
 
@@ -39,5 +39,6 @@ export class EmailController implements Controller {
   @Validate("specification")
   private async sendMailOnInvoiceGenereted(data: Invoice[]) {
     await this.service.sendInvoices(data);
+    return true;
   }
 }
