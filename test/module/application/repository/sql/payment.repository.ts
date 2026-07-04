@@ -3,10 +3,13 @@ import { PaymentRepositorySQL } from "../../../../../src/@modules/application/re
 import { ResolutionContext } from "inversify";
 import { TEST_MODULE } from "../../../app.registry";
 import { PgPromiseConnectionAdapter } from "../../../../../src/@modules/infra/engine/database/connection/sql/postgres/pgpromise.engine";
+import { SimulatedPaymentRepository } from "../../../../@types/repository/payment/simulated.type";
 
 export const mockPaymentRepositorySQL = mockDeep<PaymentRepositorySQL>();
 
-export const simulatePaymentRepositorySQL = (module: ResolutionContext) => {
+export const simulatePaymentRepositorySQL = (
+  module: ResolutionContext,
+): SimulatedPaymentRepository => {
   const engine = module.get(
     TEST_MODULE.INFRA.ENGINE.DATABASE.SQL.POSTGRES.PGPROMISE.MOCK,
   ) as DeepMockProxy<PgPromiseConnectionAdapter>;
