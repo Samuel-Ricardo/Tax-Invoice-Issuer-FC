@@ -3,13 +3,14 @@ import { GenerateInvoiceUseCaseImpl } from "../../../../../src/@modules/applicat
 import { ResolutionContext } from "inversify";
 import { NativeMediator } from "../../../../../src/@modules/infra/mediator/native/native.mediator";
 import { TEST_MODULE } from "../../../app.registry";
+import { SimulatedGenerateInvoiceUseCase } from "../../../../@types/use-case/invoice/simulated.type";
 
 export const mockGenerateInvoiceUseCase =
   mockDeep<GenerateInvoiceUseCaseImpl>();
 
 export const simulateGenerateInvoiceUseCaseImpl = (
   module: ResolutionContext,
-) => {
+): SimulatedGenerateInvoiceUseCase => {
   const mediator = module.get<DeepMockProxy<NativeMediator>>(
     TEST_MODULE.INFRA.MEDIATOR.NATIVE,
   );

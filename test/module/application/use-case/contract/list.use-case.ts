@@ -4,10 +4,13 @@ import { ResolutionContext } from "inversify";
 import { TEST_MODULE } from "../../../app.registry";
 import { ContractRepository } from "../../../../../src/@modules/domain/repository/contract.repository";
 import { PaymentRepositorySQL } from "../../../../../src/@modules/application/repository/sql/payment.repository";
+import { SimulatedListContractUseCase } from "../../../../@types/use-case/contract/simulated.type";
 
 export const mockListContractUseCase = mockDeep<ListContractUseCaseImpl>();
 
-export const simulateListContractUseCaseImpl = (module: ResolutionContext) => {
+export const simulateListContractUseCaseImpl = (
+  module: ResolutionContext,
+): SimulatedListContractUseCase => {
   const repository = {
     contract: module.get(
       TEST_MODULE.APPLICATION.REPOSITORY.SQL.CONTRACT.MOCK,
