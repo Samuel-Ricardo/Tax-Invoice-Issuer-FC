@@ -116,6 +116,32 @@ Tests:       27 passed, 27 total
 
 ---
 
+## 🧩 SISTEMA DE TIPAGEM SIMULATED (TEST MODULES)
+
+**Status**: ✅ Concluído
+
+### Impacto
+
+- Padronização da tipagem `SIMULATE` nos módulos de teste.
+- Cobertura dos tipos faltantes para `specification` e `repository`.
+- Redução de ambiguidade entre retorno composto e mock direto.
+
+### Arquivos Principais
+
+- Novos tipos:
+  - `test/@types/specification/email/simulated.type.ts`
+  - `test/@types/specification/invoice/simulated.type.ts`
+  - `test/@types/repository/contract/simulated.type.ts`
+  - `test/@types/repository/payment/simulated.type.ts`
+- Factories com cast em `SIMULATE`:
+  - `test/module/application/specification/specification.factory.ts`
+  - `test/module/application/repository/repository.factory.ts`
+  - `test/module/application/use-case/use-case.factory.ts`
+- Exceção documentada (mock direto):
+  - `test/module/application/use-case/email/send/invoice.use-case.ts`
+
+---
+
 ## 🔍 PRINCIPAIS DESCOBERTAS
 
 ### ✅ Pontos Fortes Identificados
