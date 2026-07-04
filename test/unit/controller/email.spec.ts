@@ -22,6 +22,16 @@ describe("[EMAIL] - CONTROLLER", () => {
     );
   });
 
+  it("[UNIT] | [EMAIL] - START > [DOES NOTHING]", async () => {
+    const module = TEST_MODULES.APPLICATION.CONTROLLER.EMAIL.SIMULATE();
+
+    module.mediator.on.mockClear();
+
+    await module.controller.start();
+
+    expect(module.mediator.on).not.toHaveBeenCalled();
+  });
+
   it("[UNIT] | [EMAIL] - CALLS > [SERVICE] ", async () => {
     const module = TEST_MODULES.APPLICATION.CONTROLLER.EMAIL.SIMULATE();
 
