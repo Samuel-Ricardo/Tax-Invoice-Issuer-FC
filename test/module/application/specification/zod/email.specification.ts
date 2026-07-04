@@ -4,10 +4,13 @@ import { ResolutionContext } from "inversify";
 import { ZodValidator } from "../../../../../src/@modules/infra/validator/zod/zod.validator";
 import { Invoice } from "../../../../../src/@modules/domain/entity/invoice.entity";
 import { TEST_MODULE } from "../../../app.registry";
+import { SimulatedEmailSpecification } from "../../../../@types/specification/email/simulated.type";
 
 export const mockZodEmailSpeficiation = mockDeep<EmailSpecificationZod>();
 
-export const simulateEmailSpecificationZod = (module: ResolutionContext) => {
+export const simulateEmailSpecificationZod = (
+  module: ResolutionContext,
+): SimulatedEmailSpecification => {
   const validator = module.get<ZodValidator<Invoice>>(
     TEST_MODULE.INFRA.VALIDATION.ZOD.MOCK,
   );
