@@ -37,6 +37,7 @@ Complete index of all project documentation and test resources.
 - Coverage metrics (74% statements)
 - Security analysis (6 categories)
 - 3-sprint roadmap
+- Simulated typing system in test modules (rules, mapping, and checklist)
 
 **Reading time**: 30 minutes
 
