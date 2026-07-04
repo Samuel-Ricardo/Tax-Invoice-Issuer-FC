@@ -536,6 +536,77 @@ npm run code:ci      # format:fix && lint:fix && test:coverage
 
 ## 📝 Conclusão
 
+## Sistema de Tipagem SIMULATED (Test Modules)
+
+### 1) Padrão arquitetural do SIMULATE
+
+O padrão dominante de SIMULATE nos módulos de teste é:
+
+- construir a classe real (SUT) com dependências mockadas;
+- retornar um objeto composto contendo a instância real e os mocks relevantes para assertions.
+
+Exemplos diretos desse padrão:
+
+- `test/module/application/use-case/invoice/generate.use-case.ts`
+- `test/module/application/use-case/contract/list.use-case.ts`
+- `test/module/application/repository/sql/contract.repository.ts`
+- `test/module/application/repository/sql/payment.repository.ts`
+- `test/module/application/specification/zod/email.specification.ts`
+
+Exceção conhecida:
+
+- O SIMULATE de envio de e-mail retorna mock direto da instância, sem objeto composto em `test/module/application/use-case/email/send/invoice.use-case.ts`.
+
+### 2) Regras de tipagem
+
+- Usar `interface Simulated*` quando o retorno do SIMULATE é objeto composto (SUT + dependências).
+- Usar `type` quando o retorno do SIMULATE é único e direto (mock da própria classe).
+- Usar `DeepMockProxy` para dependências mockadas (`jest-mock-extended`).
+- Usar tipo real para a instância construída (classe efetivamente instanciada no SIMULATE).
+- Em factories, aplicar cast no retorno de SIMULATE quando o binding dinâmico do container não preserva inferência estrutural automática.
+- Em resoluções com Inversify, o tipo retornado segue o generic informado em `container.get<T>()`; quando necessário, manter cast explícito para o tipo Simulated final.
+
+Referência externa usada para reforçar essas decisões:
+
+- `jest-mock-extended` (DeepMockProxy para deep mocks e tipagem forte)
+- Inversify Container API (`get<T>()` e resolução tipada)
+
+### 3) Mapeamento dos tipos SIMULATED
+
+Tipos existentes:
+
+- `test/@types/use-case/invoice/simulated.type.ts`
+- `test/@types/use-case/contract/simulated.type.ts`
+- `test/@types/use-case/email/simulated.type.ts`
+- `test/@types/service/email/simulated.type.ts`
+- `test/@types/service/invoice/simulated.type.ts`
+- `test/@types/controller/email/simulated.type.ts`
+- `test/@types/controller/invoice/simulated.type.ts`
+
+Tipos criados para completar cobertura:
+
+- `test/@types/specification/email/simulated.type.ts`
+- `test/@types/specification/invoice/simulated.type.ts`
+- `test/@types/repository/contract/simulated.type.ts`
+- `test/@types/repository/payment/simulated.type.ts`
+
+### 4) Decisões práticas de consistência
+
+- Nomear sempre como `Simulated<Componente>`.
+- Em retorno composto, padronizar a chave da instância real como `use_case`, `service`, `controller`, `repository` ou `specificaiton` conforme o módulo.
+- Manter dependências mockadas tipadas explicitamente.
+- Evitar unions desnecessárias em tipos de teste; preferir contratos explícitos por módulo.
+- Registrar exceções arquiteturais (retorno mock direto) no próprio type do módulo.
+
+### 5) Checklist para novos simulated types
+
+- Criar tipo em `test/@types` no mesmo domínio do módulo.
+- Definir `interface` se retorno for composto; definir `type` se retorno for mock único.
+- Tipar dependências mockadas com `DeepMockProxy` quando aplicável.
+- Tipar SUT com o tipo real retornado pela função `simulate*`.
+- Atualizar factory `SIMULATE` com cast explícito para o novo tipo quando necessário.
+- Garantir que o retorno real da função `simulate*` esteja alinhado ao contrato declarado.
+
 O projeto demonstra **excelente conhecimento arquitetural** com Clean Architecture, DDD e 8 Design Patterns bem aplicados. A stack é moderna (Express 5, Inversify 7, Zod 4, Jest 30).
 
 **Pontos fortes**: Separação de camadas, extensibilidade via Strategy/Specification, DI completo, infraestrutura Docker.
