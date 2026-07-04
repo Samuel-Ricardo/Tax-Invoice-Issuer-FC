@@ -3,10 +3,13 @@ import { ContractRepositorySQL } from "../../../../../src/@modules/application/r
 import { ResolutionContext } from "inversify";
 import { TEST_MODULE } from "../../../app.registry";
 import { PgPromiseConnectionAdapter } from "../../../../../src/@modules/infra/engine/database/connection/sql/postgres/pgpromise.engine";
+import { SimulatedContractRepository } from "../../../../@types/repository/contract/simulated.type";
 
 export const mockContractRepositorySQL = mockDeep<ContractRepositorySQL>();
 
-export const simulateContractRepositorySQL = (module: ResolutionContext) => {
+export const simulateContractRepositorySQL = (
+  module: ResolutionContext,
+): SimulatedContractRepository => {
   const engine = module.get(
     TEST_MODULE.INFRA.ENGINE.DATABASE.SQL.POSTGRES.PGPROMISE.MOCK,
   ) as DeepMockProxy<PgPromiseConnectionAdapter>;
