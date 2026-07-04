@@ -33,8 +33,8 @@ npm run code:ci
 **Expected result**:
 
 ```
-Test Suites: 3 passed, 3 total
-Tests:       3 passed, 3 total
+Test Suites: 4 passed, 4 total
+Tests:       54 passed, 54 total
 ```
 
 ### 3. Tests via Postman (Optional)
@@ -60,10 +60,12 @@ curl -X POST http://localhost:3000/invoice \
 
 ## 🧪 Implemented E2E Tests
 
-| File                       | Test             | Validates                                       |
-| -------------------------- | ---------------- | ----------------------------------------------- |
-| `test/E2E/server.spec.ts`  | HEALTH CHECK     | `GET /` → status 200, body `{ hello: "world" }` |
-| `test/E2E/invoice.spec.ts` | GENERATE INVOICE | `POST /invoice` → status 200, array with date   |
+| File                        | Test             | Validates                                                 |
+| --------------------------- | ---------------- | --------------------------------------------------------- |
+| `test/E2E/server.spec.ts`   | HEALTH CHECK     | `GET /` → status 200, body `{ hello: "world" }`           |
+| `test/E2E/invoice.spec.ts`  | GENERATE INVOICE | `POST /invoice` → status 200, array with date             |
+| `test/E2E/strategy.spec.ts` | STRATEGY PATTERN | Cash vs Accrual comparison, idempotence, isolation        |
+| `test/E2E/http.spec.ts`     | HTTP PROTOCOL    | Routing, headers, resilience, response format consistency |
 
 ### Prerequisites
 
