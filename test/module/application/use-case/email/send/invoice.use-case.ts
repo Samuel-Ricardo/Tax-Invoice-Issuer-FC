@@ -5,5 +5,5 @@ export const mockNativeSendInvoiceEmailUseCase =
   mockDeep<NativeSendInvoiceEmailUseCase>();
 
 export const simulateNativeSendInvoiceEmailUseCase = () => {
-  return new NativeSendInvoiceEmailUseCase();
+  return mockDeep<NativeSendInvoiceEmailUseCase>();
 };
