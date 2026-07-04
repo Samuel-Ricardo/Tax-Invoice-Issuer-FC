@@ -4,10 +4,13 @@ import { TEST_MODULE } from "../../../app.registry";
 import { ResolutionContext } from "inversify";
 import { ZodValidator } from "../../../../../src/@modules/infra/validator/zod/zod.validator";
 import { InvoiceDTO } from "../../../../../src/@modules/domain/DTO/invoice.dto";
+import { SimulatedInvoiceSpecification } from "../../../../@types/specification/invoice/simulated.type";
 
 export const mockZodInvoiceSpeficiation = mockDeep<InvoiceSpecificationZod>();
 
-export const simulateInvoiceSpecificationZod = (module: ResolutionContext) => {
+export const simulateInvoiceSpecificationZod = (
+  module: ResolutionContext,
+): SimulatedInvoiceSpecification => {
   const validator = module.get<ZodValidator<InvoiceDTO>>(
     TEST_MODULE.INFRA.VALIDATION.ZOD.MOCK,
   );
