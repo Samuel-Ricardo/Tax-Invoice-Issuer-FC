@@ -1,6 +1,16 @@
-.avanade-method
-.github
-.docker
+# ═══════════════════════════════════════════════════════════════════════════
+# AVANADE METHOD - Local Environment (NOT to be committed)
+# ═══════════════════════════════════════════════════════════════════════════
+# These directories contain:
+# - Agent definitions (.github/agents, .github/prompts)
+# - Agent customizations (.avanade-method/agents)
+# - Workflows, tasks, templates, checklists, standards
+# - Generated artifacts and local deployment configs
+# They are downloaded/generated locally per environment
+.avanade-method/
+.github/agents/
+.github/prompts/
+.docker/
 install-avanade-method-complete.ps1
 
 # Logs
