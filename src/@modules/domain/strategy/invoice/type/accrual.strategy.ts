@@ -10,17 +10,28 @@ export class AccrualBasisStrategy implements InvoiceGenerationStrategy {
     let period = 0;
 
     while (period <= contract.periods) {
-      const date = moment(contract.date).add(period++, "months").toDate();
+      // Use UTC to avoid timezone issues
+      const date = moment.utc(contract.date).add(period, "months");
+      const dateMonth = date.month() + 1; // moment.month() returns 0-11, so +1 for 1-12
+      const dateYear = date.year();
 
-      if (!this.isValid(date, month, year)) break;
+      period++;
 
-      invoices.push(new Invoice(date, contract.getAmountByPeriod()));
+      // Check if this period matches the requested month/year
+      if (dateMonth === month && dateYear === year) {
+        // Once we reach the requested month, stop
+        break;
+      }
+
+      if (dateMonth > month || (dateMonth >= month && dateYear > year)) {
+        // If we've passed the requested month, stop
+        break;
+      }
+
+      // Only add invoices for periods BEFORE the requested month
+      invoices.push(new Invoice(date.toDate(), contract.getAmountByPeriod()));
     }
 
     return invoices;
-  }
-
-  private isValid(date: Date, month: number, year: number) {
-    return date.getMonth() + 1 !== month || date.getFullYear() !== year;
   }
 }
