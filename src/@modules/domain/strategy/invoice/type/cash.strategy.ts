@@ -5,13 +5,9 @@ import { InvoiceGenerationStrategy } from "../invoice.interface";
 
 export class CashBasisStrategy implements InvoiceGenerationStrategy {
   generate({ contract, month, year }: InvoiceGenerationStrategyDTO): Invoice[] {
-    const invoices = contract.payments.flatMap((p) =>
-      this.newInvoice(p, month, year),
-    );
-
-    console.log({ invoices });
-
-    return invoices;
+    return contract.payments
+      .flatMap((p) => this.newInvoice(p, month, year))
+      .filter((i): i is Invoice => i !== null);
   }
 
   private newInvoice(payment: Payment, month: number, year: number) {
@@ -22,8 +18,8 @@ export class CashBasisStrategy implements InvoiceGenerationStrategy {
 
   private isValid(payment: Payment, month: number, year: number) {
     return (
-      payment.date.getMonth() + 1 !== month ||
-      payment.date.getFullYear() !== year
+      payment.date.getMonth() + 1 === month &&
+      payment.date.getFullYear() === year
     );
   }
 }
