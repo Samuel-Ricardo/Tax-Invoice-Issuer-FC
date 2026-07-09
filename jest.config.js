@@ -40,6 +40,23 @@ module.exports = {
     "!src/**/*.d.ts",
     "!src/**/*.spec.ts",
     "!src/**/*.test.ts",
+    // TypeScript interface/type files compile to nothing - exclude from coverage
+    "!src/**/*.interface.ts",
+    "!src/**/*.type.ts",
+    "!src/@types/**",
+    // DTOs are just TypeScript type declarations - no executable code
+    "!src/**/*.dto.ts",
+    // Entry point - not testable in unit/integration context
+    "!src/server.ts",
+    // Domain layer interfaces (TypeScript only, compile to nothing)
+    "!src/@modules/domain/repository/**",
+    "!src/@modules/domain/service/**",
+    "!src/@modules/domain/use-case/**",
+    // Domain DTO files (TypeScript type declarations)
+    "!src/@modules/domain/DTO/**",
+    // Infrastructure interfaces that compile to nothing
+    "!src/@modules/infra/server/http/http.server.ts",
+    "!src/@modules/infra/engine/database/connection/sql/sql.connection.ts",
   ],
 };
 
