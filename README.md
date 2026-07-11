@@ -205,21 +205,141 @@ src/
 
 ---
 
-## ⚠️ Problemas Conhecidos
+## 🚀 Como Rodar o Projeto
 
-### 🔴 Crítico
+### Opção 1: Rodando Localmente (Node.js)
 
-**Lógica Invertida nas Strategies** (Issue #1)
+#### Pré-requisitos
 
-- **Sintoma**: Invoices gerados para o mês/ano ERRADO
-- **Causa**: Condição de validação invertida (`!==` ao invés de `===`)
-- **Localização**:
-  - `src/@modules/domain/strategy/invoice/type/cash.strategy.ts:24`
-  - `src/@modules/domain/strategy/invoice/type/accrual.strategy.ts:20`
-- **Status**: 🔴 NÃO CORRIGIDO
-- **Prioridade**: IMEDIATA
+- **Node.js**: 25.x LTS ou superior
+- **npm**: 10.x ou superior
+- **PostgreSQL**: 15+ (opcional, se usar banco local)
 
-**Detalhes**: [docs/RELATORIO-EXECUTIVO.md#problemas-críticos](./docs/RELATORIO-EXECUTIVO.md)
+#### Passos
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC.git
+cd Tax-Invoice-Issuer-FC
+
+# 2. Instale as dependências
+npm install
+
+# 3. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o .env com suas configurações
+
+# 4. Build do projeto
+npm run build
+
+# 5. Inicie o servidor
+npm run start
+```
+
+**Servidor rodando em**: http://localhost:3000
+
+#### Desenvolvimento (com auto-reload)
+
+```bash
+npm run dev
+```
+
+---
+
+### Opção 2: Rodando com Docker
+
+#### Pré-requisitos
+
+- **Docker**: 20.10+ instalado
+- **Docker Compose**: 2.0+ instalado
+
+#### Build da Imagem
+
+```bash
+# Build da imagem Docker
+docker build -t tax-invoice-issuer-fc:latest .
+
+# Rodar container
+docker run -p 3000:3000 --env-file .env tax-invoice-issuer-fc:latest
+```
+
+**Servidor rodando em**: http://localhost:3000
+
+---
+
+### Opção 3: Rodando com Docker Compose (Recomendado)
+
+#### Pré-requisitos
+
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+
+#### Passos
+
+```bash
+# 1. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o .env se necessário
+
+# 2. Inicie todos os serviços
+docker-compose up -d
+
+# 3. Verifique se os containers estão rodando
+docker-compose ps
+
+# 4. Pode usar esse comando como alternatica também
+docker-compose down -v && docker-compose up --build -d
+```
+
+**Serviços iniciados**:
+
+- 🌐 **API**: http://localhost:3000
+- 🗄️ **PostgreSQL**: localhost:5432
+- 🔧 **PgAdmin**: http://localhost:5050 (opcional, se configurado)
+
+#### Comandos Úteis
+
+```bash
+# Ver logs da aplicação
+docker-compose logs -f app
+
+# Ver logs do banco de dados
+docker-compose logs -f postgres
+
+# Parar todos os serviços
+docker-compose down
+
+# Parar e remover volumes (cuidado!)
+docker-compose down -v
+
+# Reconstruir a imagem
+docker-compose build --no-cache
+```
+
+#### Acessar o Banco de Dados
+
+```bash
+# Via psql
+psql -h localhost -U postgres -d tax_invoice_db
+
+# Via Docker
+docker-compose exec postgres psql -U postgres -d tax_invoice_db
+```
+
+---
+
+## 🧪 Executar Testes
+
+```bash
+# Testes unitários
+npm test
+
+# Testes com cobertura
+npm run test:coverage
+
+# Testes em modo watch
+npm run test:watch
+```
 
 ---
 
