@@ -1,0 +1,24 @@
+export const TEST_USE_CASE_REGISTRY = {
+  CONTRACT: {
+    LIST: {
+      MOCK: Symbol.for("MODULE:APPLICATION:USE-CASE:CONTRACT:LIST:MOCK"),
+      SIMULATE: Symbol.for(
+        "MODULE:APPLICATION:USE-CASE:CONTRACT:LIST:SIMULATE",
+      ),
+    },
+  },
+  EMAIL: {
+    SEND: {
+      INVOICE: {
+        MOCK: Symbol.for("MODULE:APPLICATION:USE-CASE:EMAIL:SEND:INVOICE:MOCK"),
+        SIMULATE: Symbol.for(
+          "MODULE:APPLICATION:USE-CASE:EMAIL:SEND:INVOICE:SIMULATE",
+        ),
+      },
+    },
+  },
+  INVOICE: {
+    MOCK: Symbol.for("MODULE:APPLICATION:USE-CASE:INVOICE:MOCK"),
+    SIMULATE: Symbol.for("MODULE:APPLICATION:USE-CASE:INVOICE:SIMULATE"),
+  },
+};

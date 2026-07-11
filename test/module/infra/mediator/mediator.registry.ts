@@ -1,0 +1,3 @@
+export const TEST_MEDIATOR_REGISTRY = {
+  NATIVE: Symbol.for("MODULE:INFRA:MEDIATOR:NATIVE"),
+};

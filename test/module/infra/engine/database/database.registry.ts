@@ -1,0 +1,10 @@
+export const TEST_DATABASE_ENGINE_REGISTRY = {
+  SQL: {
+    POSTGRES: {
+      PGPROMISE: {
+        MOCK: Symbol.for("MODULE:INFRA:DATABASE:SQL:POSTGRES:MOCK"),
+        SIMULATE: Symbol.for("MODULE:INFRA:DATABASE:SQL:POSTGRES:SIMULATE"),
+      },
+    },
+  },
+};

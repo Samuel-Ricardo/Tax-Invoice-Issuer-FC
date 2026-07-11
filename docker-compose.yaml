@@ -1,0 +1,30 @@
+services:
+  app:
+    build: .
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    env_file: .env.postgres
+    volumes:
+      - ./.docker/data/db:/data/db
+      - ./migration/create.sql:/docker-entrypoint-initdb.d/create.sql
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    env_file: .env.pgadmin
+    ports:
+      - 5050:80
+    volumes:
+      - ./.docker/data/admin:/var/lib/pgadmin
+    depends_on:
+      - postgres

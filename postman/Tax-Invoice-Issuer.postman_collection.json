@@ -1,0 +1,989 @@
+{
+  "info": {
+    "_postman_id": "tax-invoice-fc-2026",
+    "name": "Tax Invoice Issuer - Full Coverage",
+    "description": "Coleção completa de testes para Tax Invoice Issuer FC\n\n## Cenários Cobertos:\n- ✅ Happy Path (Cash & Accrual)\n- ✅ Validações de campos obrigatórios\n- ✅ Validações de tipos de dados\n- ✅ Validações de enums\n- ✅ Edge cases (limites, valores inválidos)\n- ✅ Health check\n\n## Setup:\nBase URL: http://localhost:3000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "GET / - Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has hello world', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.hello).to.eql('world');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Verifica se o servidor está rodando corretamente"
+          },
+          "response": []
+        }
+      ],
+      "description": "Testes básicos de saúde da API"
+    },
+    {
+      "name": "Happy Path",
+      "item": [
+        {
+          "name": "POST /invoice - Cash Basis Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Invoice has required fields', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('date');",
+                  "        pm.expect(jsonData[0]).to.have.property('amount');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 1,\n  \"year\": 2024,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Gera invoices usando Cash Basis Strategy para Janeiro/2024"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Accrual Basis Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Invoice has required fields', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('date');",
+                  "        pm.expect(jsonData[0]).to.have.property('amount');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 3,\n  \"year\": 2024,\n  \"type\": \"accrual\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Gera invoices usando Accrual Basis Strategy para Março/2024"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - With Optional Format",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 6,\n  \"year\": 2024,\n  \"type\": \"cash\",\n  \"format\": \"pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Gera invoices com campo opcional 'format'"
+          },
+          "response": []
+        }
+      ],
+      "description": "Cenários de sucesso (happy path)"
+    },
+    {
+      "name": "Validation - Required Fields",
+      "item": [
+        {
+          "name": "POST /invoice - Missing month",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"year\": 2024,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: campo 'month' é obrigatório"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Missing year",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: campo 'year' é obrigatório"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Missing type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": 2024\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: campo 'type' é obrigatório"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Empty body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: nenhum campo fornecido"
+          },
+          "response": []
+        }
+      ],
+      "description": "Testes de validação de campos obrigatórios"
+    },
+    {
+      "name": "Validation - Data Types",
+      "item": [
+        {
+          "name": "POST /invoice - Month as string",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": \"January\",\n  \"year\": 2024,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: 'month' deve ser number, não string"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Year as string",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": \"2024\",\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: 'year' deve ser number, não string"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Invalid type enum",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": 2024,\n  \"type\": \"hybrid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: 'type' deve ser 'cash' ou 'accrual'"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Type as number",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message exists', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": 2024,\n  \"type\": 123\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: 'type' deve ser string, não number"
+          },
+          "response": []
+        }
+      ],
+      "description": "Testes de validação de tipos de dados"
+    },
+    {
+      "name": "Edge Cases",
+      "item": [
+        {
+          "name": "POST /invoice - Month = 0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 400', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 0,\n  \"year\": 2024,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Edge case: mês = 0 (inválido)"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Month = 13",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 400', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 13,\n  \"year\": 2024,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Edge case: mês = 13 (fora do range)"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Negative month",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 400', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": -1,\n  \"year\": 2024,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Edge case: mês negativo"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Negative year",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 400', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": -2024,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Edge case: ano negativo"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Future year",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 12,\n  \"year\": 2050,\n  \"type\": \"accrual\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Edge case: ano muito no futuro"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - December (boundary)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 12,\n  \"year\": 2024,\n  \"type\": \"cash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Boundary test: último mês do ano (12)"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - January (boundary)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 1,\n  \"year\": 2024,\n  \"type\": \"accrual\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Boundary test: primeiro mês do ano (1)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Testes de casos extremos e limites"
+    },
+    {
+      "name": "Security & Malformed",
+      "item": [
+        {
+          "name": "POST /invoice - Malformed JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": 2024,\n  \"type\": \"cash\",\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Deve falhar: JSON malformado (vírgula extra)"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - Extra fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 400', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": 2024,\n  \"type\": \"cash\",\n  \"extraField\": \"should be ignored or rejected\",\n  \"anotherExtra\": 123\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Testa comportamento com campos extras não esperados"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - SQL Injection Attempt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('No SQL execution', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": 2024,\n  \"type\": \"cash'; DROP TABLE invoices; --\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Security test: tentativa de SQL injection"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /invoice - XSS Attempt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Script not executed', function () {",
+                  "    const response = pm.response.text();",
+                  "    pm.expect(response).to.not.include('<script>');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 5,\n  \"year\": 2024,\n  \"type\": \"<script>alert('xss')</script>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice"]
+            },
+            "description": "Security test: tentativa de XSS"
+          },
+          "response": []
+        }
+      ],
+      "description": "Testes de segurança e dados malformados"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

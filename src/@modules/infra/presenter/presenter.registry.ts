@@ -1,0 +1,3 @@
+export const PRESENTER_REGISTRY = {
+  JSON: Symbol.for("MODULE:INFRA:PRESENTER:JSON"),
+};

@@ -1,0 +1,8 @@
+export const MOCK_PRESENTER_REGISTRY = {
+  CSV: {
+    NATIVE: Symbol.for("MOCK::MODULE:INFRA:PRESENTER:CSV:NATIVE"),
+  },
+  JSON: {
+    NATIVE: Symbol.for("MOCK::MODULE:INFRA:PRESENTER:JSON:NATIVE"),
+  },
+};

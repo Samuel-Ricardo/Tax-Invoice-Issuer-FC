@@ -1,0 +1,4 @@
+export const SERVICE_REGISTRY = {
+  INVOICE: Symbol.for("MODULE:APP:SERVICE:INVOICE"),
+  EMAIL: Symbol.for("MODULE:APP:SERVICE:EMAIL"),
+};
