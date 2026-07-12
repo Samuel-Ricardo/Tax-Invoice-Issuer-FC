@@ -115,11 +115,99 @@ OpenAPI schema (currently empty - needs to be generated)
 
 ---
 
+### ☁️ Cloud Deployment
+
+#### 9. [Azure Deploy — Overview](./deploy/azure/README.md) ☁️
+
+**For**: All team members
+**Content**:
+
+- Stack overview (Container Apps + PostgreSQL)
+- Quick deploy in 1 command
+- File structure
+
+**Reading time**: 3 minutes
+
+---
+
+#### 10. [Azure Architecture](./deploy/azure/ARCHITECTURE.md) 🏗️
+
+**For**: Architects, Tech Leads, Developers
+**Content**:
+
+- Full architecture diagram (ASCII + Mermaid)
+- CI/CD flow (GitHub Actions → ghcr.io → Container Apps)
+- Azure resources detailed breakdown
+- Security ADRs (4 decisions documented)
+- Connectivity and SSL configuration
+
+**Reading time**: 10 minutes
+
+---
+
+#### 11. [Azure Setup Guide](./deploy/azure/SETUP-GUIDE.md) 🚀
+
+**For**: DevOps, Developers
+**Content**:
+
+- Step-by-step provisioning (Bicep IaC)
+- Automated setup script
+- GitHub Secrets configuration
+- Management commands (start/stop PostgreSQL, logs)
+- Troubleshooting guide
+- Final verification checklist
+
+**Reading time**: 15 minutes
+
+---
+
+#### 12. [Azure Cost Analysis](./deploy/azure/COST-ANALYSIS.md) 💰
+
+**For**: Tech Leads, Product Managers
+**Content**:
+
+- Validated pricing from Microsoft official docs
+- Breakdown by service (Container Apps free tier, PostgreSQL B1ms)
+- Active vs Paused scenarios (~$12-15/mês vs ~$4/mês)
+- Comparison with alternatives (Railway, Render, Heroku, AWS)
+- Cost saving tips
+
+**Reading time**: 5 minutes
+
+---
+
+#### 13. [Docker / WSL Disk Cleanup Guide](./utils/docker/README.md) 🐳
+
+**For**: Developers, DevOps, Windows users
+**Content**:
+
+- Why Docker/WSL VHDX files do not shrink automatically
+- Safe cleanup with `docker system prune`
+- Rebuild the WSL VHDX with export/import
+- Compact existing VHDX files with `Optimize-VHD`
+- Risks, backup steps, and prevention tips
+
+**Reading time**: 8 minutes
+
+---
+
 ## 🎯 Quick Navigation Guide
+
+### "I want to deploy to Azure"
+
+➡️ Go to: [Azure Setup Guide](./deploy/azure/SETUP-GUIDE.md)
+
+### "What does the Azure deployment cost?"
+
+➡️ Go to: [Azure Cost Analysis](./deploy/azure/COST-ANALYSIS.md)
 
 ### "I need to test the API now!"
 
 ➡️ Go to: [Quick Start - Testing Guide](./QUICK-START-TESTS.md)
+
+### "I need to reclaim Docker/WSL disk space"
+
+➡️ Go to: [Docker / WSL Disk Cleanup Guide](./utils/docker/README.md)
 
 ### "I want to understand the architecture"
 
@@ -154,7 +242,16 @@ Tax-Invoice-Issuer-FC/
 │   ├── ANALISE-PROFUNDA.md                 # 🔍 Complete technical analysis
 │   ├── QUICK-START-TESTS.md                # 🚀 Quick testing guide
 │   ├── swagger.json                        # 📄 OpenAPI schema
-│   └── zod-example.md                      # 💡 Zod example
+│   ├── zod-example.md                      # 💡 Zod example
+│   ├── utils/                              # 🛠️ Operational utilities
+│   │   └── docker/                         # 🐳 Docker + WSL cleanup guide
+│   │       └── README.md                   # 📖 VHDX cleanup and compaction guide
+│   └── deploy/
+│       └── azure/
+│           ├── README.md                   # ☁️ Azure deploy overview
+│           ├── ARCHITECTURE.md             # 🏗️ Architecture & ADRs
+│           ├── SETUP-GUIDE.md              # 🚀 Step-by-step setup
+│           └── COST-ANALYSIS.md            # 💰 Validated cost breakdown
 │
 ├── postman/                                 # 🧪 Postman Tests
 │   ├── README.md                           # 📖 Collection guide
