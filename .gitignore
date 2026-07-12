@@ -157,6 +157,13 @@ vite.config.ts.timestamp-*
 # Exclude the AAAAAAAAAAAAAAAAA folder
 AAAAAAAAAAAAAAAAA/
 
+# Infrastructure - Local development (contains secrets)
+# Use infra_public/ for public repository instead
+infra/
+infra/*.parameters.*.json
+infra/.env
+infra/.env.*
+
 # Test artifacts and temporary test outputs
 test-output.txt
 full-test.txt
