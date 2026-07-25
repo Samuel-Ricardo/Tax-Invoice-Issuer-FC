@@ -20,6 +20,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*", "test/**/*", "test-ai/**/*"],
+  "include": ["src/**/*", "src/@lib/**/*", "test/**/*", "test-ai/**/*"],
   "exclude": ["node_modules", "dist", "build", "coverage"]
 }
