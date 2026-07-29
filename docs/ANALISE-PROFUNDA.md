@@ -426,11 +426,11 @@ app.use(helmet());
 
 ### Docker
 
-| Service    | Image                      | Port      | Function    |
-| ---------- | -------------------------- | --------- | ----------- |
-| `app`      | Local build (node:25-slim) | 3000:3000 | Application |
-| `postgres` | postgres:latest            | 5432:5432 | Database    |
-| `pgadmin`  | dpage/pgadmin4             | 5050:80   | DB Admin    |
+| Service    | Image                      | Port              | Function              |
+| ---------- | -------------------------- | ----------------- | --------------------- |
+| `app`      | Local build (node:25-slim) | 3000:3000         | Application           |
+| `postgres` | postgres:latest            | 5432:5432         | Database              |
+| `pgadmin`  | dpage/pgadmin4             | 127.0.0.1:5050:80 | DB Admin (local-only) |
 
 ### Build Pipeline
 
@@ -445,7 +445,7 @@ npm run code:ci      # format:fix && lint:fix && test:coverage
 
 | Tool        | Version | Configuration                                                     |
 | ----------- | ------- | ----------------------------------------------------------------- |
-| TypeScript  | 5.9.3   | Target ES2022, strict: false                                      |
+| TypeScript  | 5.9.3   | Target ES2022, strict mode review pending                         |
 | ESLint      | 9.39    | typescript-eslint, prettier integration, argsIgnorePattern: "^\_" |
 | Prettier    | 3.8.1   | Check + write                                                     |
 | Husky       | 9.1.7   | Pre-commit hooks                                                  |
