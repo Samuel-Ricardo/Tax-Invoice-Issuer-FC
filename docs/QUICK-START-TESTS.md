@@ -70,7 +70,7 @@ curl -X POST http://localhost:3000/invoice \
 ### Prerequisites
 
 - **Docker with PostgreSQL running** on port 5432
-- Credentials: `postgres:postgres@localhost:5432/invoicesdb`
+- Credentials: use the local environment configuration for tests; do not publish usernames, passwords, or connection strings in documentation
 - The `test/setup-env.ts` sets `DATABASE_URL` automatically
 
 ### Troubleshooting
