@@ -61,7 +61,8 @@ git push main → GitHub Actions → Build + Test → Push GHCR → Deploy Conta
 az login
 
 # Deploy completo em 1 comando (~5 min)
-POSTGRES_PASSWORD="SuaSenhaSegura123!" bash infra/setup-azure.sh
+export POSTGRES_PASSWORD="<POSTGRES_PASSWORD>"
+bash infra/setup-azure.sh
 ```
 
 Após o setup, cada `git push origin main` faz deploy automático.
