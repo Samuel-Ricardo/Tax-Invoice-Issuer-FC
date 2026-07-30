@@ -52,8 +52,8 @@ az account set --subscription "Nome ou ID da Subscription"
 # 1. Clone / vá para o repositório
 cd Tax-Invoice-Issuer-FC
 
-# 2. Defina a senha do PostgreSQL (mínimo 8 chars, letras + números + especial)
-export POSTGRES_PASSWORD="MinhaS3nha@Segura!"
+# 2. Defina a senha do PostgreSQL localmente antes de executar o setup
+export POSTGRES_PASSWORD="<POSTGRES_PASSWORD>"
 
 # 3. Execute o setup completo
 chmod +x infra/setup-azure.sh
@@ -87,7 +87,7 @@ az deployment group create \
   --template-file infra/main.bicep \
   --parameters \
     containerImage="ghcr.io/samuel-ricardo/tax-invoice-issuer-fc:main" \
-    postgresAdminPassword="MinhaS3nha@Segura!" \
+    postgresAdminPassword="$POSTGRES_PASSWORD" \
   --query "properties.outputs" \
   --output table
 ```
