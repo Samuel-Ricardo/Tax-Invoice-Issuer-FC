@@ -22,6 +22,10 @@ param postgresAdminUser string = 'pgadmin'
 @description('Key Vault ID containing secrets (e.g., /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.KeyVault/vaults/{vaultName})')
 param keyVaultId string
 
+@description('PostgreSQL admin password (stored in Key Vault)')
+@secure()
+param postgresAdminPassword string
+
 @description('Key Vault secret name for PostgreSQL password')
 param postgresPasswordSecretName string = 'postgres-password'
 
@@ -73,7 +77,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2023-06-01-pr
   }
   properties: {
     administratorLogin: postgresAdminUser
-    administratorLoginPassword: reference(keyVaultId, '2023-07-01').getSecret(postgresPasswordSecretName)
+    administratorLoginPassword: postgresAdminPassword
     version: '15'
     storage: {
       storageSizeGB: 32
