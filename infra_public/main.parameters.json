@@ -23,8 +23,13 @@
       },
       "value": null
     },
-    "postgresPasswordSecretName": {
-      "value": "postgres-password"
+    "postgresAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP}/providers/Microsoft.KeyVault/vaults/{KEY_VAULT_NAME}"
+        },
+        "secretName": "postgres-password"
+      }
     },
     "databaseName": {
       "value": "invoicesdb"
