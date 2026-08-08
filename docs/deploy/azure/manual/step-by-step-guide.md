@@ -12,6 +12,17 @@
 > - Basic knowledge of cloud concepts (VMs, databases, networking)
 > - GitHub Container Registry (GHCR) image: `ghcr.io/samuel-ricardo/tax-invoice-issuer-fc:main` (built from this repo)
 > - Text editor for copying/pasting values
+> - **Resource providers registered** on your subscription:
+>   - `Microsoft.App` (required for Container Apps)
+>   - `Microsoft.OperationalInsights` (required for Log Analytics)
+>   - The portal may auto-register these, but it can fail silently. Register explicitly:
+>
+>     ```bash
+>     az provider register --namespace Microsoft.App
+>     az provider register --namespace Microsoft.OperationalInsights
+>     ```
+>
+>     Verify status with `az provider show --namespace Microsoft.App --query registrationState` (should read `Registered`).
 
 ---
 
@@ -30,6 +41,8 @@ We'll create these Azure resources in this order (dependencies matter):
 7. **Container App** - Our Node.js API (scale-to-zero, from GHCR)
 
 > 💡 **Why this order?** Some resources depend on others (e.g., Container App needs the Environment; Key Vault needs to exist before we can reference its secrets).
+>
+> 📝 **Portal note**: In the current Azure Portal, the Container Apps Environment (item 6) and the Container App (item 7) are created **in a single flow** — the environment is created inline during Container App creation via the "Create new environment" link on the Basics tab. They remain two distinct ARM resources, but the portal merges their creation into one wizard to streamline the experience.
 
 ---
 
@@ -178,118 +191,168 @@ We'll create these Azure resources in this order (dependencies matter):
 
 ---
 
-## 🏗️ Step 6: Create Container Apps Environment
+## 📦 Step 6: Create Container App & Environment (Our API)
 
-**Purpose**: The foundational environment for our Container Apps (networking, logging, monitoring).
+**Purpose**: Deploy our Node.js application (from GHCR) to run in Azure. In the current Azure Portal, the **Container Apps Environment** and the **Container App** are created in a single wizard — the environment is created inline on the Basics tab.
 
-1. In RG, click **+ Create**
-2. Search for "Container Apps environment" → Select → **Create**
-3. **Basics tab**:
-   - Subscription: [your sub]
-   - Resource group: `rg-tax-invoice-fc-learn`
-   - Name: `env-tax-invoice-fc-learn`
-   - Region: Same as RG
-4. **Networking tab**:
-   - **Connect to an existing virtual network**: **Yes**
-   - Virtual network: `vnet-tax-invoice-fc`
-   - Subnet: `snet-tax-invoice-fc` (same subnet as DB)
-   - **Enable Dapr**: **No** (not needed for this app)
-5. **Monitoring tab**:
-   - **Connect to Log Analytics workspace**: **Yes**
-   - Log analytics workspace: `law-tax-invoice-fc-learn` (the one we created)
-   - Leave other defaults
-6. Click **Review + create** → **Create**
+> ⚠️ **Important**: The Container Apps Environment is **not** a standalone Marketplace resource you can search for and create separately. It is created **inline** during Container App creation via the "Create new environment" link on the Basics tab. If you search the Marketplace for "Container Apps environment", you will only find "Container App", "Container App Job", and "Container App Session Pool" — none of which is the environment by itself.
 
-> 🌐 **Learning Point**:
->
-> - This creates a managed environment where our Container App will run
-> - VNet integration here allows the app to privately reach the database
-> - Log Analytics connection enables app logging
+### Open the Container App creation wizard
 
----
+1. Go to [Azure Portal](https://portal.azure.com)
+2. In the **top search bar**, search for **"Container Apps"** (plural — the service name)
+3. Select the **Container Apps** service from the results → click **Create** → **Container App**
 
-## 📦 Step 7: Create Container App (Our API)
+### Basics tab (creates Container App + inline Environment)
 
-**Purpose**: Deploy our Node.js application (from GHCR) to run in Azure.
-
-1. In RG, click **+ Create**
-2. Search for "Container App" → Select → **Create**
-3. **Basics tab**:
+4. Fill in the Container App basics:
    - Subscription: [your sub]
    - Resource group: `rg-tax-invoice-fc-learn`
    - Container app name: `app-tax-invoice-fc-learn` (globally unique)
-   - Region: Same as RG
-   - Environment: `env-tax-invoice-fc-learn` (select the one we created)
-4. **Container tab**:
-   - Image source: **Container Registry** (other options: Docker Hub, ACR)
-   - Server: `ghcr.io`
-   - Image name: `samuel-ricardo/tax-invoice-issuer-fc`
-   - Tag: `main`
-   - **Credentials**:
-     - Username: Your GitHub username
-     - Password: [Generate a **Personal Access Token** (PAT) from GitHub with `read:packages` scope]
-       - Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token
-       - Select `read:packages`, no expiration, generate → **COPY THIS TOKEN**
-   - Click **+ Add container** (if not already visible)
-5. **Ingress tab**:
-   - **Allow incoming traffic**: **Yes**
-   - Traffic: **HTTP**
-   - Port: `3000` (matches our Dockerfile EXPOSE)
-   - **Allow insecure connections**: **No** (HTTPS only - Azure provides managed cert)
-6. **Scaling tab**:
-   - Minimum replicas: `0` (scale-to-zero = free when idle)
-   - Maximum replicas: `1` (enough for learning/demo)
-   - Scale rule:
-     - Type: **HTTP**
-     - Concurrent requests: `10`
-   - Leave other defaults
-7. **Resources tab** (per replica):
-   - CPU: `0.25` cores
-   - Memory: `0.5 Gi` (matches our architecture)
-8. **Environment variables tab**:
-   - We'll set these in the next step via Key Vault references
-   - For now, add these as plain values (we'll replace with KV references later):
-     - `NODE_ENV`: `production`
-     - `PORT`: `3000`
-9. Click **Review + create** → **Create**
+   - Region: Same as RG (East US)
+
+5. In the **Container Apps environment** field, click **Create new environment** — this opens the inline environment sub-wizard:
+
+   #### Environment sub-wizard — Basics
+   - **Name**: `env-tax-invoice-fc-learn`
+   - **Zone redundancy**: Leave disabled (not needed for learning)
+
+   #### Environment sub-wizard — Monitoring
+   - **Log Analytics workspace**: Select `law-tax-invoice-fc-learn` (the one we created in Step 4)
+
+   #### Environment sub-wizard — Networking
+   - **Use your own virtual network**: **Yes**
+   - Virtual network: `vnet-tax-invoice-fc`
+   - Subnet: `snet-tax-invoice-fc`
+   - **Virtual IP**: **External** (for public ingress — Azure will provision a managed TLS certificate)
+
+   #### Environment sub-wizard — Workload profiles
+   - Skip — no need to add a dedicated profile. The default **Consumption** (Workload profiles environment) is sufficient for scale-to-zero billing.
+
+   Click **Create** to create the environment. You'll return to the Container App Basics tab with the new environment selected.
+
+> 🌐 **Learning Point**:
+>
+> - The Managed Environment is the foundational resource where Container Apps run — it defines networking, logging, and Dapr integration for all apps in it.
+> - VNet integration here allows the app to privately reach the database.
+> - Log Analytics connection enables app logging.
+> - Dapr is **not** configured at the environment level in the portal — it's enabled per-Container-App post-create (Settings → Dapr). We don't need Dapr for this app.
+
+### Container tab (image, resources, environment variables)
+
+6. Uncheck the **Use quickstart image** checkbox (if pre-selected) to enable custom image settings.
+
+7. **Image source**: **Docker Hub or other registries** (this option covers GHCR)
+
+8. **Registry login server**: `ghcr.io`
+   - **Image type**: **Private**
+   - **Image and tag**: `samuel-ricardo/tax-invoice-issuer-fc:main`
+
+9. **Registry credentials**:
+   - **Username**: Your GitHub username
+   - **Password**: **Generate a Personal Access Token (PAT)** from GitHub with `read:packages` scope:
+     - Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token
+     - Select `read:packages` scope
+     - Set a 90-day expiry (or per your organization's policy). **Do not use "no expiration"** — it's a security risk.
+     - Generate → **COPY THIS TOKEN** (you won't see it again)
+   - Note: If the GHCR image is **public**, registry credentials may not be required.
+
+10. **Resource allocation** (sub-section within the Container tab — this sets per-replica CPU/memory):
+    - CPU: `0.25` cores (minimum — matches our architecture)
+    - Memory: `0.5 Gi` (minimum — matches our architecture)
+
+11. **Environment variables** (sub-section within the Container tab):
+    - Add these as plain values for now (we'll replace the password with a Key Vault reference after deployment):
+      - `NODE_ENV`: `production`
+      - `PORT`: `3000`
+    - The `DATABASE_PASSWORD` will be bound via a **secret reference** in the post-deploy Key Vault configuration below.
+
+### Ingress tab
+
+12. **Ingress**: **Enabled** (allows incoming traffic to the Container App)
+
+13. **Accepting traffic from**: **Anywhere** (public access, suitable for learning)
+
+14. **Ingress type**: **HTTP**
+
+15. **Transport**: **Auto** (Azure will negotiate HTTP/1 or HTTP/2 automatically)
+
+16. **Target port**: `3000` (this is the **container target port** — what your Node.js app listens on internally)
+
+    > ⚠️ **Port clarification**: The Target port (`3000`) is the port your container listens on. **External** access is via **HTTPS on port 443** — Azure provisions a **managed TLS certificate** automatically and terminates TLS at the ingress. The public-facing URL uses HTTPS on the standard port.
+    >
+    > Leave the **Insecure connections** checkbox **unchecked** — this disables plaintext external access and forces HTTPS-only, which is the recommended default.
+
+### Scaling tab
+
+17. **Minimum replicas**: `0` (scale-to-zero = free when idle)
+18. **Maximum replicas**: `1` (enough for learning/demo)
+19. **Scale rule**:
+    - Type: **HTTP**
+    - Concurrent requests: `10`
+
+### Review + create
+
+20. Click **Review + create** → review the summary → **Create**
 
 > ⏳ Wait for deployment (~2-3 mins)
 
 ### 🔑 Configure Secure Database Connection via Key Vault
 
-Now we'll replace the plain DB connection with a secure Key Vault reference.
+Now we'll bind the database password and connection values to the Container App using **Key Vault references** — the Container Apps-native secrets mechanism.
+
+> ⚠️ **Important — Container Apps secrets mechanism**: Container Apps uses a secrets model that is distinct from App Service. Do **not** look for a "Configuration → Application settings" blade with a key-vault-icon picker (that's the App Service flow). Container Apps has a dedicated **Secrets** management surface under the **Security** section of the Container App resource. Environment variables bind to secrets via `secretRef` (mirroring how the Bicep template works — see `infra_public/main.bicep` lines 129–135 and 164–165).
+
+#### Step A: Enable system-assigned managed identity (required for Key Vault access)
 
 1. Go to your Container App (`app-tax-invoice-fc-learn`)
-2. Left menu: **Configuration** → **Application settings** tab
-3. **Add these key-value pairs**:
-   - **Name**: `DATABASE_HOST`
-     - **Value**: `psql-tax-invoice-fc-learn.postgres.database.azure.com`
-       _(Find this in your PostgreSQL server's Overview page → "Server name")_
-   - **Name**: `DATABASE_PORT`
-     - **Value**: `5432`
-   - **Name**: `DATABASE_USER`
-     - **Value**: `dbadmin` (the admin username we set earlier)
-   - **Name**: `DATABASE_NAME`
-     - **Value**: `tax_invoice_db` (or whatever you prefer; matches our app's expectation)
+2. Left menu: **Security** section → **Identity**
+3. Under **System assigned**, toggle the status to **On** → **Save**
+4. Note the **Object (principal) ID** — you'll need this (or the managed identity name) for the Key Vault role assignment below.
+
+> 🔐 **Learning Point**: The system-assigned managed identity is how the Container App authenticates to Key Vault without storing any credentials. Until you enable it, the Container App cannot read Key Vault secrets via RBAC.
+
+#### Step B: Add non-secret environment variables
+
+1. Go to your Container App (`app-tax-invoice-fc-learn`)
+2. Left menu: **Configuration** (or **Containers** → **Environment variables**, depending on portal version)
+3. Add or confirm these **plain** environment variables:
+   - `DATABASE_HOST`: `psql-tax-invoice-fc-learn.postgres.database.azure.com`
+     _(Find this in your PostgreSQL server's Overview page → "Server name")_
+   - `DATABASE_PORT`: `5432`
+   - `DATABASE_USER`: `dbadmin` (the admin username we set earlier)
+   - `DATABASE_NAME`: `invoicesdb` (aligns with the Bicep template — `infra_public/main.bicep` defines `databaseName = 'invoicesdb'`)
+   - `NODE_ENV`: `production`
+   - `PORT`: `3000`
+4. Click **Save / Apply**
+
+#### Step C: Create a Key Vault reference secret in the Container App
+
+1. Still on your Container App (`app-tax-invoice-fc-learn`) → left menu **Security** section → **Secrets**
+2. Click **+ Add** (or **Add secret**)
+3. Configure the secret:
+   - **Type**: **Key Vault reference**
+   - **Name**: `kv-postgres-password` (this is the internal secret name the env var will bind to)
+   - **Key Vault URI**: The full secret URI — for example:
+     `https://kv-tax-invoice-fc-learn.vault.azure.net/secrets/db-password`
+     _(To find the full URI: go to Key Vault → Secrets → `db-password` → copy the "Secret Identifier" value. The URI includes the version segment if you pick a specific version; omitting the version always resolves to the latest.)_
+   - **Identity**: **System assigned** (uses the identity you enabled in Step A)
+4. Click **Add** → **Save**
+
+#### Step D: Bind the DATABASE_PASSWORD environment variable to the secret
+
+1. Still on your Container App → left menu **Configuration** (or **Containers** → **Environment variables**)
+2. Add (or edit) the `DATABASE_PASSWORD` environment variable:
    - **Name**: `DATABASE_PASSWORD`
-     - **Value**:
-       - Click the **Key Vault reference** icon (looks like a key)
-       - Subscription: [your sub]
-       - Resource group: `rg-tax-invoice-fc-learn`
-       - Key vault: `kv-tax-invoice-fc-learn`
-       - Secret: `db-password` (the one we created)
-       - Click **Select**
-   - **Name**: `NODE_ENV`
-     - **Value**: `production`
-   - **Name**: `PORT`
-     - **Value**: `3000`
-4. Click **Apply** at top
+   - **Source**: **Reference Container Apps secret** (i.e., bind via `secretRef`)
+   - **Secret name**: `kv-postgres-password` (the secret you created in Step C)
+3. Click **Save / Apply**
 
 > 🔐 **Learning Point**:
 >
-> - The app never sees the actual password - it gets injected at runtime from Key Vault
-> - This requires the Container App's **managed identity** to have access to Key Vault
-> - We'll set that up next
+> - The app never sees the actual password — it gets injected at runtime via the Container Apps secrets mechanism, sourced from Key Vault by the managed identity.
+> - This mirrors the Bicep deployment exactly: `secrets: [{name:'kv-postgres-password', keyVaultUrl, identity:'system'}]` + `env:[{name:'DATABASE_PASSWORD', secretRef:'kv-postgres-password'}]` (see `infra_public/main.bicep` L129–135 and L164–165).
+> - Container Apps does **not** use the `@Microsoft.KeyVault(...)` reference syntax — that's for App Service. Container Apps uses the `secretRef` model instead.
 
 ### 🔗 Grant Container App Access to Key Vault
 
@@ -300,7 +363,7 @@ Now we'll replace the plain DB connection with a secure Key Vault reference.
 5. Select members:
    - Subscription: [your sub]
    - Resource group: `rg-tax-invoice-fc-learn`
-   - Managed identity: `app-tax-invoice-fc-learn` (should appear as a system-assigned identity)
+   - Managed identity: `app-tax-invoice-fc-learn` (should appear as a system-assigned identity — confirming Step A enabled it)
 6. Click **Review + assign** → **Review + assign**
 
 > 🔑 **Learning Point**:
@@ -310,102 +373,3 @@ Now we'll replace the plain DB connection with a secure Key Vault reference.
 > - No secrets or keys stored in the app or deployment process
 
 ---
-
-## 🧪 Step 8: Test the Deployment
-
-Let's verify our application is working.
-
-1. Go to your Container App (`app-tax-invoice-fc-learn`)
-2. Left menu: **Overview**
-3. Find the **Application URL** (looks like `https://app-tax-invoice-fc-learn.<random>.westeurope.azurecontainerapps.io`)
-4. Click the link or copy/paste into a new browser tab
-5. You should see: `{"hello":"world"}`
-6. Test the invoice endpoint:
-   - Append `/invoice` to the URL: `https://.../invoice`
-   - Use a tool like [curl](https://curl.se/) or [Postman](https://www.postman.com/) to POST:
-     ```bash
-     curl -X POST https://app-tax-invoice-fc-learn.<random>.westeurope.azurecontainerapps.io/invoice \
-       -H "Content-Type: application/json" \
-       -d '{"month":1,"year":2024,"type":"cash"}'
-     ```
-   - Expected response: JSON array with invoice amount (e.g., `[{"date":"2024-01-15T00:00:00.000Z","amount":1500.5}]`)
-
-> ✅ **Success**: If you get a JSON response, your app is connected to the database via Key Vault!
->
-> 🔍 **Troubleshooting Tips**:
->
-> - Check **Container App → Logs** (streaming) for errors
-> - Verify Key Vault access: App's managed identity must have "Key Vault Secrets User" role
-> - Confirm PostgreSQL firewall: Should be **private endpoint only** (no public access)
-> - Ensure VNet/subnet matches between DB, Key Vault, and Container App Environment
-
----
-
-## 📝 Step 9: Explore & Learn (Optional but Recommended)
-
-### View Logs in Log Analytics
-
-1. Go to your Log Analytics workspace (`law-tax-invoice-fc-learn`)
-2. Left menu: **Logs**
-3. Run a query to see app logs:
-   ```kusto
-   ContainerAppConsoleLogs_CL
-   | where ContainerAppName_s == "app-tax-invoice-fc-learn"
-   | order by TimeGenerated desc
-   | limit 20
-   ```
-
-### Check Database Connection (Advanced)
-
-> ⚠️ Only do this if you have a local PostgreSQL client and want to verify VNet connectivity
-
-1. Deploy a jumpbox VM in the same VNet (not covered here for simplicity)
-2. Or use Azure Cloud Shell with `psql` installed:
-   ```bash
-   az postgres flexible-server connect --name psql-tax-invoice-fc-learn --resource-group rg-tax-invoice-fc-learn
-   ```
-3. Then run: `\dt` to see tables (our app creates `invoices` on startup)
-
----
-
-## 🗑️ Cleanup (When Done Learning)
-
-To avoid unexpected charges:
-
-1. Go to your Resource Group: `rg-tax-invoice-fc-learn`
-2. Click **Delete resource group**
-3. Type the resource group name to confirm
-4. Click **Delete**
-
-> 💡 **Alternative**: Delete resources individually if you want to keep some for further experimentation.
-
----
-
-## 🎓 Key Learning Takeaways
-
-| Concept                   | What You Learned                                                             |
-| ------------------------- | ---------------------------------------------------------------------------- |
-| **Resource Groups**       | Logical boundary for lifecycle management                                    |
-| **Virtual Networks**      | Foundation for private, secure Azure networking                              |
-| **Private Endpoints**     | How to keep PaaS services (DB, KV) off the public internet                   |
-| **Managed Identities**    | Secure way for Azure services to authenticate to other services (no secrets) |
-| **Key Vault**             | Centralized secret management with access policies                           |
-| **Container Apps**        | Serverless containers with scale-to-zero, built-in networking, and logging   |
-| **Environment Variables** | How to configure apps securely in Azure (avoiding hardcoded values)          |
-| **Observability**         | Centralized logging with Log Analytics for debugging                         |
-| **Dependency Order**      | Why we create resources in this sequence (network → DB → KV → Env → App)     |
-
-## 🔗 Next Steps for Automation
-
-Once you're comfortable with the manual process:
-
-1. Compare this to the existing Bicep template (`infra_public/main.bicep`)
-2. Automate using Azure CLI or Azure PowerShell
-3. Implement CI/CD with GitHub Actions (see `.github/workflows/docker-publish.yaml`)
-4. Explore advanced features: custom domains, autoscaling rules, backup policies
-
----
-
-> 📚 **Remember**: The goal isn't just to get it working—it's to understand **why** each step is necessary and how the pieces fit together. Take time to read the tooltips in Azure Portal and check the "Learn more" links.
-
-Happy learning on Azure! ☁️
