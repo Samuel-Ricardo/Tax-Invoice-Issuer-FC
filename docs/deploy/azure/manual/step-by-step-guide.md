@@ -163,6 +163,8 @@ We'll create these Azure resources in this order (dependencies matter):
 4. **Access configuration tab**:
    - Permission model: **Azure role-based access control** (modern approach)
    - Leave other defaults
+
+> ⚠️ **Important**: Confirm that **Azure role-based access control (recommended)** is selected, not **Vault access policy**. The `Key Vault Secrets User` role assigned through **Access control (IAM)** only grants data-plane access when the vault uses the Azure RBAC permission model. If this vault already exists with **Vault access policy**, select Azure RBAC and click **Apply** before configuring the Container App secret reference.
 5. **Networking tab**:
    - Private endpoint connections: **+ Add**
      - Name: `pe-kv-tax-invoice-fc-learn`
@@ -231,10 +233,36 @@ We'll create these Azure resources in this order (dependencies matter):
 
    Click **Create** to create the environment. You'll return to the Container App Basics tab with the new environment selected.
 
+   #### Verify public access to the Managed Environment
+
+   The Container App can use the VNet for private connections to PostgreSQL and Key Vault while still exposing its HTTP ingress publicly. These are separate settings. After the environment is created:
+
+   1. Open the Container Apps Environment (`env-tax-invoice-fc-learn`)
+   2. Open **Settings** and locate the environment networking/public access setting (the exact menu label can vary by portal version)
+   3. Set **Public network access** to **Enabled** and click **Save**
+
+   If this setting is disabled, the application URL can show the message:
+
+   ```text
+   The public network access on this managed environment is disabled.
+   ```
+
+   In that case, the Container App's **Ingress** page may still show **Ingress enabled**, **Accepting traffic from anywhere**, and a valid endpoint, but the environment blocks external traffic before it reaches the application. The VNet integration remains enabled after public network access is enabled.
+
+   > **Cloud Shell alternative**: If the portal does not display the setting, run:
+   >
+   > ```bash
+   > az containerapp env update \
+   >   --name env-tax-invoice-fc-learn \
+   >   --resource-group rg-tax-invoice-fc-learn \
+   >   --public-network-access Enabled
+   > ```
+
 > 🌐 **Learning Point**:
 >
 > - The Managed Environment is the foundational resource where Container Apps run — it defines networking, logging, and Dapr integration for all apps in it.
 > - VNet integration here allows the app to privately reach the database.
+> - Public network access controls whether clients on the internet can reach the environment; it does not disable the app's private VNet connectivity.
 > - Log Analytics connection enables app logging.
 > - Dapr is **not** configured at the environment level in the portal — it's enabled per-Container-App post-create (Settings → Dapr). We don't need Dapr for this app.
 
@@ -312,7 +340,23 @@ Now we'll bind the database password and connection values to the Container App 
 
 > 🔐 **Learning Point**: The system-assigned managed identity is how the Container App authenticates to Key Vault without storing any credentials. Until you enable it, the Container App cannot read Key Vault secrets via RBAC.
 
-#### Step B: Add non-secret environment variables
+#### Step B: Grant Container App access to Key Vault
+
+Grant access before creating the Container Apps reference. Container Apps validates the Key Vault secret while provisioning the revision, so the identity must already be authorized.
+
+1. Go to your Key Vault (`kv-tax-invoice-fc-learn`)
+2. Open **Access control (IAM)** → **+ Add** → **Add role assignment**
+3. Select the role **Key Vault Secrets User**
+4. For **Assign access to**, select **Managed identity**
+5. Select members:
+   - Subscription: [your sub]
+   - Resource group: `rg-tax-invoice-fc-learn`
+   - Managed identity: `app-tax-invoice-fc-learn` (the system-assigned identity)
+6. Click **Review + assign** → **Review + assign**
+
+> 🔎 **Verify the identity**: Use the current **Object (principal) ID** shown under Container App → **Identity**. If the system-assigned identity was disabled and enabled again, its principal ID may have changed; a role assignment for the old ID will not work.
+
+#### Step C: Add non-secret environment variables
 
 1. Go to your Container App (`app-tax-invoice-fc-learn`)
 2. Left menu: **Configuration** (or **Containers** → **Environment variables**, depending on portal version)
@@ -326,7 +370,7 @@ Now we'll bind the database password and connection values to the Container App 
    - `PORT`: `3000`
 4. Click **Save / Apply**
 
-#### Step C: Create a Key Vault reference secret in the Container App
+#### Step D: Create a Key Vault reference secret in the Container App
 
 1. Still on your Container App (`app-tax-invoice-fc-learn`) → left menu **Security** section → **Secrets**
 2. Click **+ Add** (or **Add secret**)
@@ -339,7 +383,7 @@ Now we'll bind the database password and connection values to the Container App 
    - **Identity**: **System assigned** (uses the identity you enabled in Step A)
 4. Click **Add** → **Save**
 
-#### Step D: Bind the DATABASE_PASSWORD environment variable to the secret
+#### Step E: Bind the DATABASE_PASSWORD environment variable to the secret
 
 1. Still on your Container App → left menu **Configuration** (or **Containers** → **Environment variables**)
 2. Add (or edit) the `DATABASE_PASSWORD` environment variable:
@@ -354,22 +398,22 @@ Now we'll bind the database password and connection values to the Container App 
 > - This mirrors the Bicep deployment exactly: `secrets: [{name:'kv-postgres-password', keyVaultUrl, identity:'system'}]` + `env:[{name:'DATABASE_PASSWORD', secretRef:'kv-postgres-password'}]` (see `infra_public/main.bicep` L129–135 and L164–165).
 > - Container Apps does **not** use the `@Microsoft.KeyVault(...)` reference syntax — that's for App Service. Container Apps uses the `secretRef` model instead.
 
-### 🔗 Grant Container App Access to Key Vault
+### 🧭 Troubleshooting: `Unable to fetch secret`
 
-1. Go to your Key Vault (`kv-tax-invoice-fc-learn`)
-2. Left menu: **Access control (IAM)** → **+ Add** → **Add role assignment**
-3. Role: **Key Vault Secrets User**
-4. Assign access to: **Managed identity**
-5. Select members:
-   - Subscription: [your sub]
-   - Resource group: `rg-tax-invoice-fc-learn`
-   - Managed identity: `app-tax-invoice-fc-learn` (should appear as a system-assigned identity — confirming Step A enabled it)
-6. Click **Review + assign** → **Review + assign**
+If the revision fails with an error such as `Field 'configuration.secrets' is invalid` or `Unable to fetch secret`, check these items in order:
+
+1. In Key Vault → **Settings** → **Access configuration**, confirm **Permission model: Azure role-based access control**. An IAM role does not grant secret access while the vault is using **Vault access policy**.
+2. In Key Vault → **Access control (IAM)** → **Check access**, confirm that the Container App's current principal ID has **Key Vault Secrets User**. The `Owner` role alone does not grant Key Vault data-plane secret access.
+3. In Key Vault → **Secrets** → `db-password`, confirm **Enabled: Yes** and that the secret has a non-empty value. Do not expose the value in logs or screenshots.
+4. Copy the **Secret Identifier** from the secret and use the URI without a version first:
+   `https://kv-tax-invoice-fc-learn.vault.azure.net/secrets/db-password`
+5. To isolate the problem, create a temporary non-sensitive Key Vault secret such as `aca-test` with value `ok`, then reference it as `kv-aca-test`. A local Container Apps secret does not test the Key Vault integration.
+6. If both Key Vault secrets fail and the vault uses a private endpoint, verify that the private endpoint is **Approved** with provisioning state **Succeeded**, that its NIC private IP matches the A record in `privatelink.vaultcore.azure.net`, and that the DNS zone is linked to `vnet-tax-invoice-fc`. As a reversible diagnostic, temporarily test with the private DNS link removed while public access is enabled; restore the private networking configuration after the test.
 
 > 🔑 **Learning Point**:
 >
-> - This gives the Container App permission to read secrets from Key Vault
-> - Uses Azure RBAC (Role-Based Access Control) - the modern, secure way
-> - No secrets or keys stored in the app or deployment process
+> - The `Key Vault Secrets User` role must be assigned to the current system-assigned identity, at the Key Vault scope whenever possible.
+> - Avoid granting `Owner` to the Container App identity; it is broader than necessary.
+> - The most specific fix for this manual deployment was switching the Key Vault permission model from **Vault access policy** to **Azure role-based access control**, then retrying the reference.
 
 ---
