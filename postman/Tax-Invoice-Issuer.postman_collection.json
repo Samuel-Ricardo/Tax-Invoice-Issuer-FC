@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "tax-invoice-fc-2026",
     "name": "Tax Invoice Issuer - Full Coverage",
-    "description": "Coleção completa de testes para Tax Invoice Issuer FC\n\n## Cenários Cobertos:\n- ✅ Happy Path (Cash & Accrual)\n- ✅ Validações de campos obrigatórios\n- ✅ Validações de tipos de dados\n- ✅ Validações de enums\n- ✅ Edge cases (limites, valores inválidos)\n- ✅ Health check\n\n## Setup:\nBase URL: http://localhost:3000",
+    "description": "Coleção completa de testes para Tax Invoice Issuer FC\n\n## Cenários Cobertos:\n- ✅ Happy Path (Cash & Accrual)\n- ✅ Validações de campos obrigatórios\n- ✅ Validações de tipos de dados\n- ✅ Validações de enums\n- ✅ Edge cases (limites, valores inválidos)\n- ✅ Health check\n- ✅ Testes de segurança e JSON malformado\n\n## Ambientes:\n- Azure Learn-prod: selecione o environment `Tax Invoice Issuer - Azure Learn-prod`\n- Local: selecione o environment `Tax Invoice Issuer - Local`\n\nA coleção usa a variável `baseUrl`, permitindo executar os mesmos requests contra o Azure ou contra uma instância local.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -982,7 +982,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000",
+      "value": "https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io",
       "type": "string"
     }
   ]
