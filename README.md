@@ -39,7 +39,7 @@ Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de
 
 ### 🧪 Para QA & Testers
 
-- **[Coleção Postman](./postman/README.md)** - 23 requests com 60+ assertions
+- **[Coleção Postman](./postman/README.md)** - 23 requests, ~42 assertions, 2 environments (Local + Azure)
 - **[Importar Coleção](./postman/Tax-Invoice-Issuer.postman_collection.json)** - Arquivo JSON
 
 ### 📑 Índice Geral
@@ -156,7 +156,7 @@ Content-Type: application/json
 
 ### Coleção Postman
 
-**23 requests** organizados em 6 categorias:
+**23 requests** (~42 assertions) organizados em 6 categorias:
 
 - ✅ Health Check (1)
 - ✅ Happy Path (3)
@@ -168,9 +168,20 @@ Content-Type: application/json
 **Importar**:
 
 1. Abra o Postman
-2. Import → Folder → Selecione `postman/`
-3. Selecione environment "Tax Invoice Issuer - Local"
+2. Import → Folder → Selecione `postman/` (importa coleção + 2 environments)
+3. Selecione o environment (canto superior direito): **Tax Invoice Issuer - Local** (local) ou **Tax Invoice Issuer - Azure Learn-prod** (deploy Azure)
 4. Run Collection
+
+### Configurar Postman (Passo a Passo)
+
+1. Abra o Postman → **Import** → **Folder** → selecione `postman/` (importa a coleção e os 2 environments)
+2. Escolha o environment no canto superior direito:
+   - **Tax Invoice Issuer - Local** → API em `http://localhost:3000` (antes rode `npm run build && npm run start`)
+   - **Tax Invoice Issuer - Azure Learn-prod** → API publicada em `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`
+3. ⚠️ A variável `baseUrl` da coleção tem como padrão a URL do Azure — selecione um environment acima para sobrescrever
+4. Execute primeiro o **Health Check → GET /** (esperado: `{"hello":"world"}` com HTTP 200)
+5. Para rodar tudo: botão direito na coleção **"Tax Invoice Issuer - Full Coverage"** → **Run collection**
+6. No Azure, `POST /invoice` só passará depois que o container tiver `DATABASE_URL` válida configurada (veja Troubleshooting em `postman/README.md`)
 
 **Documentação completa**: [postman/README.md](./postman/README.md)
 
@@ -360,7 +371,7 @@ npm run test:watch
 
 ### Testing
 
-- **API Testing**: Postman Collection (23 requests)
+- **API Testing**: Postman Collection (23 requests, ~42 assertions, 2 environments)
 - **Unit Testing**: Jest (estrutura criada)
 - **E2E Testing**: Estrutura criada
 
@@ -402,10 +413,11 @@ Tax-Invoice-Issuer-FC/
 │   ├── ANALISE-PROFUNDA.md        # Análise técnica
 │   └── QUICK-START-TESTS.md       # Guia rápido
 │
-├── postman/                        # 🧪 Coleção de testes
-│   ├── README.md                  # Guia da coleção
-│   ├── *.postman_collection.json  # 23 requests
-│   └── *.postman_environment.json # Environment local
+├── postman/                                    # 🧪 Coleção de testes
+│   ├── README.md                               # Guia da coleção
+│   ├── Tax-Invoice-Issuer.postman_collection.json            # 23 requests / ~42 assertions
+│   ├── Tax-Invoice-Issuer.postman_environment.json           # Environment Local
+│   └── Tax-Invoice-Issuer-Azure.postman_environment.json     # Environment Azure Learn-prod
 │
 ├── src/                            # 💻 Código fonte
 │   ├── @decorators/               # Decorators (Validation, Logging)
