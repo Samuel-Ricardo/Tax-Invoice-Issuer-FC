@@ -35,6 +35,7 @@
 postman/
 ├── Tax-Invoice-Issuer.postman_collection.json    ✅ 23 requests
 ├── Tax-Invoice-Issuer.postman_environment.json   ✅ Environment local
+├── Tax-Invoice-Issuer-Azure.postman_environment.json ✅ Environment Azure Learn-prod
 └── README.md                                      ✅ Guia completo
 ```
 
@@ -108,7 +109,7 @@ Tests:       27 passed, 27 total
 
 ### Assertions Automáticas
 
-✅ **~60 assertions** implementadas  
+✅ **~42 assertions** implementadas  
 ✅ **Status codes** validados  
 ✅ **Response structure** verificada  
 ✅ **Error messages** checadas  
@@ -217,7 +218,7 @@ year: z.number().int().min(2000).max(2100)
 ### Testes Criados
 
 - 🧪 **23 requests** Postman
-- ✅ **60+ assertions** automáticas
+- ✅ **42 assertions** automáticas
 - 📂 **6 categorias** de teste
 - 🎯 **100% endpoints** cobertos
 - 🆕 **17 novos E2E tests** (July 2026 - Strategy + HTTP)
@@ -273,6 +274,7 @@ year: z.number().int().min(2000).max(2100)
 # 1. Abra o Postman
 # 2. Import → Folder → Selecione pasta 'postman/'
 # 3. Selecione environment "Tax Invoice Issuer - Local"
+# 4. (Opcional) Selecione "Tax Invoice Issuer - Azure Learn-prod" para testar o deploy no Azure
 # 4. Execute "Health Check" → GET /
 ```
 
@@ -520,7 +522,7 @@ Changes: Adicionou test/E2E/http.spec.ts (12 testes HTTP Protocol)
 ### Testes
 
 ✅ **23 requests** Postman  
-✅ **60+ assertions** automáticas  
+✅ **42 assertions** automáticas  
 ✅ **6 categorias** de teste  
 ✅ **100% cobertura** de endpoints
 
