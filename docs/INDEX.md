@@ -82,7 +82,7 @@ Complete index of all project documentation and test resources.
 **Content**:
 
 - 23 organized requests
-- ~60 automated assertions
+- ~42 automated assertions
 - 6 test categories
 - Validation scripts
 
@@ -90,16 +90,15 @@ Complete index of all project documentation and test resources.
 
 ---
 
-#### 6. [Postman Environment - JSON](../postman/Tax-Invoice-Issuer.postman_environment.json) 🌍
+#### 6. [Postman Environments - JSON](../postman/Tax-Invoice-Issuer.postman_environment.json) 🌍
 
-**Type**: Postman Environment File  
+**Type**: Postman Environment Files
 **Content**:
 
-- baseUrl: http://localhost:3000
-- host: localhost
-- port: 3000
+- 🌍 **Local**: [Tax-Invoice-Issuer.postman_environment.json](../postman/Tax-Invoice-Issuer.postman_environment.json) → "Tax Invoice Issuer - Local" — baseUrl: `http://localhost:3000`, host: `localhost`, port: `3000`
+- ☁️ **Azure Learn-prod**: [Tax-Invoice-Issuer-Azure.postman_environment.json](../postman/Tax-Invoice-Issuer-Azure.postman_environment.json) → "Tax Invoice Issuer - Azure Learn-prod" — baseUrl: `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`, port: `443`, protocol: `https`
 
-**How to use**: Import and select in Postman
+**How to use**: Import both files in Postman, then select the wanted environment in the upper-right corner
 
 ---
 
@@ -255,8 +254,9 @@ Tax-Invoice-Issuer-FC/
 │
 ├── postman/                                 # 🧪 Postman Tests
 │   ├── README.md                           # 📖 Collection guide
-│   ├── Tax-Invoice-Issuer.postman_collection.json   # 📦 Collection (23 requests)
-│   └── Tax-Invoice-Issuer.postman_environment.json  # 🌍 Local environment
+│   ├── Tax-Invoice-Issuer.postman_collection.json               # 📦 Collection (23 requests, ~42 assertions)
+│   ├── Tax-Invoice-Issuer.postman_environment.json              # 🌍 Local environment
+│   └── Tax-Invoice-Issuer-Azure.postman_environment.json        # ☁️ Azure Learn-prod environment
 │
 ├── src/                                     # 💻 Source code
 │   ├── @decorators/                        # 🎨 Decorators
@@ -279,7 +279,7 @@ Tax-Invoice-Issuer-FC/
 
 1. **Complete Postman Collection**
    - 23 requests
-   - 60+ assertions
+   - ~42 assertions
    - 100% endpoint coverage
 
 2. **Technical Documentation**
@@ -340,7 +340,7 @@ Tax-Invoice-Issuer-FC/
 ### Tests
 
 - ✅ **23 requests** Postman
-- ✅ **60+ automated** assertions
+- ✅ **~42 automated** assertions
 - ✅ **6 test** categories
 - ✅ **100% endpoints** covered
 
