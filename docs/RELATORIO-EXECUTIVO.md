@@ -23,20 +23,20 @@ Deep analysis of the Tax Invoice Issuer FC system and creation of comprehensive 
 **Content**:
 
 - ✅ **23 requests** organized by category
-- ✅ **~60 automated** assertions
-- ✅ Local development environment
+- ✅ **~42 automated** assertions
+- ✅ Local + Azure Learn-prod environments
 - ✅ Complete usage documentation
 
 **Coverage**:
 | Categoria | Requests | Assertions | Objetivo |
 |-----------|----------|------------|----------|
 | Health Check | 1 | 2 | Verificar disponibilidade |
-| Happy Path | 3 | 9 | Cenários de sucesso |
+| Happy Path | 3 | 8 | Cenários de sucesso |
 | Required Fields | 4 | 8 | Validar campos obrigatórios |
 | Data Types | 4 | 8 | Validar tipos de dados |
-| Edge Cases | 7 | 14 | Testar limites |
-| Security | 4 | 8 | Proteção contra ataques |
-| **TOTAL** | **23** | **~60** | **100% cobertura** |
+| Edge Cases | 7 | 10 | Testar limites |
+| Security | 4 | 6 | Proteção contra ataques |
+| **TOTAL** | **23** | **~42** | **100% cobertura** |
 
 ### 2. Documentação Técnica
 
@@ -302,12 +302,14 @@ Security: ⚠️ Parcial (sem rate limiting)
 
 - 📂 Localização: `postman/Tax-Invoice-Issuer.postman_collection.json`
 - 🌍 Environment: `postman/Tax-Invoice-Issuer.postman_environment.json`
+- ☁️ Azure Environment: `postman/Tax-Invoice-Issuer-Azure.postman_environment.json`
 
 **Importar**:
 
 1. Abra Postman
-2. Import → Folder → Selecione `postman/`
-3. Run Collection
+2. Import → Folder → Selecione `postman/` (coleção + 2 environments)
+3. Selecione o environment Local ou Azure Learn-prod
+4. Run Collection
 
 ---
 
