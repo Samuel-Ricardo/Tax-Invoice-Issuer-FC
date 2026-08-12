@@ -4,7 +4,7 @@ Coleção completa de testes para a API Tax Invoice Issuer, cobrindo todos os ce
 
 ## 📦 Arquivos
 
-- **Tax-Invoice-Issuer.postman_collection.json** - Coleção principal com 23 requests e ~60 assertions
+- **Tax-Invoice-Issuer.postman_collection.json** - Coleção principal com 23 requests e ~42 assertions
 - **Tax-Invoice-Issuer.postman_environment.json** - Environment de desenvolvimento local
 - **Tax-Invoice-Issuer-Azure.postman_environment.json** - Environment da API publicada no Azure
 
@@ -29,7 +29,7 @@ Para testar a API publicada:
 1. Importe `Tax-Invoice-Issuer-Azure.postman_environment.json`
 2. No canto superior direito, selecione **"Tax Invoice Issuer - Azure Learn-prod"**
 3. Confirme que `baseUrl` está configurado como:
-  `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`
+   `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`
 4. Execute primeiro **Health Check → GET / - Health Check**
 
 O endpoint esperado é `GET {{baseUrl}}/` e deve retornar `{"hello":"world"}`.
@@ -183,7 +183,7 @@ O servidor deve estar rodando em `http://localhost:3000`
 Ao executar todos os testes via Collection Runner:
 
 - **Total de Requests**: 23
-- **Testes Executados**: ~60 assertions
+- **Testes Executados**: ~42 assertions
 - **Taxa de Sucesso Esperada**:
   - Happy Path: 100% (4/4 devem passar)
   - Validations: 100% (8/8 devem falhar com 400)
@@ -287,4 +287,4 @@ pm.test("Invoice has required fields", function () {
 **Desenvolvido para**: Tax Invoice Issuer FC - Full Cycle MBA  
 **Data**: Abril 2026  
 **Cobertura**: 100% dos endpoints da API  
-**Testes**: 23 requests | ~60 assertions
+**Testes**: 23 requests | ~42 assertions
