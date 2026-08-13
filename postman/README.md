@@ -4,8 +4,9 @@ Coleção completa de testes para a API Tax Invoice Issuer, cobrindo todos os ce
 
 ## 📦 Arquivos
 
-- **Tax-Invoice-Issuer.postman_collection.json** - Coleção principal com 30+ requests
+- **Tax-Invoice-Issuer.postman_collection.json** - Coleção principal com 23 requests e ~42 assertions
 - **Tax-Invoice-Issuer.postman_environment.json** - Environment de desenvolvimento local
+- **Tax-Invoice-Issuer-Azure.postman_environment.json** - Environment da API publicada no Azure
 
 ## 🚀 Como Usar
 
@@ -13,15 +14,29 @@ Coleção completa de testes para a API Tax Invoice Issuer, cobrindo todos os ce
 
 1. Abra o Postman
 2. Clique em **Import**
-3. Arraste os dois arquivos JSON ou selecione-os
+3. Importe a collection e o environment desejado
 4. Confirme a importação
 
-### 2. Configurar Environment
+### 2. Configurar Environment Local
 
 1. No canto superior direito, selecione o environment **"Tax Invoice Issuer - Local"**
 2. Verifique se `baseUrl` está configurado como `http://localhost:3000`
 
-### 3. Iniciar o Servidor
+### 3. Configurar Environment Azure
+
+Para testar a API publicada:
+
+1. Importe `Tax-Invoice-Issuer-Azure.postman_environment.json`
+2. No canto superior direito, selecione **"Tax Invoice Issuer - Azure Learn-prod"**
+3. Confirme que `baseUrl` está configurado como:
+   `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`
+4. Execute primeiro **Health Check → GET / - Health Check**
+
+O endpoint esperado é `GET {{baseUrl}}/` e deve retornar `{"hello":"world"}`.
+
+> ⚠️ **Estado da implantação Azure**: o health check público foi validado com `HTTP 200`. O `POST /invoice` depende do PostgreSQL e somente passará depois que o container receber uma `DATABASE_URL` válida apontando para o servidor Azure. A aplicação lê `DATABASE_URL`; configurar apenas `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`, `DATABASE_NAME` e `DATABASE_PASSWORD` não monta essa URL automaticamente.
+
+### 4. Iniciar o Servidor Local
 
 ```bash
 npm run build
@@ -30,7 +45,7 @@ npm run start
 
 O servidor deve estar rodando em `http://localhost:3000`
 
-### 4. Executar os Testes
+### 5. Executar os Testes
 
 #### Opção 1: Teste Individual
 
@@ -168,7 +183,7 @@ O servidor deve estar rodando em `http://localhost:3000`
 Ao executar todos os testes via Collection Runner:
 
 - **Total de Requests**: 23
-- **Testes Executados**: ~60 assertions
+- **Testes Executados**: ~42 assertions
 - **Taxa de Sucesso Esperada**:
   - Happy Path: 100% (4/4 devem passar)
   - Validations: 100% (8/8 devem falhar com 400)
@@ -179,9 +194,28 @@ Ao executar todos os testes via Collection Runner:
 
 ### Erro "Could not get response"
 
-- Verifique se o servidor está rodando: `npm run start`
-- Confirme a porta: deve ser 3000
-- Teste com: `curl http://localhost:3000`
+- No ambiente Local, verifique se o servidor está rodando: `npm run start`
+- No ambiente Azure, confirme que o Managed Environment permite acesso público
+- Confirme que `baseUrl` não possui uma barra final duplicada antes de `/invoice`
+- Teste o health check com: `GET {{baseUrl}}/`
+
+### Mensagem "public network access ... is disabled"
+
+O Container App pode estar com Ingress habilitado, mas o Managed Environment pode bloquear o tráfego externo. No Azure Portal, abra `env-tax-invoice-fc-learn` → **Settings** → habilite **Public network access**. A VNet privada continua sendo usada para as conexões internas.
+
+### Resposta `500` com `ECONNREFUSED 127.0.0.1:5432`
+
+Essa resposta indica que o endpoint foi alcançado, mas a aplicação está tentando usar PostgreSQL local em vez do servidor Azure. Configure `DATABASE_URL` no Container App com o formato abaixo, usando o hostname, usuário, banco e segredo corretos:
+
+```text
+postgresql://<DATABASE_USER>:<DATABASE_PASSWORD>@<DATABASE_HOST>:5432/<DATABASE_NAME>?sslmode=require
+```
+
+Não coloque a senha diretamente em uma request ou no repositório. Depois de corrigir a configuração, crie uma nova revisão e execute novamente os requests de **Happy Path**.
+
+### Requests de validação não retornam `400`
+
+Os requests da pasta **Validation** esperam `400` para entradas inválidas. Se a API continuar tentando acessar o banco ou retornar `500`, o problema está na implementação da API: o decorator `Validate` registra a entrada inválida, mas não interrompe a execução do controller. A collection mantém esses asserts para evidenciar essa falha de contrato durante o Collection Runner.
 
 ### Todos os testes falhando
 
@@ -253,4 +287,4 @@ pm.test("Invoice has required fields", function () {
 **Desenvolvido para**: Tax Invoice Issuer FC - Full Cycle MBA  
 **Data**: Abril 2026  
 **Cobertura**: 100% dos endpoints da API  
-**Testes**: 23 requests | ~60 assertions
+**Testes**: 23 requests | ~42 assertions

@@ -41,8 +41,12 @@ Tests:       54 passed, 54 total
 
 1. Start the application: `npm run start:dev`
 2. Open Postman
-3. **Import** → **Folder** → Select `postman/`
-4. Select environment **"Tax Invoice Issuer - Local"**
+3. **Import** → **Folder** → Select `postman/` (imports collection + both environments)
+4. Select the environment in the upper-right corner:
+   - **"Tax Invoice Issuer - Local"** → API at `http://localhost:3000` (server must be running: `npm run start:dev`)
+   - **"Tax Invoice Issuer - Azure Learn-prod"** → deployed API at `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`
+5. ⚠️ Collection variable `baseUrl` defaults to Azure — pick an environment to override. On Azure, `POST /invoice` only works once the container has a valid `DATABASE_URL` (see `postman/README.md` troubleshooting)
+6. Select environment **"Tax Invoice Issuer - Local"**
 
 ### 4. First Manual Test
 
@@ -70,7 +74,7 @@ curl -X POST http://localhost:3000/invoice \
 ### Prerequisites
 
 - **Docker with PostgreSQL running** on port 5432
-- Credentials: `postgres:postgres@localhost:5432/invoicesdb`
+- Credentials: use the local environment configuration for tests; do not publish usernames, passwords, or connection strings in documentation
 - The `test/setup-env.ts` sets `DATABASE_URL` automatically
 
 ### Troubleshooting
@@ -214,7 +218,7 @@ taskkill /PID <PID> /F
 
 ### Testes sempre falham
 
-1. Confirme environment: **Tax Invoice Issuer - Local**
+1. Confirme environment: **Tax Invoice Issuer - Local** (ou **Tax Invoice Issuer - Azure Learn-prod** para o deploy)
 2. Verifique baseUrl: `http://localhost:3000`
 3. Teste manual: `curl http://localhost:3000`
 

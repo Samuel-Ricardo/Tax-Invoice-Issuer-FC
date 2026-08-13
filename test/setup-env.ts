@@ -1,3 +1,5 @@
-process.env.DATABASE_URL =
-  process.env.DATABASE_URL ||
-  "postgresql://postgres:postgres@localhost:5432/invoicesdb";
+const databaseUrl = process.env.DATABASE_URL?.trim();
+
+if (databaseUrl) {
+  process.env.DATABASE_URL = databaseUrl;
+}

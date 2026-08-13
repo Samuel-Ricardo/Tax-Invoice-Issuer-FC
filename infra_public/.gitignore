@@ -1,0 +1,37 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# INFRASTRUCTURE PUBLIC - Git Ignore
+# 
+# Este arquivo protege dados sensíveis gerados durante o deployment
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Deployment output (contém Service Principal credentials)
+.deployment-output/
+
+# Environment files com secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Parâmetros locais de deployment
+main.parameters.local.json
+main.parameters.*.json
+
+# Logs de deployment
+*.log
+deployment.log
+bicep-deployment.log
+
+# SSH keys
+*.pem
+*.key
+*.pub
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

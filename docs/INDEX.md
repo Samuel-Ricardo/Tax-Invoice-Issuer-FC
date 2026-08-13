@@ -82,7 +82,7 @@ Complete index of all project documentation and test resources.
 **Content**:
 
 - 23 organized requests
-- ~60 automated assertions
+- ~42 automated assertions
 - 6 test categories
 - Validation scripts
 
@@ -90,16 +90,15 @@ Complete index of all project documentation and test resources.
 
 ---
 
-#### 6. [Postman Environment - JSON](../postman/Tax-Invoice-Issuer.postman_environment.json) 🌍
+#### 6. [Postman Environments - JSON](../postman/Tax-Invoice-Issuer.postman_environment.json) 🌍
 
-**Type**: Postman Environment File  
+**Type**: Postman Environment Files
 **Content**:
 
-- baseUrl: http://localhost:3000
-- host: localhost
-- port: 3000
+- 🌍 **Local**: [Tax-Invoice-Issuer.postman_environment.json](../postman/Tax-Invoice-Issuer.postman_environment.json) → "Tax Invoice Issuer - Local" — baseUrl: `http://localhost:3000`, host: `localhost`, port: `3000`
+- ☁️ **Azure Learn-prod**: [Tax-Invoice-Issuer-Azure.postman_environment.json](../postman/Tax-Invoice-Issuer-Azure.postman_environment.json) → "Tax Invoice Issuer - Azure Learn-prod" — baseUrl: `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`, port: `443`, protocol: `https`
 
-**How to use**: Import and select in Postman
+**How to use**: Import both files in Postman, then select the wanted environment in the upper-right corner
 
 ---
 
@@ -115,11 +114,99 @@ OpenAPI schema (currently empty - needs to be generated)
 
 ---
 
+### ☁️ Cloud Deployment
+
+#### 9. [Azure Deploy — Overview](./deploy/azure/README.md) ☁️
+
+**For**: All team members
+**Content**:
+
+- Stack overview (Container Apps + PostgreSQL)
+- Quick deploy in 1 command
+- File structure
+
+**Reading time**: 3 minutes
+
+---
+
+#### 10. [Azure Architecture](./deploy/azure/ARCHITECTURE.md) 🏗️
+
+**For**: Architects, Tech Leads, Developers
+**Content**:
+
+- Full architecture diagram (ASCII + Mermaid)
+- CI/CD flow (GitHub Actions → ghcr.io → Container Apps)
+- Azure resources detailed breakdown
+- Security ADRs (4 decisions documented)
+- Connectivity and SSL configuration
+
+**Reading time**: 10 minutes
+
+---
+
+#### 11. [Azure Setup Guide](./deploy/azure/SETUP-GUIDE.md) 🚀
+
+**For**: DevOps, Developers
+**Content**:
+
+- Step-by-step provisioning (Bicep IaC)
+- Automated setup script
+- GitHub Secrets configuration
+- Management commands (start/stop PostgreSQL, logs)
+- Troubleshooting guide
+- Final verification checklist
+
+**Reading time**: 15 minutes
+
+---
+
+#### 12. [Azure Cost Analysis](./deploy/azure/COST-ANALYSIS.md) 💰
+
+**For**: Tech Leads, Product Managers
+**Content**:
+
+- Validated pricing from Microsoft official docs
+- Breakdown by service (Container Apps free tier, PostgreSQL B1ms)
+- Active vs Paused scenarios (~$12-15/mês vs ~$4/mês)
+- Comparison with alternatives (Railway, Render, Heroku, AWS)
+- Cost saving tips
+
+**Reading time**: 5 minutes
+
+---
+
+#### 13. [Docker / WSL Disk Cleanup Guide](./utils/docker/README.md) 🐳
+
+**For**: Developers, DevOps, Windows users
+**Content**:
+
+- Why Docker/WSL VHDX files do not shrink automatically
+- Safe cleanup with `docker system prune`
+- Rebuild the WSL VHDX with export/import
+- Compact existing VHDX files with `Optimize-VHD`
+- Risks, backup steps, and prevention tips
+
+**Reading time**: 8 minutes
+
+---
+
 ## 🎯 Quick Navigation Guide
+
+### "I want to deploy to Azure"
+
+➡️ Go to: [Azure Setup Guide](./deploy/azure/SETUP-GUIDE.md)
+
+### "What does the Azure deployment cost?"
+
+➡️ Go to: [Azure Cost Analysis](./deploy/azure/COST-ANALYSIS.md)
 
 ### "I need to test the API now!"
 
 ➡️ Go to: [Quick Start - Testing Guide](./QUICK-START-TESTS.md)
+
+### "I need to reclaim Docker/WSL disk space"
+
+➡️ Go to: [Docker / WSL Disk Cleanup Guide](./utils/docker/README.md)
 
 ### "I want to understand the architecture"
 
@@ -154,12 +241,22 @@ Tax-Invoice-Issuer-FC/
 │   ├── ANALISE-PROFUNDA.md                 # 🔍 Complete technical analysis
 │   ├── QUICK-START-TESTS.md                # 🚀 Quick testing guide
 │   ├── swagger.json                        # 📄 OpenAPI schema
-│   └── zod-example.md                      # 💡 Zod example
+│   ├── zod-example.md                      # 💡 Zod example
+│   ├── utils/                              # 🛠️ Operational utilities
+│   │   └── docker/                         # 🐳 Docker + WSL cleanup guide
+│   │       └── README.md                   # 📖 VHDX cleanup and compaction guide
+│   └── deploy/
+│       └── azure/
+│           ├── README.md                   # ☁️ Azure deploy overview
+│           ├── ARCHITECTURE.md             # 🏗️ Architecture & ADRs
+│           ├── SETUP-GUIDE.md              # 🚀 Step-by-step setup
+│           └── COST-ANALYSIS.md            # 💰 Validated cost breakdown
 │
 ├── postman/                                 # 🧪 Postman Tests
 │   ├── README.md                           # 📖 Collection guide
-│   ├── Tax-Invoice-Issuer.postman_collection.json   # 📦 Collection (23 requests)
-│   └── Tax-Invoice-Issuer.postman_environment.json  # 🌍 Local environment
+│   ├── Tax-Invoice-Issuer.postman_collection.json               # 📦 Collection (23 requests, ~42 assertions)
+│   ├── Tax-Invoice-Issuer.postman_environment.json              # 🌍 Local environment
+│   └── Tax-Invoice-Issuer-Azure.postman_environment.json        # ☁️ Azure Learn-prod environment
 │
 ├── src/                                     # 💻 Source code
 │   ├── @decorators/                        # 🎨 Decorators
@@ -182,7 +279,7 @@ Tax-Invoice-Issuer-FC/
 
 1. **Complete Postman Collection**
    - 23 requests
-   - 60+ assertions
+   - ~42 assertions
    - 100% endpoint coverage
 
 2. **Technical Documentation**
@@ -243,7 +340,7 @@ Tax-Invoice-Issuer-FC/
 ### Tests
 
 - ✅ **23 requests** Postman
-- ✅ **60+ automated** assertions
+- ✅ **~42 automated** assertions
 - ✅ **6 test** categories
 - ✅ **100% endpoints** covered
 
