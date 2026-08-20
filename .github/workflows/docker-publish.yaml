@@ -86,8 +86,9 @@ jobs:
       - name: Deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v1
         with:
-          resourceGroup: rg-tax-invoice-fc
-          containerAppName: ca-tax-invoice-fc-api
+          resourceGroup: rg-tax-invoice-fc-learn
+          containerAppName: app-tax-invoice-fc-learn
+          containerAppEnvironment: env-tax-invoice-fc-learn
           imageToDeploy: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
           registryUrl: ${{ env.REGISTRY }}
           registryUsername: ${{ github.actor }}
