@@ -14,6 +14,8 @@ env:
 
 jobs:
   build:
+    outputs:
+      image: ${{ steps.meta.outputs.tags }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -89,7 +91,7 @@ jobs:
           resourceGroup: rg-tax-invoice-fc-learn
           containerAppName: app-tax-invoice-fc-learn
           containerAppEnvironment: env-tax-invoice-fc-learn
-          imageToDeploy: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+          imageToDeploy: ${{ needs.build.outputs.image }}
           registryUrl: ${{ env.REGISTRY }}
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ secrets.GITHUB_TOKEN }}
