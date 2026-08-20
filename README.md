@@ -42,6 +42,49 @@ Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de
 - **[Coleção Postman](./postman/README.md)** - 23 requests, ~42 assertions, 2 environments (Local + Azure)
 - **[Importar Coleção](./postman/Tax-Invoice-Issuer.postman_collection.json)** - Arquivo JSON
 
+### ☁️ Deploy atual na Azure
+
+- **[Guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md)** - Deploy completo pelo Azure Portal, Key Vault, RBAC, verificação e troubleshooting
+- **[Visão geral da arquitetura Azure](./docs/deploy/azure/README.md)** - Resumo da arquitetura e do workflow atual
+
+O [guia manual](./docs/deploy/azure/manual/step-by-step-guide.md) é a fonte de
+verdade para os passos e troubleshooting. Os nomes-alvo do workflow atual são:
+
+**Stack de aprendizagem registrada:**
+
+| Recurso                    | Nome                                                |
+| -------------------------- | --------------------------------------------------- |
+| Resource group             | `rg-tax-invoice-fc-learn`                           |
+| Container Apps environment | `env-tax-invoice-fc-learn`                          |
+| Container App              | `app-tax-invoice-fc-learn`                          |
+| PostgreSQL Flexible Server | `psql-tax-invoice-fc-learn`                         |
+| Key Vault                  | `kv-tax-invoice-fc-learn`                           |
+| Log Analytics              | `law-tax-invoice-fc-learn`                          |
+| Imagem GHCR                | `ghcr.io/samuel-ricardo/tax-invoice-issuer-fc:main` |
+
+O fluxo automatizado é `push` na `main` → build e publicação no GHCR → login
+Azure por OIDC → atualização do Container App no ambiente GitHub `production`.
+Ele usa `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
+`id-token: write`, `containerAppEnvironment` e o output de imagem normalizado
+para minúsculas. O workflow atual não executa testes nem lint e, embora assine a
+imagem publicada, faz o deploy pela tag `:main`, não por digest imutável.
+
+O `GITHUB_TOKEN` usado para o pull do GHCR é efêmero e limitado à execução; não
+é uma solução durável para reinícios ou scale-to-zero. Para produção, prefira
+ACR com identidade gerenciada do ACA ou um PAT dedicado somente leitura. Não use
+o histórico `AZURE_CREDENTIALS` JSON nessa stack.
+
+**Observação registrada:** [`app-tax-invoice-fc-learn`](https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io). Essa URL não é um identificador permanente; confirme a URL atual na página **Overview** do Container App. O smoke test é `GET /`, que deve retornar HTTP `200` e `{"hello":"world"}`. Não existe rota `/health`. O projeto gera `docs/swagger.json` com `swagger.js` e `npm run docs:swagger`, mas não serve Swagger UI nem `/swagger`, `/api-docs` ou `/swagger.json`; `404` é esperado.
+
+O aplicativo exige uma `DATABASE_URL` completa, incluindo `sslmode=require`,
+armazenada no Key Vault e referenciada pelo Container App. Variáveis separadas
+`DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`, `DATABASE_NAME` e
+`DATABASE_PASSWORD` não formam essa URL. `POST /invoice` só deve ser testado
+depois de executar `migration/create.sql` a partir de um host com acesso à VNet
+privada e confirmar a prontidão do banco e do schema.
+
+> ⚠️ Os defaults do Bicep e de documentos antigos usam nomes legados como `rg-tax-invoice-fc`, `cae-tax-invoice-fc` e `ca-tax-invoice-fc-api`. O Bicep não provisiona o alvo atual `-learn`; não misture esses nomes com essa stack.
+
 ### 📑 Índice Geral
 
 - **[INDEX - Toda Documentação](./docs/INDEX.md)** - Navegação completa de todos os recursos
@@ -177,7 +220,7 @@ Content-Type: application/json
 1. Abra o Postman → **Import** → **Folder** → selecione `postman/` (importa a coleção e os 2 environments)
 2. Escolha o environment no canto superior direito:
    - **Tax Invoice Issuer - Local** → API em `http://localhost:3000` (antes rode `npm run build && npm run start`)
-   - **Tax Invoice Issuer - Azure Learn-prod** → API publicada em `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`
+   - **Tax Invoice Issuer - Azure Learn-prod** → URL registrada (confirme a URL atual no **Overview** do Container App)
 3. ⚠️ A variável `baseUrl` da coleção tem como padrão a URL do Azure — selecione um environment acima para sobrescrever
 4. Execute primeiro o **Health Check → GET /** (esperado: `{"hello":"world"}` com HTTP 200)
 5. Para rodar tudo: botão direito na coleção **"Tax Invoice Issuer - Full Coverage"** → **Run collection**
