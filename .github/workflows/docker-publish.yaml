@@ -74,7 +74,6 @@ jobs:
     environment: production
     permissions:
       contents: read
-      packages: read
       id-token: write
 
     steps:
@@ -93,5 +92,5 @@ jobs:
           containerAppEnvironment: env-tax-invoice-fc-learn
           imageToDeploy: ${{ needs.build.outputs.image }}
           registryUrl: ${{ env.REGISTRY }}
-          registryUsername: ${{ github.actor }}
-          registryPassword: ${{ secrets.GITHUB_TOKEN }}
+          registryUsername: ${{ secrets.GHCR_USERNAME }}
+          registryPassword: ${{ secrets.GHCR_READ_TOKEN }}
