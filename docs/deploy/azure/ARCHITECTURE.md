@@ -1,6 +1,12 @@
 # 🏗️ Arquitetura Azure — Tax Invoice Issuer FC
 
 > Decisões técnicas, diagramas e justificativas para o deploy na Azure Cloud.
+>
+> **Status: Histórico — não é a fonte atual de implantação.** Este documento
+> preserva o desenho e os nomes de uma configuração anterior. Para a topologia
+> confirmada, use o [runbook manual atual](./manual/step-by-step-guide.md), que
+> documenta `-learn`, as VNets separadas, o peering bidirecional e a zona DNS
+> privada específica do PostgreSQL.
 
 ---
 

@@ -1,6 +1,12 @@
 # 🚀 Setup Guide — Deploy Azure
 
 > Guia passo a passo completo para provisionar e configurar o ambiente Azure do zero.
+>
+> **Status: Legado — não seguir para a implantação atual.** Este guia descreve
+> o fluxo Bicep padrão e nomes antigos. A implantação confirmada usa o
+> [runbook manual atual](./manual/step-by-step-guide.md), com recursos `-learn`,
+> Azure OIDC, Key Vault e PostgreSQL Flexible Server private access/VNet
+> integration. Este arquivo é mantido apenas como registro histórico.
 
 ---
 

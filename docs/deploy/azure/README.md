@@ -1,113 +1,207 @@
 # Azure deployment
 
-This page is a concise map of the Azure deployment. The [manual deployment
-guide](./manual/step-by-step-guide.md) is the source of truth for the current
-learning stack, Portal steps, runtime contract, workflow, verification, and
-troubleshooting.
+The [manual Azure deployment guide](./manual/step-by-step-guide.md) is the
+primary source of truth. It describes the current learning stack from scratch,
+the one-time infrastructure setup, the separate code-deployment flow, runtime
+identities, verification, and troubleshooting.
 
 ## Current learning target
 
-The current successful workflow target is exactly:
+Use these values together. They are not interchangeable with the legacy names
+listed later in this document.
 
 | Resource                   | Canonical value                                     |
 | -------------------------- | --------------------------------------------------- |
+| Repository                 | `Samuel-Ricardo/Tax-Invoice-Issuer-FC`              |
+| Region observed            | Brazil South                                        |
 | Resource group             | `rg-tax-invoice-fc-learn`                           |
 | Container Apps environment | `env-tax-invoice-fc-learn`                          |
 | Container App              | `app-tax-invoice-fc-learn`                          |
+| PostgreSQL                 | `psql-tax-invoice-fc-learn`                         |
+| Key Vault                  | `kv-tax-invoice-fc-learn`                           |
+| Log Analytics              | `law-tax-invoice-fc-learn`                          |
 | Image                      | `ghcr.io/samuel-ricardo/tax-invoice-issuer-fc:main` |
 
-Recorded supporting resources are `psql-tax-invoice-fc-learn`,
-`kv-tax-invoice-fc-learn`, and `law-tax-invoice-fc-learn`. Verify their current
-state in the Azure Portal before troubleshooting.
+The Application Url is dynamic. Copy it from the Container App **Overview**
+page before every test. The app exposes public HTTPS ingress on port `443` and
+routes to container target port `3000`; do not append `:3000` to the public URL.
 
-The recorded application URL is an observation, not a permanent identifier:
+## Current network model
 
-```text
-https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io
-```
+The workload uses two initially separate VNets:
 
-Copy the current **Application Url** from the Container App **Overview** page
-before testing. The public ingress target port is `3000`; clients use the
-managed HTTPS URL on port `443`.
+- the Container Apps environment uses `vnet-tax-invoice-fc`, subnet `default`;
+- PostgreSQL uses `rg-tax-invoice-fc-learn-vnet`, subnet `default`;
+- the VNets use bidirectional peerings `peer-to-db-vnet` and `peer-to-app-vnet`;
+- the PostgreSQL private DNS zone is
+  `psql-tax-invoice-fc-learn.private.postgres.database.azure.com`;
+- the zone is linked to the application VNet with `link-app-vnet`, with
+  auto-registration disabled;
+- the Container App uses the server FQDN
+  `psql-tax-invoice-fc-learn.postgres.database.azure.com`.
 
-## Current GitHub Actions workflow
-
-For a push to `main`, the current path is:
-
-```text
-build image → push to GHCR → sign image → Azure OIDC login → update Container App
-```
-
-The deploy job:
-
-- runs in the GitHub environment `production`;
-- uses `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`;
-- requires `id-token: write`;
-- passes `containerAppEnvironment: env-tax-invoice-fc-learn`;
-- passes the normalized lowercase image output, which resolves to the canonical
-  image above.
-
-The workflow does **not** run `npm test` or lint. It signs the published image,
-but deploys the `:main` tag rather than an immutable digest. The current GHCR
-credential is the run-scoped, ephemeral `GITHUB_TOKEN`; it is not a durable
-production registry credential and can fail on a later Container Apps restart or
-scale-to-zero image pull. A follow-up should use Azure Container Registry (ACR)
-with Container Apps managed identity, or a dedicated durable read-only PAT.
-
-The current workflow does not use the historical `AZURE_CREDENTIALS` service-
-principal JSON secret. Adding that old secret does not repair current OIDC or
-RBAC failures.
+This is the PostgreSQL Flexible Server private access/VNet integration path. Do
+not replace its private DNS zone with `privatelink.postgres.database.azure.com` or
+use the old Private Endpoint instructions.
 
 ## Runtime contract
 
-The application requires one complete `DATABASE_URL`, including
-`sslmode=require`. Separate `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`,
-`DATABASE_NAME`, and `DATABASE_PASSWORD` variables do not assemble the URL.
-The current pattern is a Key Vault secret reference bound to the Container App
-variable `DATABASE_URL`.
+The application requires one complete `DATABASE_URL` value. Store it in the
+Key Vault secret `database-url`, then configure the Container App secret
+`kv-database-url` as a Key Vault reference using the app's system-assigned
+identity. Map the container environment variable `DATABASE_URL` to
+`kv-database-url`.
 
-PostgreSQL uses private access in the documented learning topology. Run
-`migration/create.sql` from a host with a valid path to the private VNet; a
-normal laptop or ordinary Cloud Shell session is not automatically connected to
-that VNet. Test `POST /invoice` only after the database and schema are ready.
+Use this shape only as a secure-field template; never commit or print the
+resulting value:
 
-`GET /` is the HTTP smoke check and should return HTTP `200` with
-`{"hello":"world"}`. There is no `/health` route. The repository can generate
-`docs/swagger.json` with `swagger.js` and `npm run docs:swagger`, but the current
-application serves no `/swagger`, `/api-docs`, or `/swagger.json` route. A `404`
-for those paths is expected.
+```text
+postgresql://<DATABASE_USER>:<URL_ENCODED_PASSWORD>@<POSTGRES_FQDN>:5432/<DATABASE_NAME>?sslmode=require
+```
 
-## Legacy/default Bicep stack
+The application does not assemble this URL from separate database variables.
+`kv-postgress-password` is password-only and must not be mapped to
+`DATABASE_URL`. `ghcrio-samuel-ricardo` is registry-related, not database
+configuration.
 
-The public Bicep template and older deployment documents describe a separate
-legacy/default stack. Examples include:
+The schema is optional for hello-world. On a `main` deployment, the workflow
+first runs the additive migration image as the configured Container Apps Job
+(`AZURE_MIGRATION_JOB_NAME`) and blocks the application rollout unless it
+succeeds. The job still requires a private-network route to PostgreSQL through the
+peered VNets.
 
-- `rg-tax-invoice-fc`
-- `cae-tax-invoice-fc`
-- `ca-tax-invoice-fc-api`
-- `psql-tax-invoice-fc`
-- `law-tax-invoice-fc`
-- `kv-tax-invoice-fc`
+The confirmed runtime result is `[DATABASE] | Connected with PostgreSQL` in the
+Container Apps log stream, followed by successful `POST /invoice` connectivity.
+After changing or recreating the Key Vault secret, recover or purge a soft-deleted
+secret name when Azure requires it, then restart the Container App or create a new
+revision so it rereads the reference.
 
-These names are not aliases for the current `-learn` resources. The Bicep
-template does **not** provision the current successful learning workflow target.
-Do not mix its names, networking, or database-variable examples with this stack.
+The application has a separate known defect: some error responses return HTTP
+`200` while their body contains `status: 500`. This remains a code issue and is
+not an Azure deployment result.
+
+## Three separate credentials and identities
+
+| Mechanism                              | Purpose                                        | Required access                                         |
+| -------------------------------------- | ---------------------------------------------- | ------------------------------------------------------- |
+| GitHub OIDC deployment identity        | Authenticates the deploy job to Azure          | **Contributor** on `rg-tax-invoice-fc-learn`            |
+| Container App system-assigned identity | Reads the Key Vault database secret at runtime | **Key Vault Secrets User** on `kv-tax-invoice-fc-learn` |
+| Durable GHCR classic PAT               | Lets Container Apps pull the private image     | `read:packages`; stored as `GHCR_READ_TOKEN`            |
+
+Subscription **Owner** does not grant Key Vault secret data-plane access to a
+human. A human who must create or view secrets needs **Key Vault Administrator**
+at the vault scope. This is separate from the runtime role.
+
+## Current GitHub Actions workflow
+
+A push to `main` follows this path:
+
+```text
+build and publish application/migration images → sign application image →
+Azure OIDC login → run migration job → update Container App revision
+```
+
+The deploy job uses GitHub environment `production` and these exact environment
+secrets:
+
+- `AZURE_CLIENT_ID`
+- `AZURE_TENANT_ID`
+- `AZURE_SUBSCRIPTION_ID`
+- `GHCR_USERNAME`
+- `GHCR_READ_TOKEN`
+
+The repository variable `AZURE_MIGRATION_JOB_NAME` must name the existing
+Container Apps migration job. The workflow deploys both images by digest; SHA
+tags are publishing conveniences only.
+
+The federated credential must have these exact claims:
+
+```text
+Subject:  repo:Samuel-Ricardo/Tax-Invoice-Issuer-FC:environment:production
+Issuer:   https://token.actions.githubusercontent.com
+Audience: api://AzureADTokenExchange
+```
+
+The known working Azure RBAC assignment is **Contributor** for the OIDC
+identity at the resource-group scope `rg-tax-invoice-fc-learn`.
+
+The build job uses the run-scoped `GITHUB_TOKEN` to publish to GHCR. The deploy
+action passes the durable `GHCR_USERNAME` and `GHCR_READ_TOKEN` to Container
+Apps. `GITHUB_TOKEN` is not a durable ACA runtime pull credential and must not be
+documented as one. A later restart or scale-to-zero pull can fail after that
+token expires.
+
+The deploy inputs are:
+
+```yaml
+resourceGroup: rg-tax-invoice-fc-learn
+containerAppName: app-tax-invoice-fc-learn
+containerAppEnvironment: env-tax-invoice-fc-learn
+imageToDeploy: ghcr.io/samuel-ricardo/tax-invoice-issuer-fc@<application-image-digest>
+registryUrl: ghcr.io
+registryUsername: ${{ secrets.GHCR_USERNAME }}
+registryPassword: ${{ secrets.GHCR_READ_TOKEN }}
+```
+
+The workflow does not run application tests or lint. A green Actions run is not
+runtime proof; verify the revision, image pull, Key Vault access, database
+reachability, and public HTTP endpoint separately.
+
+## Hello-world verification
+
+1. In the Container App **Overview**, copy the current Application Url.
+2. Confirm the latest revision is healthy and uses the lowercase canonical image.
+3. Request the root endpoint:
+
+   ```bash
+   curl -i "https://<CURRENT_APP_FQDN>/"
+   ```
+
+4. Confirm HTTP `200` and:
+
+   ```json
+   { "hello": "world" }
+   ```
+
+The application has no `/health`, `/swagger`, `/api-docs`, or `/swagger.json`
+route. `npm run docs:swagger` generates a local `docs/swagger.json` file; it
+does not publish a live Swagger endpoint. Use `GET /` as the deployment smoke
+test.
+
+For Postman, select **Tax Invoice Issuer - Azure Learn-prod** and replace
+`baseUrl` with the current Portal Application Url before sending:
+
+```text
+GET {{baseUrl}}/
+```
+
+## Legacy/default materials
+
+The following are not the current deployment path:
+
+- `infra_public/` Bicep files and setup scripts are legacy/non-current and do
+  not provision this `-learn` topology.
+- `docs/deploy/azure/SETUP-GUIDE.md` is a legacy/default Bicep guide.
+- `docs/deploy/azure/ARCHITECTURE.md` and the older cost/security notes contain
+  historical names or assumptions. Use them for historical context only.
+- Names such as `rg-tax-invoice-fc`, `cae-tax-invoice-fc`,
+  `ca-tax-invoice-fc-api`, `psql-tax-invoice-fc`, `law-tax-invoice-fc`, and
+  `kv-tax-invoice-fc` are not aliases for the current stack.
 
 ## Related documents
 
-- [Manual Portal deployment and workflow guide](./manual/step-by-step-guide.md)
-- [Historical architecture reference](./ARCHITECTURE.md)
-- [Separate Bicep setup guide](./SETUP-GUIDE.md)
-- [Azure cost analysis](./COST-ANALYSIS.md)
-- [Project README](../../../README.md)
+- [Primary manual runbook](./manual/step-by-step-guide.md)
+- [Federated credential guide](../../../azure-federated-credential-guide.md)
+- [Postman guide](../../../postman/README.md)
 - [Documentation index](../../INDEX.md)
+- [Project README](../../../README.md)
 
 ## Official references
 
-- [Azure Container Apps environments](https://learn.microsoft.com/en-us/azure/container-apps/environment)
-- [Custom virtual networks for Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/custom-virtual-networks)
-- [Container Apps ingress](https://learn.microsoft.com/en-us/azure/container-apps/ingress-how-to)
-- [Container Apps secrets and Key Vault references](https://learn.microsoft.com/en-us/azure/container-apps/manage-secrets)
-- [PostgreSQL Flexible Server private access](https://learn.microsoft.com/en-us/azure/postgresql/network/concepts-networking-private)
-- [GitHub Actions deployment for Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/github-actions)
+- [Azure Container Apps custom virtual networks](https://learn.microsoft.com/en-us/azure/container-apps/custom-virtual-networks)
+- [Azure Container Apps ingress](https://learn.microsoft.com/en-us/azure/container-apps/ingress-how-to)
+- [Azure Container Apps secrets and Key Vault references](https://learn.microsoft.com/en-us/azure/container-apps/manage-secrets)
+- [Azure Database for PostgreSQL private access](https://learn.microsoft.com/en-us/azure/postgresql/network/concepts-networking-private)
+- [Publish revisions with GitHub Actions](https://learn.microsoft.com/en-us/azure/container-apps/github-actions)
+- [Workload identity federation](https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation)
 - [GitHub Container Registry](https://docs.github.com/en/packages/working-with-the-container-registry)
