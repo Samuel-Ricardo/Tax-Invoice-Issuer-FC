@@ -2,6 +2,12 @@
 
 > Análise detalhada de custos com preços validados diretamente na documentação oficial da Microsoft.
 > Otimizado para projeto de portfolio com budget de **~$50/mês**.
+>
+> **Status: Histórico — não é uma estimativa atual da implantação.** Os valores
+> abaixo usam premissas antigas, incluindo região, nomes e capacidade de storage.
+> Use o [runbook manual atual](./manual/step-by-step-guide.md) para a topologia
+> confirmada e valide preços, quotas e consumo na calculadora oficial antes de
+> tomar decisões de custo.
 
 ---
 

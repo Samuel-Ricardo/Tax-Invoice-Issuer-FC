@@ -14,8 +14,12 @@ coverage/
 # Development
 .eslintcache
 .prettierignore
-.env.local
-.env.*.local
+.env
+.env.*
+.envrc
+**/.env
+**/.env.*
+**/.envrc
 
 # Testing
 test/
@@ -49,7 +53,4 @@ AAAAAAAAAAAAAAAAA/
 docker-compose.yaml
 Dockerfile
 postman/
-migration/
-.env
-.env.example
 Makefile

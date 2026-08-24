@@ -25,6 +25,8 @@ Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de
 
 ## 📚 Documentação Completa
 
+> Para reconstruir a implantação Azure atual do zero, use o [guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md), a fonte de verdade operacional.
+
 ### 🚀 Começar Agora
 
 - **[Quick Start - Testing Guide](./docs/QUICK-START-TESTS.md)** - Setup em 5 minutos e primeiros testes
@@ -44,46 +46,66 @@ Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de
 
 ### ☁️ Deploy atual na Azure
 
-- **[Guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md)** - Deploy completo pelo Azure Portal, Key Vault, RBAC, verificação e troubleshooting
-- **[Visão geral da arquitetura Azure](./docs/deploy/azure/README.md)** - Resumo da arquitetura e do workflow atual
+- **[Guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md)** — runbook principal, do zero ao teste hello-world
+- **[Visão geral da arquitetura Azure](./docs/deploy/azure/README.md)** — resumo da topologia, identidades e workflow
+- **[Guia de OIDC](./azure-federated-credential-guide.md)** — configuração da credencial federada do GitHub
 
 O [guia manual](./docs/deploy/azure/manual/step-by-step-guide.md) é a fonte de
-verdade para os passos e troubleshooting. Os nomes-alvo do workflow atual são:
-
-**Stack de aprendizagem registrada:**
+verdade para os passos, verificações e troubleshooting. Os nomes da stack de
+aprendizagem bem-sucedida são:
 
 | Recurso                    | Nome                                                |
 | -------------------------- | --------------------------------------------------- |
 | Resource group             | `rg-tax-invoice-fc-learn`                           |
 | Container Apps environment | `env-tax-invoice-fc-learn`                          |
 | Container App              | `app-tax-invoice-fc-learn`                          |
-| PostgreSQL Flexible Server | `psql-tax-invoice-fc-learn`                         |
+| PostgreSQL                 | `psql-tax-invoice-fc-learn`                         |
 | Key Vault                  | `kv-tax-invoice-fc-learn`                           |
 | Log Analytics              | `law-tax-invoice-fc-learn`                          |
 | Imagem GHCR                | `ghcr.io/samuel-ricardo/tax-invoice-issuer-fc:main` |
 
+O Container App usa a VNet `vnet-tax-invoice-fc`, subnet `default`. O PostgreSQL
+usa a VNet `rg-tax-invoice-fc-learn-vnet`, subnet `default`; as VNets são ligadas
+pelos peerings `peer-to-db-vnet` e `peer-to-app-vnet`. A private DNS zone usada é
+`psql-tax-invoice-fc-learn.private.postgres.database.azure.com`, ligada à VNet da
+aplicação por `link-app-vnet`, com auto-registration desabilitado. Este é o caminho
+de PostgreSQL Flexible Server **private access/VNet integration**.
+O Container App tem ingress HTTPS público, com target port `3000`.
+
 O fluxo automatizado é `push` na `main` → build e publicação no GHCR → login
 Azure por OIDC → atualização do Container App no ambiente GitHub `production`.
-Ele usa `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
-`id-token: write`, `containerAppEnvironment` e o output de imagem normalizado
-para minúsculas. O workflow atual não executa testes nem lint e, embora assine a
-imagem publicada, faz o deploy pela tag `:main`, não por digest imutável.
+O build usa `GITHUB_TOKEN` apenas para publicar no GHCR. O deploy usa os secrets
+duráveis `GHCR_USERNAME` e `GHCR_READ_TOKEN` para os pulls do Container Apps.
+Os cinco secrets do ambiente `production` são `AZURE_CLIENT_ID`,
+`AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `GHCR_USERNAME` e
+`GHCR_READ_TOKEN`. O workflow não usa `AZURE_CREDENTIALS`.
 
-O `GITHUB_TOKEN` usado para o pull do GHCR é efêmero e limitado à execução; não
-é uma solução durável para reinícios ou scale-to-zero. Para produção, prefira
-ACR com identidade gerenciada do ACA ou um PAT dedicado somente leitura. Não use
-o histórico `AZURE_CREDENTIALS` JSON nessa stack.
+A credencial federada deve usar o subject exato
+`repo:Samuel-Ricardo/Tax-Invoice-Issuer-FC:environment:production`, com issuer
+`https://token.actions.githubusercontent.com` e audience
+`api://AzureADTokenExchange`. A identidade OIDC tem **Contributor** no resource
+group atual; a identidade system-assigned do Container App tem **Key Vault
+Secrets User** no Key Vault. São identidades diferentes.
 
-**Observação registrada:** [`app-tax-invoice-fc-learn`](https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io). Essa URL não é um identificador permanente; confirme a URL atual na página **Overview** do Container App. O smoke test é `GET /`, que deve retornar HTTP `200` e `{"hello":"world"}`. Não existe rota `/health`. O projeto gera `docs/swagger.json` com `swagger.js` e `npm run docs:swagger`, mas não serve Swagger UI nem `/swagger`, `/api-docs` ou `/swagger.json`; `404` é esperado.
+Sempre copie a Application Url atual da página **Overview** do Container App.
+O smoke test é `GET /`, que deve retornar HTTP `200` e
+`{"hello":"world"}`. Não existe `/health`, `/swagger`, `/api-docs` ou
+`/swagger.json`; `npm run docs:swagger` gera apenas um arquivo local.
 
 O aplicativo exige uma `DATABASE_URL` completa, incluindo `sslmode=require`,
-armazenada no Key Vault e referenciada pelo Container App. Variáveis separadas
-`DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`, `DATABASE_NAME` e
-`DATABASE_PASSWORD` não formam essa URL. `POST /invoice` só deve ser testado
-depois de executar `migration/create.sql` a partir de um host com acesso à VNet
-privada e confirmar a prontidão do banco e do schema.
+armazenada no secret `database-url` do Key Vault e mapeada por
+`kv-database-url`. Variáveis separadas de banco não formam essa URL. O schema e
+`POST /invoice` são opcionais para o hello-world e exigem acesso privado à VNet.
 
-> ⚠️ Os defaults do Bicep e de documentos antigos usam nomes legados como `rg-tax-invoice-fc`, `cae-tax-invoice-fc` e `ca-tax-invoice-fc-api`. O Bicep não provisiona o alvo atual `-learn`; não misture esses nomes com essa stack.
+O log `[DATABASE] | Connected with PostgreSQL` confirma a conexão. Depois de
+alterar ou recriar o secret, faça Recover/Purge se o nome estiver soft-deleted e
+reinicie o Container App ou crie uma nova revision para reler o valor. Ainda existe
+um defeito separado da aplicação: algumas respostas de erro retornam HTTP `200`
+com `status: 500` no corpo.
+
+> ⚠️ `infra_public/` e os defaults de documentos antigos são legados/não atuais.
+> Nomes como `rg-tax-invoice-fc`, `cae-tax-invoice-fc` e
+> `ca-tax-invoice-fc-api` não pertencem ao workflow atual.
 
 ### 📑 Índice Geral
 
