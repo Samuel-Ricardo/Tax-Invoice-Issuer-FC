@@ -1,6 +1,6 @@
 FROM postgres:15-alpine
 
-COPY migration/versions /migrations
+COPY migration/create.sql /migration/create.sql
 COPY migration/runner.sh /usr/local/bin/run-migrations
 
 RUN chmod 0555 /usr/local/bin/run-migrations
