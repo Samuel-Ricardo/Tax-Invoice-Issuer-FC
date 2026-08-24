@@ -197,13 +197,24 @@ jobs:
             exit 1
           fi
 
-          registry_config="$(az containerapp job show \
+          registry_server="$(az containerapp job show \
             --name "${MIGRATION_JOB_NAME}" \
             --resource-group "${RESOURCE_GROUP}" \
             --only-show-errors \
-            --query "properties.configuration.registries[?server=='${REGISTRY}'] | [0].[server, username, passwordSecretRef]" \
+            --query "properties.configuration.registries[?server=='${REGISTRY}'] | [0].server" \
             --output tsv)"
-          read -r registry_server registry_username registry_password_secret_ref <<< "${registry_config}"
+          registry_username="$(az containerapp job show \
+            --name "${MIGRATION_JOB_NAME}" \
+            --resource-group "${RESOURCE_GROUP}" \
+            --only-show-errors \
+            --query "properties.configuration.registries[?server=='${REGISTRY}'] | [0].username" \
+            --output tsv)"
+          registry_password_secret_ref="$(az containerapp job show \
+            --name "${MIGRATION_JOB_NAME}" \
+            --resource-group "${RESOURCE_GROUP}" \
+            --only-show-errors \
+            --query "properties.configuration.registries[?server=='${REGISTRY}'] | [0].passwordSecretRef" \
+            --output tsv)"
           if [[ "${registry_server:-}" != "${REGISTRY}" || -z "${registry_username:-}" || -z "${registry_password_secret_ref:-}" ]]; then
             echo "Existing migration job must have a ${REGISTRY} registry entry with a username and password secret reference; refusing to overwrite its pull configuration." >&2
             exit 1
