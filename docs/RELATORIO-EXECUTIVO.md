@@ -1,9 +1,19 @@
 # 📊 Executive Report - Tax Invoice Issuer FC
 
-**Date**: June 2026 (updated)  
-**Version**: 1.0.0  
-**Status**: ✅ E2E Tests Implemented and Passing  
-**Branch**: `feature/test-temp`  
+> **Historical report — not current QA evidence or a deployment runbook.** The
+> metrics, branch, and test conclusions below describe the June 2026 review.
+> For the current Azure state, use the [current Azure runbook](./deploy/azure/manual/step-by-step-guide.md),
+> [Azure overview](./deploy/azure/README.md), and [Postman guide](../postman/README.md).
+>
+> **Current as of 2026-08-25:** the local E2E suite was blocked by missing local
+> `DATABASE_URL`; do not interpret this historical report's passing claim as
+> current evidence. Successful invoice responses are currently structured arrays,
+> not escaped JSON strings.
+
+**Date**: June 2026 (updated)
+**Version**: 1.0.0
+**Status histórico**: ✅ E2E Tests Implemented and Passing (não é evidência atual)
+**Branch**: `feature/test-temp`
 **Analyst**: Avanade Supervisor
 
 ---
@@ -92,11 +102,11 @@ Deep analysis of the Tax Invoice Issuer FC system and creation of comprehensive 
 
 #### 🔴 P0 - Lógica Invertida nas Strategies
 
-**Impacto**: Funcionalidade principal quebrada  
-**Severidade**: CRÍTICA  
+**Impacto**: Funcionalidade principal quebrada
+**Severidade**: CRÍTICA
 **Status**: 🔴 NÃO CORRIGIDO
 
-**Descrição**:  
+**Descrição**:
 As strategies (Cash e Accrual) têm condições de validação invertidas, resultando em invoices gerados para o período ERRADO.
 
 **Localização**:
@@ -116,11 +126,11 @@ if (payment.date.getMonth() + 1 === month &&
 
 #### 🟡 P1 - Falta de Validações de Range
 
-**Impacto**: Aceita dados inválidos  
-**Severidade**: MÉDIA  
+**Impacto**: Aceita dados inválidos
+**Severidade**: MÉDIA
 **Status**: 🟡 PENDENTE
 
-**Descrição**:  
+**Descrição**:
 API aceita month=0, month=999, year=-1, etc.
 
 **Fix Recomendado**:
@@ -132,8 +142,8 @@ year: z.number().int().min(2000).max(2100)
 
 #### 🟢 P2 - Documentação Swagger Vazia
 
-**Impacto**: Dificuldade para novos desenvolvedores  
-**Severidade**: BAIXA  
+**Impacto**: Dificuldade para novos desenvolvedores
+**Severidade**: BAIXA
 **Status**: 🟢 OPCIONAL
 
 **Fix**: Adicionar JSDoc comments nos controllers
@@ -331,7 +341,7 @@ Security: ⚠️ Parcial (sem rate limiting)
 
 ### Prioridade #1
 
-> 🚨 **CORRIGIR LÓGICA INVERTIDA NAS STRATEGIES**  
+> 🚨 **CORRIGIR LÓGICA INVERTIDA NAS STRATEGIES**
 > Sem este fix, o sistema não funciona corretamente
 
 ### Investimento Necessário
@@ -344,9 +354,9 @@ Security: ⚠️ Parcial (sem rate limiting)
 
 ---
 
-**Relatório Preparado Por**: Avanade Supervisor  
-**Metodologia**: Avanade Method v2  
-**Data de Análise**: Abril 2026  
+**Relatório Preparado Por**: Avanade Supervisor
+**Metodologia**: Avanade Method v2
+**Data de Análise**: Abril 2026
 **Próxima Revisão**: Após correção do bug crítico
 
 ---

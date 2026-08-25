@@ -1,8 +1,17 @@
 # ADR-001: Secrets Management Strategy
 
-**Status**: PARTIALLY IMPLEMENTED  
-**Date**: 2026-07-12 (Original) · 2026-07-28 (Updated)  
-**Deciders**: Wilson (Architect), Carla (QA), Tiago (Development)  
+> **Historical architecture record.** This ADR preserves the July 2026 decision
+> context and implementation history. Its metrics and Azure assumptions are not
+> the current deployment instructions. For current secret mapping, OIDC, and
+> runtime identity facts, use the [current Azure runbook](./deploy/azure/manual/step-by-step-guide.md)
+> and [Azure overview](./deploy/azure/README.md).
+>
+> **Current as of 2026-08-25:** the deployment uses Azure OIDC and Key Vault as
+> documented in those canonical pages; it does not use `AZURE_CREDENTIALS`.
+
+**Status**: PARTIALLY IMPLEMENTED
+**Date**: 2026-07-12 (Original) · 2026-07-28 (Updated)
+**Deciders**: Wilson (Architect), Carla (QA), Tiago (Development)
 **Supersedes**: None (First ADR on this topic)
 
 ---
@@ -14,7 +23,7 @@ The Tax-Invoice-Issuer-FC project had **CRITICAL security gaps** in how secrets 
 ### Original Problematic State (2026-07-12):
 
 ```
-❌ Hardcoded password in source: "postgresql://postgres:123456@localhost:5432/postgres"
+❌ Legacy hardcoded database credential in source (value redacted)
 ❌ Secrets mixed with code (env.config.ts)
 ❌ No abstraction layer (ConfigService)
 ❌ No type safety for secrets (plain string type)
@@ -26,26 +35,26 @@ The Tax-Invoice-Issuer-FC project had **CRITICAL security gaps** in how secrets 
 
 ### Current State (2026-07-28):
 
-| Item                                     | Original                                                  | Current                                                                  |
-| ---------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Hardcoded password in source             | ❌ `postgresql://postgres:123456@localhost:5432/postgres` | ✅ Removed                                                               |
-| Secrets mixed with code (env.config.ts)  | ❌ Fallback to default                                    | ✅ Uses `requiredSecret("DATABASE_URL")` — throws `SecretError` if unset |
-| ConfigService abstraction                | ❌ Not implemented                                        | ❌ Not implemented (direct ENV injection)                                |
-| Secret branded type (`@types/secret.ts`) | ❌ Not implemented                                        | ❌ Not implemented                                                       |
-| Debug logging can expose secrets         | ❌ `console.log`                                          | ⚠️ Logging exists without redaction                                      |
-| Secret rotation strategy                 | ❌ Redeploy required                                      | ❌ Not implemented                                                       |
-| TypeScript strict mode                   | ❌ `strict: false`                                        | ❌ `strict: false` (accepted — see Security Audit)                       |
-| Pre-commit hook for secret detection     | ❌ Not implemented                                        | ❌ Not implemented (only `lint-staged` runs)                             |
-| `SecretError` class                      | ❌ Not implemented                                        | ✅ Implemented at `@lib/error/secret.error.ts`                           |
-| `.env.example` with placeholders         | ❌ Not implemented                                        | ✅ Created at project root                                               |
-| `.env` + `.env.*` gitignored             | ⚠️ Partial                                                | ✅ `.env`, `.env.*` in `.gitignore` (except `*.example`)                 |
-| GitHub Actions with secrets              | ❌ Not used                                               | ✅ `AZURE_CREDENTIALS`, `GITHUB_TOKEN` via GitHub Secrets                |
-| pgAdmin exposed on all interfaces        | ❌ `0.0.0.0:5050`                                         | ✅ `127.0.0.1:5050` (localhost only)                                     |
-| Docker secrets management                | ❌ Not configured                                         | ⚠️ Uses `env_file: .env` (basic, no Docker Secrets)                      |
+| Item                                     | Original                              | Current                                                                  |
+| ---------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------ |
+| Hardcoded password in source             | ❌ Legacy credential (value redacted) | ✅ Removed                                                               |
+| Secrets mixed with code (env.config.ts)  | ❌ Fallback to default                | ✅ Uses `requiredSecret("DATABASE_URL")` — throws `SecretError` if unset |
+| ConfigService abstraction                | ❌ Not implemented                    | ❌ Not implemented (direct ENV injection)                                |
+| Secret branded type (`@types/secret.ts`) | ❌ Not implemented                    | ❌ Not implemented                                                       |
+| Debug logging can expose secrets         | ❌ `console.log`                      | ⚠️ Logging exists without redaction                                      |
+| Secret rotation strategy                 | ❌ Redeploy required                  | ❌ Not implemented                                                       |
+| TypeScript strict mode                   | ❌ `strict: false`                    | ❌ `strict: false` (accepted — see Security Audit)                       |
+| Pre-commit hook for secret detection     | ❌ Not implemented                    | ❌ Not implemented (only `lint-staged` runs)                             |
+| `SecretError` class                      | ❌ Not implemented                    | ✅ Implemented at `@lib/error/secret.error.ts`                           |
+| `.env.example` with placeholders         | ❌ Not implemented                    | ✅ Created at project root                                               |
+| `.env` + `.env.*` gitignored             | ⚠️ Partial                            | ✅ `.env`, `.env.*` in `.gitignore` (except `*.example`)                 |
+| GitHub Actions with secrets (historical) | ❌ Not used                           | ✅ Historical GitHub Secrets configuration recorded                      |
+| pgAdmin exposed on all interfaces        | ❌ `0.0.0.0:5050`                     | ✅ `127.0.0.1:5050` (localhost only)                                     |
+| Docker secrets management                | ❌ Not configured                     | ⚠️ Uses `env_file: .env` (basic, no Docker Secrets)                      |
 
 ### Vulnerability Status:
 
-Based on the **[Security Audit verified 2026-07-28](SECURITY-AUDIT-SUMMARY.md)**:
+Based on the **[Security Audit verified 2026-07-28](../SECURITY-AUDIT-SUMMARY.md)**:
 
 | Severity    | Status                             |
 | ----------- | ---------------------------------- |
@@ -56,13 +65,13 @@ Based on the **[Security Audit verified 2026-07-28](SECURITY-AUDIT-SUMMARY.md)**
 
 ### Environments Currently Supported:
 
-| Environment   | Secret Source                                        | Status                                      |
-| ------------- | ---------------------------------------------------- | ------------------------------------------- |
-| Local Dev     | `.env` file                                          | ✅ Works (required — fails fast if missing) |
-| Docker        | `.env` file via `env_file`                           | ✅ Works                                    |
-| Azure Staging | GitHub Secrets → Container Apps                      | 🟡 Partial (no Key Vault)                   |
-| Azure Prod    | GitHub Secrets → Container Apps                      | 🟡 Partial (no Key Vault / RBAC)            |
-| CI/CD         | GitHub Secrets (`AZURE_CREDENTIALS`, `GITHUB_TOKEN`) | ✅ Configured                               |
+| Environment   | Secret Source                           | Status                                          |
+| ------------- | --------------------------------------- | ----------------------------------------------- |
+| Local Dev     | `.env` file                             | ✅ Works (required — fails fast if missing)     |
+| Docker        | `.env` file via `env_file`              | ✅ Works                                        |
+| Azure Staging | GitHub Secrets → Container Apps         | 🟡 Partial (no Key Vault)                       |
+| Azure Prod    | GitHub Secrets → Container Apps         | 🟡 Partial (no Key Vault / RBAC)                |
+| CI/CD         | Historical GitHub Secrets configuration | ✅ Historical record; see current Azure runbook |
 
 ---
 
@@ -151,18 +160,18 @@ Currently: `@decorators/log/data.decorator.ts` logs inputs/outputs without redac
 
 ### ✅ Phase 0: Emergency Hardening (COMPLETED 2026-07-28)
 
-| Task                                           | Status  | Details                                         |
-| ---------------------------------------------- | ------- | ----------------------------------------------- |
-| Remove hardcoded password from `env.config.ts` | ✅ DONE | `requiredSecret("DATABASE_URL")` — no fallback  |
-| Create `SecretError` class                     | ✅ DONE | `@lib/error/secret.error.ts` extends `AppError` |
-| Create `.env.example` template                 | ✅ DONE | Placeholders for all required variables         |
-| Remove `postgres:123456` from all docs         | ✅ DONE | README, SETUP-GUIDE use `<POSTGRES_PASSWORD>`   |
-| Update docker-compose to use `.env` files      | ✅ DONE | `env_file: .env` + environment variables        |
-| Lock pgAdmin to localhost only                 | ✅ DONE | `127.0.0.1:5050` in docker-compose              |
-| Configure CI/CD secrets                        | ✅ DONE | GitHub Actions uses `secrets.AZURE_CREDENTIALS` |
-| Validate `.gitignore` for `.env` files         | ✅ DONE | `.env`, `.env.*` gitignored                     |
+| Task                                            | Status  | Details                                              |
+| ----------------------------------------------- | ------- | ---------------------------------------------------- |
+| Remove hardcoded password from `env.config.ts`  | ✅ DONE | `requiredSecret("DATABASE_URL")` — no fallback       |
+| Create `SecretError` class                      | ✅ DONE | `@lib/error/secret.error.ts` extends `AppError`      |
+| Create `.env.example` template                  | ✅ DONE | Placeholders for all required variables              |
+| Remove legacy database credential from all docs | ✅ DONE | Current docs use placeholders and redaction          |
+| Update docker-compose to use `.env` files       | ✅ DONE | `env_file: .env` + environment variables             |
+| Lock pgAdmin to localhost only                  | ✅ DONE | `127.0.0.1:5050` in docker-compose                   |
+| Configure CI/CD secrets                         | ✅ DONE | Historical configuration; current workflow uses OIDC |
+| Validate `.gitignore` for `.env` files          | ✅ DONE | `.env`, `.env.*` gitignored                          |
 
-**Effort**: 4 hours  
+**Effort**: 4 hours
 **Security Score**: 8/10 ✅
 
 ### ⏳ Phase 1: Type System & ConfigService (DEFERRED)
@@ -175,7 +184,7 @@ Currently: `@decorators/log/data.decorator.ts` logs inputs/outputs without redac
 | Update `config.module.ts` to inject ConfigService | 🔲 PENDING  | Currently injects `ENV.DATABASE.URL` directly     |
 | Migrate services to use ConfigService             | 🔲 PENDING  | PgPromiseConnectionAdapter injects `string` today |
 
-**Effort**: 8 hours estimated  
+**Effort**: 8 hours estimated
 **Risk**: Medium
 
 ### ⏳ Phase 2: Logging & Secret Redaction (DEFERRED)
@@ -186,7 +195,7 @@ Currently: `@decorators/log/data.decorator.ts` logs inputs/outputs without redac
 | Replace `console.log/error` calls    | 🔲 PENDING | Currently uses `console.info/error` directly               |
 | Add tests for logging redaction      | 🔲 PENDING | No redaction tests exist                                   |
 
-**Effort**: 6 hours estimated  
+**Effort**: 6 hours estimated
 **Risk**: Low
 
 ### ⏳ Phase 3: Azure Key Vault Integration (NOT STARTED)
@@ -199,7 +208,7 @@ Currently: `@decorators/log/data.decorator.ts` logs inputs/outputs without redac
 | Implement secret rotation handler                     | 🔲 PENDING | Not designed              |
 | Cache secrets with TTL                                | 🔲 PENDING | Not designed              |
 
-**Effort**: 12 hours estimated  
+**Effort**: 12 hours estimated
 **Risk**: Medium
 
 ---
@@ -211,7 +220,7 @@ Currently: `@decorators/log/data.decorator.ts` logs inputs/outputs without redac
 1. **Zero hardcoded secrets** — Critical vulnerability removed
 2. **Fail-fast startup** — Missing secrets throw `SecretError` immediately
 3. **Centralized error handling** — `SecretError` with status 500
-4. **CI/CD ready** — GitHub Secrets configured for `AZURE_CREDENTIALS`
+4. **CI/CD ready** — historical GitHub Secrets configuration recorded
 5. **Docker compatible** — Environment variables passed via `docker-compose`
 6. **Git safe** — `.env` files protected by `.gitignore`
 
@@ -326,7 +335,10 @@ describe("ConfigService", () => {
   });
 
   it("should redact secrets in error logs", () => {
-    const logged = redactSecrets({ password: "secret123", normal: "value" });
+    const logged = redactSecrets({
+      password: "<REDACTED_SECRET>",
+      normal: "value",
+    });
     expect(logged.password).toBe("[REDACTED]");
     expect(logged.normal).toBe("value");
   });
@@ -353,15 +365,15 @@ Current compliance:
 - [Azure Key Vault Best Practices](https://learn.microsoft.com/en-us/azure/key-vault/general/best-practices)
 - [The Twelve-Factor App — Config](https://12factor.net/config)
 - [NIST SP 800-57 — Key Lifecycle](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf)
-- [Security Audit Summary](SECURITY-AUDIT-SUMMARY.md)
+- [Security Audit Summary](../SECURITY-AUDIT-SUMMARY.md)
 
 ---
 
 ## 10. Sign-Off
 
-**Proposed By**: Wilson — Solution Architect  
-**Original Date**: 2026-07-12  
-**Emergency Fix Completed**: 2026-07-28  
+**Proposed By**: Wilson — Solution Architect
+**Original Date**: 2026-07-12
+**Emergency Fix Completed**: 2026-07-28
 **Status**: PARTIALLY IMPLEMENTED (Phase 0 complete, future phases deferred)
 
 **Verification**:

@@ -3,10 +3,10 @@
 > Decisões técnicas, diagramas e justificativas para o deploy na Azure Cloud.
 >
 > **Status: Histórico — não é a fonte atual de implantação.** Este documento
-> preserva o desenho e os nomes de uma configuração anterior. Para a topologia
-> confirmada, use o [runbook manual atual](./manual/step-by-step-guide.md), que
-> documenta `-learn`, as VNets separadas, o peering bidirecional e a zona DNS
-> privada específica do PostgreSQL.
+> preserva o desenho, os nomes e o fluxo de credenciais de uma configuração
+> anterior. Para a topologia confirmada, use o [runbook manual atual](./manual/step-by-step-guide.md),
+> que documenta `-learn`, Azure OIDC, as VNets separadas, o peering bidirecional
+> e a zona DNS privada específica do PostgreSQL.
 
 ---
 
@@ -100,7 +100,7 @@ flowchart TD
     D -->|Yes| E[Job: deploy]
     D -->|No - PR| Z[End - build only]
 
-    E --> E1[Azure Login\nAZURE_CREDENTIALS secret]
+    E --> E1[Azure Login\nformer Service Principal — historical]
     E1 --> E2[az containerapp update\nnova imagem]
     E2 --> E3[✅ Deploy concluído\nAPI atualizada em ~30s]
 ```
@@ -111,7 +111,7 @@ flowchart TD
 
 ### 1. Azure Container Apps Environment
 
-**Recurso**: `Microsoft.App/managedEnvironments`  
+**Recurso**: `Microsoft.App/managedEnvironments`
 **Nome**: `cae-tax-invoice-fc`
 
 O ambiente é o contexto de execução compartilhado para Container Apps. Neste projeto há apenas 1 app, mas o ambiente pode escalar para múltiplos serviços.
@@ -122,7 +122,7 @@ O ambiente é o contexto de execução compartilhado para Container Apps. Neste 
 
 ### 2. Container App (API)
 
-**Recurso**: `Microsoft.App/containerApps`  
+**Recurso**: `Microsoft.App/containerApps`
 **Nome**: `ca-tax-invoice-fc-api`
 
 | Configuração  | Valor                    | Motivo                                         |
@@ -142,7 +142,7 @@ A connection string do PostgreSQL é armazenada como **Container Apps Secret** (
 
 ```
 Secret name: database-url
-Value: postgresql://pgadmin:***@psql-tax-invoice-fc.postgres.database.azure.com:5432/invoicesdb?sslmode=require
+Value: <DATABASE_URL_FROM_KEY_VAULT>
 Referenciado como env var: DATABASE_URL
 ```
 
@@ -150,7 +150,7 @@ Referenciado como env var: DATABASE_URL
 
 ### 3. PostgreSQL Flexible Server
 
-**Recurso**: `Microsoft.DBforPostgreSQL/flexibleServers`  
+**Recurso**: `Microsoft.DBforPostgreSQL/flexibleServers`
 **Nome**: `psql-tax-invoice-fc`
 
 | Configuração         | Valor         | Motivo                                        |
@@ -169,7 +169,7 @@ Referenciado como env var: DATABASE_URL
 
 ### 4. Log Analytics Workspace
 
-**Recurso**: `Microsoft.OperationalInsights/workspaces`  
+**Recurso**: `Microsoft.OperationalInsights/workspaces`
 **Nome**: `law-tax-invoice-fc`
 
 Coleta logs de todos os containers automaticamente. Permite queries via Azure Portal para debug.
@@ -189,22 +189,22 @@ ContainerAppConsoleLogs_CL
 
 ### ADR-001: GitHub Container Registry vs Azure Container Registry
 
-**Decisão**: Usar `ghcr.io` (GHCR)  
+**Decisão**: Usar `ghcr.io` (GHCR)
 **Motivo**: Gratuito para repositórios públicos, integração nativa com GitHub Actions via `GITHUB_TOKEN` sem secrets adicionais. ACR Basic custa ~$5/mês desnecessariamente para portfolio.
 
 ### ADR-002: Scale-to-Zero para API
 
-**Decisão**: `minReplicas: 0`  
+**Decisão**: `minReplicas: 0`
 **Motivo**: Portfolio tem tráfego eventual (recrutadores, demos). Com scale-to-zero, o custo em idle é $0. Cold start de 3-8s é aceitável neste contexto.
 
 ### ADR-003: PostgreSQL B1ms vs Azure Free (sem opção free)
 
-**Decisão**: Usar B1ms com Stop/Start  
+**Decisão**: Usar B1ms com Stop/Start
 **Motivo**: Não existe tier gratuito permanente para PostgreSQL na Azure. B1ms a $12.41/mês é o menor SKU. Com Stop/Start manual, paga apenas storage (~$0.37/mês) quando parado.
 
 ### ADR-004: Bicep vs Terraform vs ARM
 
-**Decisão**: Azure Bicep  
+**Decisão**: Azure Bicep
 **Motivo**: Nativo Azure (sem dependências externas), sintaxe mais limpa que ARM JSON, Microsoft-first. Para portfolio Azure, Bicep demonstra mais senioridade que Terraform para contextos Azure-only.
 
 ---

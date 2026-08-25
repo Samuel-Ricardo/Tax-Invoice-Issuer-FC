@@ -1,5 +1,10 @@
 # 📚 Index - Infraestrutura Segura para GitHub Público
 
+> **Legacy/non-current infrastructure index — current as of 2026-08-25.** The
+> Bicep materials below are retained historical records and are not the current
+> Azure deployment path. Use the [current Azure runbook](../docs/deploy/azure/manual/step-by-step-guide.md)
+> and [Azure overview](../docs/deploy/azure/README.md).
+
 Guia de navegação para todos os arquivos de infraestrutura segura.
 
 ---
@@ -117,7 +122,12 @@ git diff --cached | head -100
 git push origin main
 ```
 
-### ✅ Depois de Push para GitHub
+### ✅ Depois de Push para GitHub (HISTÓRICO — NÃO EXECUTAR)
+
+> **Registro histórico somente.** O fluxo abaixo descreve uma configuração
+> anterior com Service Principal. A implantação atual usa OIDC; consulte o
+> [runbook atual](../docs/deploy/azure/manual/step-by-step-guide.md). Nunca
+> crie ou copie `AZURE_CREDENTIALS`.
 
 ```bash
 # 1. Ativar GitHub Secret Scanning
@@ -127,7 +137,7 @@ git push origin main
 
 # 2. Adicionar GitHub Secrets
 # Settings → Secrets and variables → Actions
-# New secret: AZURE_CREDENTIALS (valor: cat .deployment-output/sp-credentials.json)
+# Historical secret reference: AZURE_CREDENTIALS (not current; value omitted)
 # New secret: AZURE_SUBSCRIPTION_ID (valor: seu-subscription-id)
 
 # 3. Create CI/CD workflow
@@ -160,7 +170,10 @@ bash setup-azure.sh
 curl https://ca-tax-invoice-fc-api.<random>.eastus.azurecontainerapps.io/health
 ```
 
-### GitHub Actions (CI/CD)
+### GitHub Actions (CI/CD) — HISTÓRICO — NÃO EXECUTAR
+
+> Este exemplo preserva o antigo login por Service Principal. O workflow atual
+> usa Azure OIDC e não usa `AZURE_CREDENTIALS`.
 
 ```yaml
 # .github/workflows/deploy.yml
@@ -174,7 +187,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          # Historical credential reference omitted; do not recreate it.
 
       - name: Deploy
         run: |
@@ -282,8 +295,8 @@ bash setup-azure.sh
 
 Veja seções de troubleshooting em:
 
-- [README.md](./README.md#-troubleshooting)
-- [QUICKSTART.md](./QUICKSTART.md#-troubleshooting-rápido)
+- [README.md](./README.md#troubleshooting)
+- [QUICKSTART.md](./QUICKSTART.md#troubleshooting-rápido)
 
 ---
 
@@ -325,6 +338,6 @@ Se encontrar problemas:
 
 ---
 
-**Versão**: 1.0.0 (Public)  
-**Última atualização**: 2026-07-12  
+**Versão**: 1.0.0 (Public)
+**Última atualização**: 2026-07-12
 **Status**: ✅ Ready for GitHub Public Repository

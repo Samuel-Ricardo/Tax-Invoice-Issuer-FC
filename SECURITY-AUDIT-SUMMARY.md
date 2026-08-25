@@ -1,13 +1,18 @@
 # 🎯 RESUMO EXECUTIVO - AUDITORIA DE SEGURANÇA
 
-**Projeto**: Tax-Invoice-Issuer-FC  
-**Data**: 12 de julho de 2026  
+> **Registro histórico — não é instrução operacional atual.** As conclusões,
+> comandos e referências abaixo pertencem à auditoria de julho de 2026. Para o
+> deployment atual, use o [runbook Azure](docs/deploy/azure/manual/step-by-step-guide.md),
+> que usa OIDC e não usa `AZURE_CREDENTIALS`.
+
+**Projeto**: Tax-Invoice-Issuer-FC
+**Data**: 12 de julho de 2026
 **Status**: ✅ **PRONTO PARA GITHUB PUBLIC**
 
 ---
 
-> **✅ VERIFIED ON 2026-07-28**  
-> All critical security fixes have been applied and verified against the current codebase.  
+> **✅ VERIFIED ON 2026-07-28**
+> All critical security fixes have been applied and verified against the current codebase.
 > The project is now cleared for public GitHub push.
 >
 > **Verified Fixes:**
@@ -44,7 +49,7 @@
 
 - **Severidade**: 🔴 CRÍTICO → ✅ CORRIGIDO
 - **Onde**: `src/@modules/infra/config/env/env.config.ts`
-- **O quê era**: `"postgresql://postgres:123456@localhost:5432/postgres"`
+- **O quê era**: `"<REDACTED_LEGACY_DATABASE_URL>"`
 - **Correção**: Usa `requiredSecret("DATABASE_URL")` — lança `SecretError` se não definida
 - **Código atual verificado**:
 
@@ -155,9 +160,9 @@
 2. **Verificar** que nenhum secret está exposto:
 
    ```bash
-   grep -r "123456" src/                    # NENHUMA ocorrência
-   grep -r "SuaSenhaSegura123" docs/        # NENHUMA ocorrência
-   grep -r "MinhaS3nha@Segura" docs/        # NENHUMA ocorrência
+   grep -r "<REDACTED_LEGACY_PASSWORD>" src/ # NENHUMA ocorrência
+   grep -r "<REDACTED_LEGACY_PASSWORD>" docs/ # NENHUMA ocorrência
+   grep -r "<REDACTED_LEGACY_PASSWORD>" docs/ # NENHUMA ocorrência
    ```
 
 3. **Confirmar** que `.env` está no `.gitignore`:
@@ -204,11 +209,11 @@
 
 Após completar as ações críticas:
 
-✅ Nenhuma credencial em código-fonte (`requiredSecret()` pattern)  
-⏭️ npm audit — acknowledged como optional  
-✅ Nenhuma interface pública exposta (`127.0.0.1` bind)  
-✅ Documentação segura e educacional (`<POSTGRES_PASSWORD>` placeholders)  
-⏭️ Type safety — acknowledged como optional  
+✅ Nenhuma credencial em código-fonte (`requiredSecret()` pattern)
+⏭️ npm audit — acknowledged como optional
+✅ Nenhuma interface pública exposta (`127.0.0.1` bind)
+✅ Documentação segura e educacional (`<POSTGRES_PASSWORD>` placeholders)
+⏭️ Type safety — acknowledged como optional
 🟡 Pre-commit hooks — futuro (opcional)
 
 **Score final**: 8/10 ✅ **PRONTO PARA REPOSITÓRIO PÚBLICO**
@@ -223,12 +228,12 @@ Após completar as ações críticas:
 
 ---
 
-**Status Final**: ✅ **PRONTO PARA GITHUB PUBLIC**  
-**Prioridade**: ✅ Crítica resolvida — todas as correções aplicadas e verificadas  
+**Status Final**: ✅ **PRONTO PARA GITHUB PUBLIC**
+**Prioridade**: ✅ Crítica resolvida — todas as correções aplicadas e verificadas
 **Verificado em**: 2026-07-28
 
 ---
 
-_Auditoria realizada por: Avanade Method Party Mode (Carla QA + Wilson Architect + Paige Tech Writer + Tiago Dev)_  
-_Data original: 2026-07-12_  
+_Auditoria realizada por: Avanade Method Party Mode (Carla QA + Wilson Architect + Paige Tech Writer + Tiago Dev)_
+_Data original: 2026-07-12_
 _Verificação final: 2026-07-28_

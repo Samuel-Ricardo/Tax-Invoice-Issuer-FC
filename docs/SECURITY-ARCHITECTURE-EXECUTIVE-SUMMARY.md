@@ -1,8 +1,16 @@
 # 🏗️ SECURITY ARCHITECTURE REVIEW - EXECUTIVE SUMMARY
 
-**Date**: 2026-07-12 (Original) · 2026-07-28 (Updated)  
-**Project**: Tax-Invoice-Issuer-FC  
-**Reviewer**: Wilson — Solution Architect  
+> **Historical security review — not the current deployment runbook.** Scores,
+> metrics, and findings below are date-bound to the July 2026 review. For current
+> Azure topology, OIDC, migration, API, and QA facts, use the [current Azure runbook](./deploy/azure/manual/step-by-step-guide.md),
+> [Azure overview](./deploy/azure/README.md), and [documentation index](./INDEX.md).
+>
+> **Current as of 2026-08-25:** this report's findings remain historical audit
+> content and must not override the canonical current documents.
+
+**Date**: 2026-07-12 (Original) · 2026-07-28 (Updated)
+**Project**: Tax-Invoice-Issuer-FC
+**Reviewer**: Wilson — Solution Architect
 **Finding**: ⚠️ **IMPROVED — Core issues resolved, architectural improvements ongoing**
 
 ---
@@ -49,9 +57,7 @@ The **critical blocker — hardcoded password in source code — has been resolv
 // BEFORE (Jul 12):
 export const ENV = {
   DATABASE: {
-    URL:
-      process.env.DATABASE_URL ||
-      "postgresql://postgres:123456@localhost:5432/postgres", // ❌ HARDCODED!
+    URL: process.env.DATABASE_URL || "<REDACTED_LEGACY_DATABASE_URL>", // ❌ HARDCODED!
   },
 };
 
@@ -114,7 +120,7 @@ class ConfigService {
 ✅ Inversify DI Container pattern (7/10)                     (SAME)
 ✅ Separation of concerns structure (6/10)                   (SAME)
 ✅ .gitignore protection for .env files (8/10)               (SAME)
-✅ GitHub Actions with AZURE_CREDENTIALS secret              (NEW)
+✅ Historical GitHub Actions credential configuration recorded             (NEW)
 ```
 
 ---
@@ -221,6 +227,6 @@ This architecture in its current form:
 
 ---
 
-**Status**: UPDATED AFTER FIXES  
-**Last Updated**: 2026-07-28  
+**Status**: UPDATED AFTER FIXES
+**Last Updated**: 2026-07-28
 **Documents Location**: `/docs/`

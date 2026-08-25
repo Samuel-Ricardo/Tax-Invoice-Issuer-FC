@@ -1,5 +1,9 @@
 # 🔐 SECURITY.md - Tax-Invoice-Issuer-FC
 
+> **Historical/non-current infrastructure guidance — current as of 2026-08-25.**
+> This document is retained for audit context and does not describe the current
+> Azure OIDC deployment. Use the [current Azure runbook](../docs/deploy/azure/manual/step-by-step-guide.md).
+
 Guia de boas práticas de segurança para este repositório público.
 
 ## ⚠️ POLÍTICAS OBRIGATÓRIAS
@@ -130,7 +134,7 @@ chmod +x .git/hooks/pre-commit
 # .env.local
 # Este arquivo está em .gitignore
 
-POSTGRES_PASSWORD="seu-password-temporario"
+POSTGRES_PASSWORD="<POSTGRES_PASSWORD>"
 DATABASE_HOST="localhost"
 DATABASE_PORT="5432"
 DATABASE_USER="pgadmin"
@@ -182,10 +186,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Azure Login (Masked)
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }} # Automaticamente masked
+      # HISTORICAL EXAMPLE ONLY — this former credential flow is not current.
+      # The current workflow uses Azure OIDC with AZURE_CLIENT_ID,
+      # AZURE_TENANT_ID, and AZURE_SUBSCRIPTION_ID. Do not copy this block.
+      # Former secret name: AZURE_CREDENTIALS (value intentionally omitted).
 
       - name: Deploy (Secrets nunca printados)
         run: |
@@ -316,5 +320,5 @@ az keyvault monitor log show \
 
 ---
 
-**Última revisão**: 2026-07-12  
+**Última revisão**: 2026-07-12
 **Status**: ✅ Ativo

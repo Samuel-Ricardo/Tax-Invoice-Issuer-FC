@@ -1,10 +1,19 @@
 # 🔐 SECURITY ARCHITECTURE REVIEW REPORT
 
+> **Historical security review — not the current deployment runbook.** Scores,
+> metrics, and findings below are date-bound to the July 2026 review. For current
+> Azure topology, OIDC, migration, API, and QA facts, use the [current Azure runbook](./deploy/azure/manual/step-by-step-guide.md),
+> [Azure overview](./deploy/azure/README.md), and [documentation index](./INDEX.md).
+>
+> **Current as of 2026-08-25:** this report preserves historical audit content.
+> Its former `AZURE_CREDENTIALS` and deployment statements do not describe the
+> current workflow, which uses Azure OIDC and a migration gate.
+
 ## Tax-Invoice-Issuer-FC Project
 
-**Reviewer**: Wilson — Solution Architect  
-**Date**: 2026-07-12 (Original) · 2026-07-28 (Updated)  
-**Scope**: Validating if ARCHITECTURE allows security vulnerabilities  
+**Reviewer**: Wilson — Solution Architect
+**Date**: 2026-07-12 (Original) · 2026-07-28 (Updated)
+**Scope**: Validating if ARCHITECTURE allows security vulnerabilities
 **Assessment Level**: ⚠️ IMPROVED — Core issues resolved, hardening ongoing
 
 ---
@@ -15,18 +24,18 @@
 
 ### What Changed
 
-| Issue                            | Before (Jul 12)                             | After (Jul 28)                           | Impact                |
-| -------------------------------- | ------------------------------------------- | ---------------------------------------- | --------------------- |
-| Hardcoded password               | ❌ `postgresql://postgres:123456` in source | ✅ `requiredSecret("DATABASE_URL")`      | 🔴→✅ CRITICAL FIXED  |
-| `.env.example`                   | ❌ Didn't exist                             | ✅ Created with placeholders             | 🟡→✅ USABILITY FIXED |
-| pgAdmin exposure                 | ❌ `0.0.0.0:5050`                           | ✅ `127.0.0.1:5050`                      | 🔴→✅ SECURITY FIXED  |
-| ADR documentation                | ❌ No ADRs                                  | ✅ ADR-001 created & maintained          | 🔴→✅ GAP CLOSED      |
-| `SecretError` class              | ❌ Not implemented                          | ✅ `@lib/error/secret.error.ts`          | 🟡→✅ ERROR HANDLING  |
-| CI/CD secrets                    | ❌ Not configured                           | ✅ `AZURE_CREDENTIALS` in GitHub Secrets | 🟡→✅ CONFIGURED      |
-| TypeScript strict                | ❌ `strict: false`                          | ❌ `strict: false` (deferred)            | 🔴→🟡 ACCEPTED        |
-| ConfigService                    | ❌ Not implemented                          | ❌ Not implemented (deferred)            | 🔴→🟡 DEFERRED        |
-| Secret type (`@types/secret.ts`) | ❌ Not implemented                          | ❌ Not implemented (deferred)            | 🔴→🟡 DEFERRED        |
-| Log redaction (SecureLogger)     | ❌ Not implemented                          | ❌ Not implemented (deferred)            | 🔴→🟡 DEFERRED        |
+| Issue                             | Before (Jul 12)                | After (Jul 28)                         | Impact                |
+| --------------------------------- | ------------------------------ | -------------------------------------- | --------------------- |
+| Hardcoded password                | ❌ Legacy credential in source | ✅ `requiredSecret("DATABASE_URL")`    | 🔴→✅ CRITICAL FIXED  |
+| `.env.example`                    | ❌ Didn't exist                | ✅ Created with placeholders           | 🟡→✅ USABILITY FIXED |
+| pgAdmin exposure                  | ❌ `0.0.0.0:5050`              | ✅ `127.0.0.1:5050`                    | 🔴→✅ SECURITY FIXED  |
+| ADR documentation                 | ❌ No ADRs                     | ✅ ADR-001 created & maintained        | 🔴→✅ GAP CLOSED      |
+| `SecretError` class               | ❌ Not implemented             | ✅ `@lib/error/secret.error.ts`        | 🟡→✅ ERROR HANDLING  |
+| CI/CD secrets (historical review) | ❌ Not configured              | ✅ Historical credential configuration | 🟡→✅ CONFIGURED      |
+| TypeScript strict                 | ❌ `strict: false`             | ❌ `strict: false` (deferred)          | 🔴→🟡 ACCEPTED        |
+| ConfigService                     | ❌ Not implemented             | ❌ Not implemented (deferred)          | 🔴→🟡 DEFERRED        |
+| Secret type (`@types/secret.ts`)  | ❌ Not implemented             | ❌ Not implemented (deferred)          | 🔴→🟡 DEFERRED        |
+| Log redaction (SecureLogger)      | ❌ Not implemented             | ❌ Not implemented (deferred)          | 🔴→🟡 DEFERRED        |
 
 The architecture **no longer ENABLES critical secret exposure** — the hardcoded password is removed. Remaining gaps are architectural maturity improvements for production hardening.
 
@@ -85,9 +94,7 @@ src/
 export const ENV = {
   ...process.env,
   DATABASE: {
-    URL:
-      process.env.DATABASE_URL ||
-      "postgresql://postgres:123456@localhost:5432/postgres", // ❌ HARDCODED!
+    URL: process.env.DATABASE_URL || "<REDACTED_LEGACY_DATABASE_URL>", // ❌ HARDCODED!
   },
 };
 ```
@@ -116,17 +123,17 @@ export const ENV = {
 
 **Updated Findings**:
 
-| Aspect                 | Before (Jul 12)            | After (Jul 28)               | Status             |
-| ---------------------- | -------------------------- | ---------------------------- | ------------------ |
-| Hardcoded Credentials  | YES — `123456` in source   | NO — uses `requiredSecret()` | 🔴→✅ RESOLVED     |
-| Default Value Fallback | YES — hardcoded default    | NO — throws `SecretError`    | 🔴→✅ RESOLVED     |
-| Centralization         | Partial — in env.config.ts | Partial — in env.config.ts   | 🟡 SAME            |
-| Type Safety            | NO — plain `string`        | NO — plain `string`          | 🔴 SAME (deferred) |
-| Abstraction Layer      | NO — no ConfigService      | NO — no ConfigService        | 🔴 SAME (deferred) |
-| Debug Logging          | RISKY — `console.log`      | RISKY — `console.log`        | 🔴 SAME (deferred) |
-| Rotation Support       | NO — must redeploy         | NO — must redeploy           | 🔴 SAME (deferred) |
-| Structured Error       | NO — generic Error         | YES — `SecretError` class    | 🟡→✅ IMPROVED     |
-| Fail-fast startup      | NO — silent fallback       | YES — throws on missing      | 🟡→✅ IMPROVED     |
+| Aspect                 | Before (Jul 12)              | After (Jul 28)               | Status             |
+| ---------------------- | ---------------------------- | ---------------------------- | ------------------ |
+| Hardcoded Credentials  | YES — legacy value in source | NO — uses `requiredSecret()` | 🔴→✅ RESOLVED     |
+| Default Value Fallback | YES — hardcoded default      | NO — throws `SecretError`    | 🔴→✅ RESOLVED     |
+| Centralization         | Partial — in env.config.ts   | Partial — in env.config.ts   | 🟡 SAME            |
+| Type Safety            | NO — plain `string`          | NO — plain `string`          | 🔴 SAME (deferred) |
+| Abstraction Layer      | NO — no ConfigService        | NO — no ConfigService        | 🔴 SAME (deferred) |
+| Debug Logging          | RISKY — `console.log`        | RISKY — `console.log`        | 🔴 SAME (deferred) |
+| Rotation Support       | NO — must redeploy           | NO — must redeploy           | 🔴 SAME (deferred) |
+| Structured Error       | NO — generic Error           | YES — `SecretError` class    | 🟡→✅ IMPROVED     |
+| Fail-fast startup      | NO — silent fallback         | YES — throws on missing      | 🟡→✅ IMPROVED     |
 
 **Pattern Analysis**:
 
@@ -245,7 +252,7 @@ infra/                          infra_public/
 | .gitignore Protection | ✅ `infra/` in .gitignore     | ✅ Same                 | ✅ GOOD      |
 | Public IaC            | ✅ `infra_public/` deployable | ✅ Same                 | ✅ GOOD      |
 | Secret Staging        | ❌ No clear separation        | ❌ Same                 | ❌ UNCHANGED |
-| Hardcoded Secrets     | ❌ `123456` in source         | ✅ REMOVED              | ✅ RESOLVED  |
+| Hardcoded Secrets     | ❌ Legacy value in source     | ✅ REMOVED              | ✅ RESOLVED  |
 | `.env.example`        | ❌ Missing                    | ✅ Created              | ✅ RESOLVED  |
 | Docker Compose        | ❌ pgAdmin on 0.0.0.0         | ✅ pgAdmin on 127.0.0.1 | ✅ RESOLVED  |
 
@@ -299,16 +306,14 @@ Future Phases (Deferred):
 
 ### Issue #1: Hardcoded Password in Source Code ✅ RESOLVED
 
-**File**: [src/@modules/infra/config/env/env.config.ts](src/@modules/infra/config/env/env.config.ts)
+**File**: [`src/@modules/infra/config/env/env.config.ts`](../src/@modules/infra/config/env/env.config.ts)
 
 **BEFORE** (Jul 12):
 
 ```typescript
 export const ENV = {
   DATABASE: {
-    URL:
-      process.env.DATABASE_URL ||
-      "postgresql://postgres:123456@localhost:5432/postgres", // ❌ HARDCODED
+    URL: process.env.DATABASE_URL || "<REDACTED_LEGACY_DATABASE_URL>", // ❌ HARDCODED
   },
 };
 ```
@@ -337,7 +342,7 @@ export const ENV = {
 
 ### Issue #2: TypeScript strict: false ⏳ DEFERRED
 
-**File**: [tsconfig.json](tsconfig.json#L5)
+**File**: [`tsconfig.json`](../tsconfig.json#L5)
 
 **Problem**: `"strict": false` — unchanged
 
@@ -358,8 +363,8 @@ export const ENV = {
 
 **Files Affected**:
 
-- [src/@modules/infra/config/config.module.ts](src/@modules/infra/config/config.module.ts)
-- [src/@modules/infra/config/config.factory.ts](src/@modules/infra/config/config.factory.ts)
+- [`src/@modules/infra/config/config.module.ts`](../src/@modules/infra/config/config.module.ts)
+- [`src/@modules/infra/config/config.factory.ts`](../src/@modules/infra/config/config.factory.ts)
 
 **Problem**:
 
@@ -383,8 +388,8 @@ bind<Environment>(CONFIG_REGISTRY.ENV.IRONMENT).toConstantValue(ENV);
 
 **Files Affected**:
 
-- [src/@decorators/async/logger.decorator.ts](src/@decorators/async/logger.decorator.ts#L32)
-- [src/@decorators/log/data.decorator.ts](src/@decorators/log/data.decorator.ts#L42)
+- [`src/@decorators/async/logger.decorator.ts`](../src/@decorators/async/logger.decorator.ts#L32)
+- [`src/@decorators/log/data.decorator.ts`](../src/@decorators/log/data.decorator.ts#L42)
 
 **Problem** (unchanged):
 
@@ -409,7 +414,7 @@ console.log(`[${context}] | ${message}`, ...data);
 
 ### Issue #5: Docker Compose Exposes Management Port ✅ RESOLVED
 
-**File**: [docker-compose.yaml](docker-compose.yaml)
+**File**: [`docker-compose.yaml`](../docker-compose.yaml)
 
 **BEFORE** (Jul 12):
 
@@ -441,7 +446,7 @@ pgadmin:
 
 ### Issue #6: console.log in Use Cases ⏳ DEFERRED
 
-**File**: [src/@modules/application/use-case/email/send/invoice.use-case.ts](src/@modules/application/use-case/email/send/invoice.use-case.ts#L10)
+**File**: [test/module/application/use-case/email/send/invoice.use-case.ts](../test/module/application/use-case/email/send/invoice.use-case.ts#L10)
 
 **Problem** (unchanged):
 
@@ -622,7 +627,7 @@ This architecture **NO LONGER ENABLES** critical security exposure:
 4. ✅ **Lock pgAdmin to localhost** — `127.0.0.1:5050` in docker-compose
 5. ✅ **Create ADR-001** — Secrets Management Strategy (Partially Implemented)
 6. ✅ **Sanitize documentation** — README, SETUP-GUIDE use `<POSTGRES_PASSWORD>` placeholders
-7. ✅ **Configure CI/CD secrets** — `AZURE_CREDENTIALS` in GitHub Actions
+7. ✅ **Configure CI/CD secrets** — historical configuration recorded in the July review
 8. ✅ **Verify `.gitignore`** — protects `.env`, `.env.*`, `infra/`
 9. ✅ **Update all architecture docs** — this review, executive summary, ADR-001
 
@@ -643,8 +648,8 @@ This architecture **NO LONGER ENABLES** critical security exposure:
 **Related Documents**:
 
 - 🔗 [ADR-001: Secrets Management Strategy](ADR-001-secrets-management.md) — Architecture decision record
-- 🔗 [Security Audit Summary](SECURITY-AUDIT-SUMMARY.md) — 8/10 score, critical fixes verified
-- 🔗 [Security Fix Guide](SECURITY-FIX-GUIDE.md) — Step-by-step remediation
+- 🔗 [Security Audit Summary](../SECURITY-AUDIT-SUMMARY.md) — 8/10 score, critical fixes verified
+- 🔗 [Security Fix Guide](../SECURITY-FIX-GUIDE.md) — Step-by-step remediation
 
 **Azure Best Practices**:
 
@@ -664,6 +669,6 @@ This architecture **NO LONGER ENABLES** critical security exposure:
 
 ---
 
-**Report Version**: 1.1 (Updated for Phase 0 fixes)  
-**Last Updated**: 2026-07-28  
+**Report Version**: 1.1 (Updated for Phase 0 fixes)
+**Last Updated**: 2026-07-28
 **Prepared By**: Wilson — Solution Architect

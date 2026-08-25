@@ -2,8 +2,9 @@
 
 > Guia passo a passo completo para provisionar e configurar o ambiente Azure do zero.
 >
-> **Status: Legado — não seguir para a implantação atual.** Este guia descreve
-> o fluxo Bicep padrão e nomes antigos. A implantação confirmada usa o
+> **STATUS: LEGADO — NÃO EXECUTAR.** Este guia descreve
+> o fluxo Bicep padrão e nomes antigos, incluindo referências históricas a
+> credenciais que não pertencem ao fluxo atual. A implantação confirmada usa o
 > [runbook manual atual](./manual/step-by-step-guide.md), com recursos `-learn`,
 > Azure OIDC, Key Vault e PostgreSQL Flexible Server private access/VNet
 > integration. Este arquivo é mantido apenas como registro histórico.
@@ -100,23 +101,28 @@ az deployment group create \
 
 ---
 
-## 🔑 FASE 3 — Configurar GitHub Secrets
+## 🔑 FASE 3 — Configurar GitHub Secrets (HISTÓRICO — NÃO EXECUTAR)
 
-Após o setup, você terá o JSON do Service Principal. Agora configure os secrets no GitHub:
+> **Registro histórico:** o fluxo abaixo usava um Service Principal com
+> `AZURE_CREDENTIALS`. Não copie, gere ou configure esse secret. O fluxo atual
+> usa os secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` e
+> `AZURE_SUBSCRIPTION_ID` com login OIDC; consulte o [runbook atual](./manual/step-by-step-guide.md).
+
+O texto abaixo preserva o procedimento histórico apenas para auditoria:
 
 **Navegue para**: `github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC` → Settings → Secrets and variables → Actions
 
 ### Secrets Necessários
 
-| Secret                  | Valor                     | Como obter                          |
-| ----------------------- | ------------------------- | ----------------------------------- |
-| `AZURE_CREDENTIALS`     | JSON do Service Principal | Saída do `setup-azure.sh`           |
-| `AZURE_SUBSCRIPTION_ID` | ID da sua subscription    | `az account show --query id -o tsv` |
+| Secret                  | Valor                                      | Como obter                          |
+| ----------------------- | ------------------------------------------ | ----------------------------------- |
+| `AZURE_CREDENTIALS`     | `<REDACTED_LEGACY_SERVICE_PRINCIPAL_JSON>` | Saída histórica do `setup-azure.sh` |
+| `AZURE_SUBSCRIPTION_ID` | `<AZURE_SUBSCRIPTION_ID>`                  | `az account show --query id -o tsv` |
 
-### Como criar o Secret manualmente (se necessário)
+### Como criar o Secret manualmente (histórico, não executar)
 
 ```bash
-# Gerar AZURE_CREDENTIALS manualmente
+# Gerar AZURE_CREDENTIALS manualmente (histórico; não executar)
 az ad sp create-for-rbac \
   --name "sp-tax-invoice-fc-github" \
   --role "Contributor" \
@@ -124,21 +130,24 @@ az ad sp create-for-rbac \
   --sdk-auth
 ```
 
-O output JSON (cole inteiro no secret `AZURE_CREDENTIALS`):
+O output JSON histórico (não copie nem cole; valores omitidos):
 
 ```json
 {
-  "clientId": "...",
-  "clientSecret": "...",
-  "subscriptionId": "...",
-  "tenantId": "...",
+  "clientId": "<REDACTED>",
+  "clientSecret": "<REDACTED>",
+  "subscriptionId": "<REDACTED>",
+  "tenantId": "<REDACTED>",
   ...
 }
 ```
 
 ---
 
-## 🔄 FASE 4 — Primeiro Deploy
+## 🔄 FASE 4 — Primeiro Deploy (HISTÓRICO — NÃO EXECUTAR)
+
+> Este push e os comandos seguintes pertencem ao fluxo legado. Não use este
+> procedimento para a implantação atual; siga o [runbook atual](./manual/step-by-step-guide.md).
 
 Com a infraestrutura pronta e os secrets configurados:
 
@@ -317,7 +326,7 @@ Isso é comportamento esperado com `minReplicas: 0`. Para minimizar:
 ✅ Container Apps Environment deployado: cae-tax-invoice-fc
 ✅ Container App rodando: ca-tax-invoice-fc-api
 ✅ PostgreSQL Flexible Server ativo: psql-tax-invoice-fc
-✅ GitHub Secret AZURE_CREDENTIALS configurado
+✅ Histórico: GitHub Secret AZURE_CREDENTIALS configurado (não é requisito atual)
 ✅ GitHub Secret AZURE_SUBSCRIPTION_ID configurado
 ✅ Pipeline GitHub Actions passando (build + deploy)
 ✅ Health check respondendo: GET https://<fqdn>/

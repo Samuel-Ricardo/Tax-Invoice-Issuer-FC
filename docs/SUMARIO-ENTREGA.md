@@ -1,11 +1,20 @@
 # 🎉 ENTREGA COMPLETA - Tax Invoice Issuer FC
 
+> **Historical delivery record — not current deployment or QA evidence.** The
+> metrics, test counts, and findings below describe the June/July 2026 delivery.
+> For the current state, use the [Azure runbook](./deploy/azure/manual/step-by-step-guide.md),
+> [Azure overview](./deploy/azure/README.md), [Postman guide](../postman/README.md),
+> and [documentation index](./INDEX.md).
+>
+> **Current as of 2026-08-25:** local E2E execution was blocked by missing local
+> `DATABASE_URL`. Do not report the historical passing claim as a current result.
+
 ## 📦 PACOTE DE ANÁLISE E TESTES
 
 **Data de Entrega**: Junho 21, 2026 (Teste Suite Expansion)
-**Responsável**: Avanade Supervisor  
-**Metodologia**: Avanade Method v2  
-**Status**: ✅ COMPLETO (27 E2E Tests - Full Invoice Coverage)
+**Responsável**: Avanade Supervisor
+**Metodologia**: Avanade Method v2
+**Status histórico**: ✅ COMPLETO (27 E2E Tests - Full Invoice Coverage)
 
 ---
 
@@ -13,16 +22,16 @@
 
 ### O Que Foi Entregue
 
-✅ **Análise Profunda Completa** do projeto (v2.0 - atualizada Junho 2026)  
-✅ **Testes E2E com Jest + Supertest** (4 suites, 100% passando)  
+✅ **Análise Profunda Completa** do projeto (v2.0 - atualizada Junho 2026)
+✅ **Testes E2E com Jest + Supertest** (registro histórico; 4 suites, 100% passando no momento da entrega)
 ✅ **27 Invoice Endpoint Tests** - Cobertura completa de cenários (Happy Path, Validação, Edge Cases)
 ✅ **17 Novos E2E Tests** (July 2026 - Strategy Pattern + HTTP Protocol)
-✅ **54 E2E Tests Total** - Strategy, HTTP, Email, Server, Invoice endpoints  
-✅ **Coleção Postman** com 23 requests de teste  
-✅ **5 Documentos** técnicos detalhados  
-✅ **Identificação de 1 bug CRÍTICO** (lógica invertida nas strategies)  
-✅ **Roadmap** de 3 sprints priorizadas  
-✅ **Infraestrutura de teste** com teardown correto e CI pipeline  
+✅ **54 E2E Tests Total** - Strategy, HTTP, Email, Server, Invoice endpoints
+✅ **Coleção Postman** com 23 requests de teste
+✅ **5 Documentos** técnicos detalhados
+✅ **Identificação de 1 bug CRÍTICO** (lógica invertida nas strategies)
+✅ **Roadmap** de 3 sprints priorizadas
+✅ **Infraestrutura de teste** com teardown correto e CI pipeline
 ✅ **Cobertura de 74%** statements via Jest
 
 ---
@@ -109,10 +118,10 @@ Tests:       27 passed, 27 total
 
 ### Assertions Automáticas
 
-✅ **~42 assertions** implementadas  
-✅ **Status codes** validados  
-✅ **Response structure** verificada  
-✅ **Error messages** checadas  
+✅ **~42 assertions** implementadas
+✅ **Status codes** validados
+✅ **Response structure** verificada
+✅ **Error messages** checadas
 ✅ **Data types** confirmados
 
 ---
@@ -167,7 +176,7 @@ Tests:       27 passed, 27 total
 
 #### Bug #1: Lógica Invertida nas Strategies (CRÍTICO)
 
-**Impacto**: Sistema gera invoices para o mês/ano ERRADO  
+**Impacto**: Sistema gera invoices para o mês/ano ERRADO
 **Localização**:
 
 - `src/@modules/domain/strategy/invoice/type/cash.strategy.ts:24`
@@ -187,7 +196,7 @@ if (payment.date.getMonth() + 1 === month && ...)
 
 #### Problema #2: Falta de Validações de Range (MÉDIO)
 
-**Impacto**: Aceita month=0, month=999, year=-1  
+**Impacto**: Aceita month=0, month=999, year=-1
 **Fix Recomendado**:
 
 ```typescript
@@ -278,7 +287,7 @@ year: z.number().int().min(2000).max(2100)
 # 4. Execute "Health Check" → GET /
 ```
 
-**Guia**: [docs/QUICK-START-TESTS.md](../QUICK-START-TESTS.md)
+**Guia**: [docs/QUICK-START-TESTS.md](./QUICK-START-TESTS.md)
 
 ### 2️⃣ Entender o Projeto (30 minutos)
 
@@ -340,21 +349,21 @@ year: z.number().int().min(2000).max(2100)
 
 ## 📦 E2E TEST EXPANSION - JULHO 4, 2026
 
-**Data de Entrega**: Julho 4, 2026 (E2E Strategy & HTTP Tests)  
-**Responsável**: Avanade QA + Dev Team  
-**Metodologia**: Avanade Method v2  
+**Data de Entrega**: Julho 4, 2026 (E2E Strategy & HTTP Tests)
+**Responsável**: Avanade QA + Dev Team
+**Metodologia**: Avanade Method v2
 **Status**: ✅ COMPLETO (17 Novos E2E Tests - Total 54 E2E tests)
 
 ---
 
 ### O Que Foi Entregue
 
-✅ **17 Novos Cenários E2E** implementados  
-✅ **2 Novos Arquivos de Teste** (strategy.spec.ts + http.spec.ts)  
-✅ **Strategy Pattern Validation** - Cash vs Accrual comparison  
-✅ **HTTP Protocol Integrity** - Routing, headers, resilience  
-✅ **54 E2E Tests Total** (foram 46 antes desta entrega)  
-✅ **70/70 Testes Totais Passando** (unit + E2E)  
+✅ **17 Novos Cenários E2E** implementados
+✅ **2 Novos Arquivos de Teste** (strategy.spec.ts + http.spec.ts)
+✅ **Strategy Pattern Validation** - Cash vs Accrual comparison
+✅ **HTTP Protocol Integrity** - Routing, headers, resilience
+✅ **54 E2E Tests Total** (foram 46 antes desta entrega)
+✅ **70/70 Testes Totais Passando** (unit + E2E)
 ✅ **Pipeline CI 100% Sucesso** (format + lint + tests)
 
 ---
@@ -375,9 +384,9 @@ year: z.number().int().min(2000).max(2100)
 | 4   | Idempotence Test             | Mesma strategy é idempotente                                     | Mesmo input = mesmo output sempre     |
 | 5   | Strategy Isolation           | Estratégias sequenciais mantêm isolamento                        | Sem state bleed entre execuções       |
 
-**Padrão Testado**: Strategy Pattern (CashBasisStrategy, AccrualBasisStrategy)  
-**Mock Data**: INVOICE_GENERATE_VALID_INPUT, INVOICE_GENERATE_ACCRUAL_INPUT  
-**Status**: ✅ 5/5 PASSANDO
+**Padrão Testado**: Strategy Pattern (CashBasisStrategy, AccrualBasisStrategy)
+**Mock Data**: INVOICE_GENERATE_VALID_INPUT, INVOICE_GENERATE_ACCRUAL_INPUT
+**Status histórico**: ✅ 5/5 PASSANDO
 
 ---
 
@@ -402,9 +411,9 @@ year: z.number().int().min(2000).max(2100)
 | **Resilience**        | 11  | Sequential rapid requests    | Múltiplas requisições rápidas OK          |
 | **Resilience**        | 12  | Large payloads               | Payloads grandes processados corretamente |
 
-**Padrões Testados**: HTTP protocol integrity, response format consistency, error handling  
-**Mock Data**: INVOICE_GENERATE_VALID_INPUT  
-**Status**: ✅ 12/12 PASSANDO
+**Padrões Testados**: HTTP protocol integrity, response format consistency, error handling
+**Mock Data**: INVOICE_GENERATE_VALID_INPUT
+**Status histórico**: ✅ 12/12 PASSANDO
 
 ---
 
@@ -487,18 +496,18 @@ Changes: Adicionou test/E2E/http.spec.ts (12 testes HTTP Protocol)
 
 ### Antes da Análise
 
-❌ Sem documentação de testes  
-❌ Sem cobertura de API  
-❌ Bug crítico não identificado  
-❌ Sem análise arquitetural  
+❌ Sem documentação de testes
+❌ Sem cobertura de API
+❌ Bug crítico não identificado
+❌ Sem análise arquitetural
 ❌ Sem roadmap de melhorias
 
 ### Depois da Análise
 
-✅ **Coleção Postman** completa (23 requests)  
-✅ **100% cobertura** de endpoints  
-✅ **Bug crítico identificado** com fix detalhado  
-✅ **Análise completa** de arquitetura e padrões  
+✅ **Coleção Postman** completa (23 requests)
+✅ **100% cobertura** de endpoints
+✅ **Bug crítico identificado** com fix detalhado
+✅ **Análise completa** de arquitetura e padrões
 ✅ **Roadmap priorizado** de 3 sprints
 
 ### Tempo Economizado
@@ -514,30 +523,30 @@ Changes: Adicionou test/E2E/http.spec.ts (12 testes HTTP Protocol)
 
 ### Documentação
 
-✅ **5 documentos** criados  
-✅ **100% endpoints** documentados  
-✅ **3 personas** atendidas (PM, Dev, QA)  
+✅ **5 documentos** criados
+✅ **100% endpoints** documentados
+✅ **3 personas** atendidas (PM, Dev, QA)
 ✅ **Links navegáveis** entre documentos
 
 ### Testes
 
-✅ **23 requests** Postman  
-✅ **42 assertions** automáticas  
-✅ **6 categorias** de teste  
+✅ **23 requests** Postman
+✅ **42 assertions** automáticas
+✅ **6 categorias** de teste
 ✅ **100% cobertura** de endpoints
 
 ### Análise
 
-✅ **Arquitetura** mapeada  
-✅ **7 padrões** identificados  
-✅ **3 bugs** encontrados  
+✅ **Arquitetura** mapeada
+✅ **7 padrões** identificados
+✅ **3 bugs** encontrados
 ✅ **12+ melhorias** sugeridas
 
 ### Impacto
 
-✅ **Bug crítico** identificado antes de produção  
-✅ **Tempo de teste** reduzido de horas para minutos  
-✅ **Onboarding** acelerado com documentação  
+✅ **Bug crítico** identificado antes de produção
+✅ **Tempo de teste** reduzido de horas para minutos
+✅ **Onboarding** acelerado com documentação
 ✅ **Roadmap** definido para 3 sprints
 
 ---
@@ -553,9 +562,9 @@ Changes: Adicionou test/E2E/http.spec.ts (12 testes HTTP Protocol)
 - ✅ Roadmap priorizado
 - ✅ Guias para múltiplas personas
 
-**Certificado por**: Avanade Supervisor  
-**Metodologia**: Avanade Method v2  
-**Data**: Abril 2026  
+**Certificado por**: Avanade Supervisor
+**Metodologia**: Avanade Method v2
+**Data**: Abril 2026
 **Validade**: Indefinida (até mudanças significativas no código)
 
 ---
@@ -603,7 +612,7 @@ Changes: Adicionou test/E2E/http.spec.ts (12 testes HTTP Protocol)
 - [ ] Importei a coleção Postman
 - [ ] Executei todos os testes
 - [ ] Validei 4 suites (server, invoice, strategy, http)
-- [ ] Confirmei 54 E2E tests passando
+- [ ] Confirmei 54 E2E tests passando (checklist histórico; não é evidência atual)
 - [ ] Entendi os cenários cobertos
 - [ ] Validei as assertions
 
@@ -620,17 +629,17 @@ Changes: Adicionou test/E2E/http.spec.ts (12 testes HTTP Protocol)
 
 ### Entrega Realizada com Sucesso
 
-✅ **Análise Completa**: 100% do projeto analisado  
-✅ **Testes Criados**: Suite completa de 23 requests  
-✅ **Documentação**: 5 documentos técnicos  
-✅ **Bug Crítico**: Identificado e documentado  
+✅ **Análise Completa**: 100% do projeto analisado
+✅ **Testes Criados**: Suite completa de 23 requests
+✅ **Documentação**: 5 documentos técnicos
+✅ **Bug Crítico**: Identificado e documentado
 ✅ **Roadmap**: 3 sprints priorizadas
 
 ### Próxima Ação Recomendada
 
-> 🚨 **CORRIGIR BUG CRÍTICO** nas strategies  
-> Prioridade: IMEDIATA  
-> Tempo estimado: 1-2 horas  
+> 🚨 **CORRIGIR BUG CRÍTICO** nas strategies
+> Prioridade: IMEDIATA
+> Tempo estimado: 1-2 horas
 > Impacto: Sistema passa a funcionar corretamente
 
 ### Agradecimentos
@@ -641,9 +650,9 @@ Obrigado por confiar na **Avanade Method** para análise e testes do projeto Tax
 
 ---
 
-**Preparado por**: Avanade Supervisor  
-**Metodologia**: Avanade Method v2  
-**Data**: Abril 2026  
+**Preparado por**: Avanade Supervisor
+**Metodologia**: Avanade Method v2
+**Data**: Abril 2026
 **Versão**: 1.0
 
 ---

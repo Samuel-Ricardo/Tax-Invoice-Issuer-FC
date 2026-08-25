@@ -1,5 +1,9 @@
 # 📋 SEGURANÇA - Comparação: infra/ vs infra_public/
 
+> **Historical remediation record — current as of 2026-08-25.** Preserve for
+> audit context only. It does not describe the current Azure workflow or secret
+> contract; use the [current Azure runbook](../docs/deploy/azure/manual/step-by-step-guide.md).
+
 Documento que detalha exatamente quais vulnerabilidades foram remediadas ao migrar de `infra/` para `infra_public/`.
 
 ---
@@ -14,7 +18,7 @@ Documento que detalha exatamente quais vulnerabilidades foram remediadas ao migr
 secrets: [
   {
     name: 'database-url'
-    value: 'postgresql://${postgresAdminUser}:${postgresAdminPassword}@${postgresServer.properties.fullyQualifiedDomainName}:5432/${databaseName}?sslmode=require'
+    value: '<REDACTED_LEGACY_DATABASE_URL>'
   }
 ]
 ```
@@ -85,11 +89,11 @@ echo "  Subscription: $SUBSCRIPTION_ID"
 # ... depois ...
 
 echo "📋 DATABASE_URL para referência:"
-echo "   postgresql://pgadmin:$POSTGRES_PASSWORD@$POSTGRES_HOST:5432/invoicesdb?sslmode=require"
+echo "   <REDACTED_LEGACY_DATABASE_URL>"
 
 echo ""
 echo "🔐 Adicione estes secrets no GitHub:"
-echo "   Secret: AZURE_CREDENTIALS"
+echo "   Secret: <LEGACY_AZURE_CREDENTIALS_NAME> (historical; do not recreate)"
 echo "   Value:"
 echo "$SP_OUTPUT"  # ← Service Principal JSON COMPLETO COM SECRETS
 ```
@@ -211,7 +215,7 @@ echo "   → ⚠️  NÃO COMMITAR este arquivo"
 }
 ```
 
-**Nota:** Mantém igual pois é **propositalmente público** (container image).  
+**Nota:** Mantém igual pois é **propositalmente público** (container image).
 Mas agora com proteção total de secrets em cada layer.
 
 ---

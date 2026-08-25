@@ -1,14 +1,26 @@
 # ✅ SECURITY AUDIT FINAL REPORT - Tax Invoice Issuer FC
 
-**Data**: 2026-07-12 (auditoria) | 2026-07-28 (verificação final)  
-**Executado por**: Avanade Method Party Mode  
-**Agentes**: Carla (QA), Wilson (Architect), Paige (Tech Writer), Tiago (Dev)  
+> **Historical security audit — preserve for audit context only.** The scores,
+> findings, remediation status, and deployment claims below are date-bound to
+> July 2026 and are not current deployment or QA evidence. For the current Azure
+> state, use the [current Azure runbook](docs/deploy/azure/manual/step-by-step-guide.md),
+> [Azure overview](docs/deploy/azure/README.md), [Postman guide](postman/README.md),
+> and [documentation index](docs/INDEX.md).
+>
+> **Current as of 2026-08-25:** the deployment uses Azure OIDC, durable GHCR pull
+> credentials, and the migration gate. It does not use `AZURE_CREDENTIALS`. Local
+> E2E execution was blocked by missing local `DATABASE_URL`; do not reuse this
+> report's historical passing claims as current evidence.
+
+**Data**: 2026-07-12 (auditoria) | 2026-07-28 (verificação final)
+**Executado por**: Avanade Method Party Mode
+**Agentes**: Carla (QA), Wilson (Architect), Paige (Tech Writer), Tiago (Dev)
 **Status**: ✅ **APROVADO — SEGURO PARA GITHUB PUBLIC**
 
 ---
 
-> **✅ VERIFIED ON 2026-07-28**  
-> All critical security fixes have been applied and verified against the current codebase.  
+> **✅ VERIFIED ON 2026-07-28**
+> All critical security fixes have been applied and verified against the current codebase.
 > The project is now cleared for public GitHub push.
 >
 > **Verification Results:**
@@ -61,8 +73,8 @@ RESULTADO: 7/10 itens principais passaram + 2 acknowledged + 1 future
 
 ### **CRÍTICO #1: ✅ Hardcoded Password em Código-Fonte — RESOLVIDO**
 
-**Encontrado por**: Carla QA  
-**Local**: `src/@modules/infra/config/env/env.config.ts`  
+**Encontrado por**: Carla QA
+**Local**: `src/@modules/infra/config/env/env.config.ts`
 **Status**: ✅ **CORRIGIDO E VERIFICADO (2026-07-28)**
 
 ### ❌ CÓDIGO ANTERIOR (vulnerável):
@@ -72,7 +84,7 @@ export const ENV = {
   DATABASE: {
     URL:
       process.env.DATABASE_URL ||
-      "postgresql://postgres:123456@localhost:5432/postgres", // ❌ HARDCODED
+      "postgresql://<DATABASE_USER>:<REDACTED_LEGACY_PASSWORD>@<DATABASE_HOST>:5432/<DATABASE_NAME>", // ❌ HARDCODED
   },
 };
 ```
@@ -119,8 +131,8 @@ Attacker clona repo → NÃO encontra credenciais → DATABASE_URL required → 
 
 ### **CRÍTICO #2: ⏭️ Vulnerabilities em npm Packages — ACKNOWLEDGED (OPTIONAL)**
 
-**Encontrado por**: Carla QA  
-**Ferramentas**: `npm audit`  
+**Encontrado por**: Carla QA
+**Ferramentas**: `npm audit`
 **Status**: ⏭️ **ACKNOWLEDGED — OPTIONAL (per user request)**
 
 **Vulnerabilidades identificadas (não resolvidas)**:
@@ -147,8 +159,8 @@ npm run build && npm test
 
 ### **CRÍTICO #3: ✅ pgAdmin Exposto Publicamente — RESOLVIDO**
 
-**Encontrado por**: Carla QA / Tiago Dev  
-**Local**: `docker-compose.yaml`  
+**Encontrado por**: Carla QA / Tiago Dev
+**Local**: `docker-compose.yaml`
 **Status**: ✅ **CORRIGIDO E VERIFICADO (2026-07-28)**
 
 ### ❌ CÓDIGO ANTERIOR (vulnerável):
@@ -157,7 +169,7 @@ npm run build && npm test
 pgadmin:
   ports:
     - 5050:80 # ❌ Publicly exposed
-  env_file: .env.pgadmin # ❌ With admin:admin credentials
+  env_file: .env.pgadmin # ❌ Historical admin credentials (value redacted)
 ```
 
 ### ✅ CÓDIGO ATUAL VERIFICADO:
@@ -197,13 +209,13 @@ attacker$ curl http://<ip>:5050 # CONEXÃO RECUSADA
 
 ### **CRÍTICO #4: ✅ .env Passwords Exposed em Documentação — RESOLVIDO**
 
-**Encontrado por**: Paige Tech Writer  
+**Encontrado por**: Paige Tech Writer
 **Status**: ✅ **CORRIGIDO E VERIFICADO (2026-07-28)**
 
 ### ❌ CÓDIGO ANTERIOR (vulnerável):
 
-- `docs/deploy/azure/README.md:66` → `POSTGRES_PASSWORD="SuaSenhaSegura123!"`
-- `docs/deploy/azure/SETUP-GUIDE.md:56` → `export POSTGRES_PASSWORD="MinhaS3nha@Segura!"`
+- `docs/deploy/azure/README.md:66` → legacy password example (redacted)
+- `docs/deploy/azure/SETUP-GUIDE.md:56` → legacy password example (redacted)
 
 ### ✅ CÓDIGO ATUAL VERIFICADO:
 
@@ -238,13 +250,13 @@ az deployment group create \
 
 - Ambos os arquivos agora usam `<POSTGRES_PASSWORD>` como placeholder
 - `postgresAdminPassword="$POSTGRES_PASSWORD"` usa variável de ambiente
-- **Nenhuma senha de exemplo** como `SuaSenhaSegura123` ou `MinhaS3nha@Segura` existe
+- **Nenhuma senha de exemplo** é retained in current documentation
 
 **Validação**:
 
 ```bash
-grep -r "SuaSenhaSegura123" docs/         # NENHUMA ocorrência ✅
-grep -r "MinhaS3nha@Segura" docs/         # NENHUMA ocorrência ✅
+grep -r "<REDACTED_LEGACY_PASSWORD>" docs/  # NENHUMA ocorrência ✅
+grep -r "<REDACTED_LEGACY_PASSWORD>" docs/  # NENHUMA ocorrência ✅
 ```
 
 **Score**: 4/10 → **9/10** ✅
@@ -253,8 +265,8 @@ grep -r "MinhaS3nha@Segura" docs/         # NENHUMA ocorrência ✅
 
 ### **CRÍTICO #5: ⏭️ TypeScript `strict: false` — ACKNOWLEDGED (OPTIONAL)**
 
-**Encontrado por**: Wilson Architect / Tiago Dev  
-**Local**: `tsconfig.json`  
+**Encontrado por**: Wilson Architect / Tiago Dev
+**Local**: `tsconfig.json`
 **Status**: ⏭️ **ACKNOWLEDGED — OPTIONAL (per user request)**
 
 ### Estado atual (não alterado):
@@ -296,7 +308,7 @@ grep -r "MinhaS3nha@Segura" docs/         # NENHUMA ocorrência ✅
 
 ### **CRÍTICO #6: ✅ Missing .env.example — RESOLVIDO**
 
-**Encontrado por**: Tiago Dev  
+**Encontrado por**: Tiago Dev
 **Status**: ✅ **CORRIGIDO E VERIFICADO (2026-07-28)**
 
 ### ✅ ARQUIVO ATUAL VERIFICADO (`.env.example`):
@@ -310,7 +322,7 @@ APP_HOST_PORT=3000
 NODE_ENV=development
 
 # Database
-DATABASE_URL=postgresql://postgres:<POSTGRES_PASSWORD>@localhost:5432/postgres
+DATABASE_URL=<DATABASE_URL>
 
 # Postgres container settings
 POSTGRES_IMAGE=postgres:latest
@@ -551,8 +563,8 @@ Overall Configuration: 6.2/10 → ✅ PASS (critical issues resolved)
 2. **✅ Verified**: pgAdmin bound to `127.0.0.1`
 3. **✅ Verified**: `.env.example` exists with placeholders
 4. **✅ Verified**: Docs use `<POSTGRES_PASSWORD>` placeholder
-5. **✅ Verified**: `grep -r "123456" src/` — no occurrences
-6. **✅ Verified**: `grep -r "SuaSenhaSegura123" docs/` — no occurrences
+5. **✅ Verified**: `grep -r "<REDACTED_LEGACY_PASSWORD>" src/` — no occurrences
+6. **✅ Verified**: `grep -r "<REDACTED_LEGACY_PASSWORD>" docs/` — no occurrences
 
 ### **Fase 3: 🚀 PUSH PARA GITHUB PUBLIC**
 
@@ -599,13 +611,13 @@ git push origin main
 
 ---
 
-**✅ Status: APROVADO PARA GITHUB PUBLIC**  
-**⏱️ Tempo de Remediação: concluído (correções críticas aplicadas)**  
+**✅ Status: APROVADO PARA GITHUB PUBLIC**
+**⏱️ Tempo de Remediação: concluído (correções críticas aplicadas)**
 **✅ Go-Live Date: 2026-07-28 (verificado e aprovado)**
 
 ---
 
-_Relatório consolidado pela Supervisão Avanade Method_  
-_Auditoria inicial: 2026-07-12_  
-_Verificação final: 2026-07-28_  
+_Relatório consolidado pela Supervisão Avanade Method_
+_Auditoria inicial: 2026-07-12_
+_Verificação final: 2026-07-28_
 _Assinado digitalmente: 2026-07-28_
