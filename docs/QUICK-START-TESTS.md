@@ -1,5 +1,14 @@
 # 🚀 Quick Start - Testing Guide
 
+> **Historical/local testing notes — not current Azure deployment evidence.** The
+> test counts and E2E status in this document are date-bound. For current Azure
+> deployment, migration, API, and QA facts, use the [current Azure runbook](./deploy/azure/manual/step-by-step-guide.md),
+> [Azure overview](./deploy/azure/README.md), and [Postman guide](../postman/README.md).
+>
+> **Current as of 2026-08-25:** local E2E execution was blocked by missing local
+> `DATABASE_URL`; do not claim that suite passed. Successful invoice responses
+> are structured arrays serialized once.
+
 ## ⚡ Quick Start (5 minutes)
 
 ### 1. Project Setup
@@ -15,7 +24,7 @@ npm run build
 docker-compose up -d postgres
 ```
 
-**PostgreSQL running at**: `localhost:5432` (user: postgres, pass: postgres, db: invoicesdb)
+**PostgreSQL running at**: `localhost:5432` (use the local credentials configured outside the repository; database: `<DATABASE_NAME>`)
 
 ### 2. Run E2E Tests (Jest + Supertest)
 
@@ -30,7 +39,7 @@ npm run test
 npm run code:ci
 ```
 
-**Expected result**:
+**Historical example output (not current execution evidence)**:
 
 ```
 Test Suites: 4 passed, 4 total
@@ -44,7 +53,7 @@ Tests:       54 passed, 54 total
 3. **Import** → **Folder** → Select `postman/` (imports collection + both environments)
 4. Select the environment in the upper-right corner:
    - **"Tax Invoice Issuer - Local"** → API at `http://localhost:3000` (server must be running: `npm run start:dev`)
-   - **"Tax Invoice Issuer - Azure Learn-prod"** → deployed API at `https://app-tax-invoice-fc-learn.nicebay-c5601d68.brazilsouth.azurecontainerapps.io`
+   - **"Tax Invoice Issuer - Azure Learn-prod"** → deployed API at the current Application Url copied from the Container App **Overview** page
 5. ⚠️ Collection variable `baseUrl` defaults to Azure — pick an environment to override. On Azure, `POST /invoice` only works once the container has a valid `DATABASE_URL` (see `postman/README.md` troubleshooting)
 6. Select environment **"Tax Invoice Issuer - Local"**
 
@@ -75,16 +84,18 @@ curl -X POST http://localhost:3000/invoice \
 
 - **Docker with PostgreSQL running** on port 5432
 - Credentials: use the local environment configuration for tests; do not publish usernames, passwords, or connection strings in documentation
-- The `test/setup-env.ts` sets `DATABASE_URL` automatically
+- The `test/setup-env.ts` preserves `DATABASE_URL` only when it is already
+  supplied; it does not create a value. The local E2E run is blocked when
+  `DATABASE_URL` is missing.
 
 ### Troubleshooting
 
-| Error                                    | Cause                            | Solution                                        |
-| ---------------------------------------- | -------------------------------- | ----------------------------------------------- |
-| `password authentication failed`         | DB not running or wrong password | `docker-compose up -d postgres`                 |
-| `connect ECONNREFUSED`                   | PostgreSQL not accessible        | Check `docker ps`                               |
-| `relation "sam.contract" does not exist` | Schema not created               | Migration: `migration/create.sql` run by Docker |
-| `Jest did not exit`                      | DB pool not closed               | Check `afterAll` with `shutdownDatabase()`      |
+| Error                                    | Cause                            | Solution                                                          |
+| ---------------------------------------- | -------------------------------- | ----------------------------------------------------------------- |
+| `password authentication failed`         | DB not running or wrong password | `docker-compose up -d postgres`                                   |
+| `connect ECONNREFUSED`                   | PostgreSQL not accessible        | Check `docker ps`                                                 |
+| `relation "sam.contract" does not exist` | Schema not created               | Confirm the current migration Job executed `migration/create.sql` |
+| `Jest did not exit`                      | DB pool not closed               | Check `afterAll` with `shutdownDatabase()`                        |
 
 ---
 
@@ -97,7 +108,7 @@ curl -X POST http://localhost:3000/invoice \
 ✓ POST /invoice - Cash Basis Success
 ```
 
-**Time**: 30 seconds  
+**Time**: 30 seconds
 **Goal**: Verify API is functional
 
 ### 2️⃣ Core Functionality (RECOMMENDED)
@@ -108,7 +119,7 @@ curl -X POST http://localhost:3000/invoice \
 ✓ POST /invoice - With Optional Format
 ```
 
-**Tempo**: 2 minutos  
+**Tempo**: 2 minutos
 **Objetivo**: Validar cenários principais
 
 ### 3️⃣ Validation Suite (IMPORTANTE)
@@ -118,7 +129,7 @@ curl -X POST http://localhost:3000/invoice \
 ✓ All tests in "Validation - Data Types"
 ```
 
-**Tempo**: 3 minutos  
+**Tempo**: 3 minutos
 **Objetivo**: Garantir que validações funcionam
 
 ### 4️⃣ Full Coverage (COMPLETO)
@@ -127,7 +138,7 @@ curl -X POST http://localhost:3000/invoice \
 ✓ Run entire collection (23 requests)
 ```
 
-**Tempo**: 5 minutos  
+**Tempo**: 5 minutos
 **Objetivo**: Cobertura completa de testes
 
 ---

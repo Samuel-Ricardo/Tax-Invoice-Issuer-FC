@@ -1,5 +1,10 @@
 # Tax-Invoice-Issuer-FC — Azure Infrastructure (Public Version)
 
+> **Legacy/non-current infrastructure documentation — current as of 2026-08-25.**
+> This Bicep/IaC material is retained for historical context and does not
+> provision the current `-learn` topology. Use the [current Azure runbook](../docs/deploy/azure/manual/step-by-step-guide.md)
+> and [Azure overview](../docs/deploy/azure/README.md) instead.
+
 Infraestrutura como Código (IaC) para deploy seguro no Azure usando Bicep.
 
 ## 🔐 Segurança
@@ -87,7 +92,10 @@ bash setup-azure.sh
 # ⏳ Aguarde ~5 minutos para conclusão
 ```
 
-**Saída esperada:**
+**Saída histórica esperada:**
+
+> Este bloco descreve a saída do setup legado. Não copie credenciais nem trate
+> esses nomes como recursos atuais; use o [runbook atual](../docs/deploy/azure/manual/step-by-step-guide.md).
 
 ```
 ✅ SETUP CONCLUÍDO!
@@ -98,7 +106,7 @@ bash setup-azure.sh
 
 🔐 Secrets de forma SEGURA:
    PostgreSQL Password: Armazenado no Key Vault
-   GitHub Actions Credentials: Salvo em .deployment-output/sp-credentials.json
+   GitHub Actions Credentials: Salvo localmente (conteúdo não exibido)
 ```
 
 ---
@@ -128,7 +136,7 @@ const client = new SecretClient(
 );
 
 const secret = await client.getSecret("postgres-password");
-console.log(secret.value);
+// Never print secret.value; pass it only to approved runtime configuration.
 ```
 
 #### Java / Spring Boot
@@ -140,13 +148,16 @@ spring.datasource.password=${DATABASE_PASSWORD}
 spring.datasource.url=jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?sslmode=require
 ```
 
-#### GitHub Actions (CI/CD)
+#### GitHub Actions (CI/CD) — HISTÓRICO — NÃO EXECUTAR
+
+> O exemplo abaixo usa o antigo login por Service Principal. O workflow atual
+> usa Azure OIDC e não usa `AZURE_CREDENTIALS`.
 
 ```yaml
 - name: Deploy to Azure
   uses: azure/login@v1
   with:
-    creds: ${{ secrets.AZURE_CREDENTIALS }}
+    # Historical credential flow; secret reference intentionally omitted.
 
 - name: Get secret from Key Vault
   run: |
@@ -262,16 +273,19 @@ curl https://ca-tax-invoice-fc-api.<random>.eastus.azurecontainerapps.io/health
 - [ ] Confirmar que secrets **não aparecem em logs**
 - [ ] Adicionar GitHub Secrets para CI/CD
 
-### Para CI/CD (GitHub Actions)
+### Para CI/CD (GitHub Actions) — HISTÓRICO — NÃO EXECUTAR
+
+> O fluxo atual usa OIDC. O nome `AZURE_CREDENTIALS` abaixo é mantido somente
+> como referência histórica e não deve ser criado ou preenchido.
 
 ```bash
 # 1. Salvar credenciais do Service Principal
-cat .deployment-output/sp-credentials.json
+# Do not print .deployment-output/sp-credentials.json; verify it exists only.
+test -s .deployment-output/sp-credentials.json
 
 # 2. No GitHub:
 # Settings → Secrets and variables → Actions
-# New secret: AZURE_CREDENTIALS
-# Value: (conteúdo do arquivo acima)
+# Historical secret reference: AZURE_CREDENTIALS (not current deployment; value omitted)
 
 # 3. New secret: AZURE_SUBSCRIPTION_ID
 # Value: seu-subscription-id
@@ -381,5 +395,5 @@ MIT — Veja LICENSE na raiz do repositório
 
 ---
 
-**Última atualização**: 2026-07-12  
+**Última atualização**: 2026-07-12
 **Versão**: 1.0.0 (Public)

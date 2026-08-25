@@ -26,15 +26,8 @@ describe("[E2E] | STRATEGY", () => {
     expect(cashResponse.status).toBe(200);
     expect(accrualResponse.status).toBe(200);
 
-    const cashInvoices =
-      typeof cashResponse.body === "string"
-        ? JSON.parse(cashResponse.body)
-        : cashResponse.body;
-
-    const accrualInvoices =
-      typeof accrualResponse.body === "string"
-        ? JSON.parse(accrualResponse.body)
-        : accrualResponse.body;
+    const cashInvoices = cashResponse.body;
+    const accrualInvoices = accrualResponse.body;
 
     expect(Array.isArray(cashInvoices)).toBe(true);
     expect(Array.isArray(accrualInvoices)).toBe(true);
@@ -52,10 +45,7 @@ describe("[E2E] | STRATEGY", () => {
 
     expect(response.status).toBe(200);
 
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     expect(Array.isArray(invoices)).toBe(true);
 
@@ -77,10 +67,7 @@ describe("[E2E] | STRATEGY", () => {
 
     expect(response.status).toBe(200);
 
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     expect(Array.isArray(invoices)).toBe(true);
 
@@ -108,15 +95,8 @@ describe("[E2E] | STRATEGY", () => {
     expect(response1.status).toBe(200);
     expect(response2.status).toBe(200);
 
-    const invoices1 =
-      typeof response1.body === "string"
-        ? JSON.parse(response1.body)
-        : response1.body;
-
-    const invoices2 =
-      typeof response2.body === "string"
-        ? JSON.parse(response2.body)
-        : response2.body;
+    const invoices1 = response1.body;
+    const invoices2 = response2.body;
 
     // Identical input must produce identical output
     expect(JSON.stringify(invoices1)).toBe(JSON.stringify(invoices2));
@@ -134,11 +114,8 @@ describe("[E2E] | STRATEGY", () => {
       .post("/invoice")
       .send(INVOICE_GENERATE_VALID_INPUT);
 
-    const invoices1 =
-      typeof cash1.body === "string" ? JSON.parse(cash1.body) : cash1.body;
-
-    const invoices2 =
-      typeof cash2.body === "string" ? JSON.parse(cash2.body) : cash2.body;
+    const invoices1 = cash1.body;
+    const invoices2 = cash2.body;
 
     // First and third (same input) should be identical
     expect(JSON.stringify(invoices1)).toBe(JSON.stringify(invoices2));

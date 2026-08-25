@@ -1,5 +1,9 @@
 # ⚡ QUICKSTART - Deploy Seguro em 5 Minutos
 
+> **Legacy/non-current infrastructure guide — current as of 2026-08-25.** Do not
+> use this Bicep quickstart for the current deployment. Follow the [current Azure
+> runbook](../docs/deploy/azure/manual/step-by-step-guide.md) instead.
+
 Guia rápido para deployar a infraestrutura com segurança total.
 
 ## 📋 Pré-requisitos (1 min)
@@ -50,17 +54,19 @@ bash setup-azure.sh
 
 ## 📋 Após Deployment
 
-### ✅ Step 1: Copiar Credentials para GitHub
+### ✅ Step 1: Copiar Credentials para GitHub (HISTÓRICO — NÃO EXECUTAR)
+
+> O procedimento abaixo é mantido para auditoria. O fluxo atual usa OIDC e não
+> usa `AZURE_CREDENTIALS`. Não exiba nem copie o arquivo de credenciais.
 
 ```bash
-# 1. Verificar credenciais foram salvas
-cat .deployment-output/sp-credentials.json | head
+# 1. Verificar somente que o arquivo existe (não exibir conteúdo)
+test -s .deployment-output/sp-credentials.json
 
 # 2. No GitHub:
 # - Ir para Settings → Secrets and variables → Actions
 # - New repository secret
-# - Name: AZURE_CREDENTIALS
-# - Value: (copiar conteúdo da linha acima)
+# - Historical name: AZURE_CREDENTIALS (not current deployment; value omitted)
 ```
 
 ### ✅ Step 2: Adicionar Subscription ID
@@ -154,7 +160,10 @@ git push origin
 
 ## ⚡ Próximos Passos
 
-### 1. Configurar GitHub Actions
+### 1. Configurar GitHub Actions (HISTÓRICO — NÃO EXECUTAR)
+
+> Exemplo antigo, preservado para auditoria. A implantação atual usa Azure OIDC;
+> não copie este bloco nem configure `AZURE_CREDENTIALS`.
 
 Criar `.github/workflows/deploy.yml`:
 
@@ -175,7 +184,7 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          # Historical credential flow; value and secret reference intentionally omitted.
 
       - name: Deploy Container App
         run: |
@@ -198,10 +207,8 @@ az keyvault secret show \
   --query value -o tsv
 
 # No .env.local:
-# DATABASE_PASSWORD=<valor acima>
-# DATABASE_HOST=psql-tax-invoice-fc.postgres.database.azure.com
-# DATABASE_USER=pgadmin
-# DATABASE_NAME=invoicesdb
+# DATABASE_URL=<DATABASE_URL>
+# Use values from an approved local secret store; never paste them here.
 ```
 
 ### 3. Deploy da Aplicação
@@ -260,7 +267,7 @@ az postgres flexible-server stop \
 [ ] `az login` executado
 [ ] Ran `bash setup-azure.sh` with sucesso
 [ ] Credentials salvos em 1Password/LastPass
-[ ] GitHub Secrets configurados (AZURE_CREDENTIALS + AZURE_SUBSCRIPTION_ID)
+[ ] Historical GitHub secret checklist reviewed (not current deployment)
 [ ] API responde em healthcheck
 [ ] PostgreSQL conecta
 [ ] Logs não mostram secrets
@@ -311,5 +318,5 @@ echo "✅ All systems OK!"
 
 ---
 
-**Tempo estimado: 5-10 minutos**  
+**Tempo estimado: 5-10 minutos**
 **Última atualização: 2026-07-12**

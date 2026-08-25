@@ -12,24 +12,25 @@ describe("[JSON] - [PRESENTER]", () => {
   // HAPPY PATH
   // ============================================================================
 
-  it("[UNIT] | [JSON] - [PRESENTER] > serializes invoice array to JSON string", async () => {
+  it("[UNIT] | [JSON] - [PRESENTER] > returns invoice array unchanged", async () => {
     const invoices = [new Invoice(new Date("2026-06-01"), 5000)];
 
     const result = await (presenter as any).present(invoices);
 
-    expect(typeof result).toBe("string");
-    const parsed = JSON.parse(result);
-    expect(Array.isArray(parsed)).toBe(true);
-    expect(parsed[0].amount).toBe(5000);
+    expect(result).toBe(invoices);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result[0].amount).toBe(5000);
   });
 
-  it("[UNIT] | [JSON] - [PRESENTER] > serializes empty array", async () => {
-    const result = await (presenter as any).present([]);
+  it("[UNIT] | [JSON] - [PRESENTER] > returns empty array unchanged", async () => {
+    const invoices: Invoice[] = [];
+    const result = await (presenter as any).present(invoices);
 
-    expect(result).toBe("[]");
+    expect(result).toBe(invoices);
+    expect(result).toEqual([]);
   });
 
-  it("[UNIT] | [JSON] - [PRESENTER] > produces parseable JSON", async () => {
+  it("[UNIT] | [JSON] - [PRESENTER] > preserves structured invoice data", async () => {
     const invoices = [
       new Invoice(new Date("2026-06-01"), 1000),
       new Invoice(new Date("2026-06-15"), 2000),
@@ -37,8 +38,8 @@ describe("[JSON] - [PRESENTER]", () => {
 
     const result = await (presenter as any).present(invoices);
 
-    expect(() => JSON.parse(result)).not.toThrow();
-    expect(JSON.parse(result)).toHaveLength(2);
+    expect(result).toBe(invoices);
+    expect(result).toHaveLength(2);
   });
 
   it("[UNIT] | [JSON] - [PRESENTER] > preserves date and amount properties", async () => {
@@ -46,10 +47,9 @@ describe("[JSON] - [PRESENTER]", () => {
     const invoices = [new Invoice(date, 9999)];
 
     const result = await (presenter as any).present(invoices);
-    const parsed = JSON.parse(result);
 
-    expect(parsed[0]).toHaveProperty("date");
-    expect(parsed[0]).toHaveProperty("amount");
-    expect(parsed[0].amount).toBe(9999);
+    expect(result[0]).toHaveProperty("date");
+    expect(result[0]).toHaveProperty("amount");
+    expect(result[0].amount).toBe(9999);
   });
 });

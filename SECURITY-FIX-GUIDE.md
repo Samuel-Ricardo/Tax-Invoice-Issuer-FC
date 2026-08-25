@@ -1,14 +1,17 @@
 # 🔧 GUIA PRÁTICO - Como Corrigir os 6 Problemas Críticos
 
-**Tempo estimado**: 8 horas  
-**Dificuldade**: Intermediária  
+**Tempo estimado**: 8 horas
+**Dificuldade**: Intermediária
 **Resultado**: Security Score 2.1/10 → 8/10
 
 ---
 
-> **✅ VERIFIED ON 2026-07-28**  
-> All critical security fixes have been applied and verified against the current codebase.  
-> This guide now serves as a historical record of what was fixed and how.
+> **✅ VERIFIED ON 2026-07-28**
+> All critical security fixes have been applied and verified against the current codebase.
+> This guide now serves as a historical record of what was fixed and how. Do not
+> use its branch, push, or deployment instructions as current operations; use the
+> [current Azure runbook](docs/deploy/azure/manual/step-by-step-guide.md), which
+> uses OIDC.
 >
 > **Verified Fixes:**
 > | # | Action | Status | Evidence |
@@ -91,9 +94,7 @@ export const ENV = {
 ```typescript
 export const ENV = {
   DATABASE: {
-    URL:
-      process.env.DATABASE_URL ||
-      "postgresql://postgres:123456@localhost:5432/postgres", // ❌ REMOVIDO
+    URL: process.env.DATABASE_URL || "<REDACTED_LEGACY_DATABASE_URL>", // ❌ REMOVIDO
   },
 };
 ```
@@ -241,7 +242,7 @@ APP_HOST_PORT=3000
 NODE_ENV=development
 
 # Database
-DATABASE_URL=postgresql://postgres:<POSTGRES_PASSWORD>@localhost:5432/postgres
+DATABASE_URL=<DATABASE_URL>
 
 # Postgres container settings
 POSTGRES_IMAGE=postgres:latest
@@ -390,14 +391,14 @@ git push origin main
 
 Depois de concluir estas 6 ações:
 
-✅ Nenhuma credencial em código-fonte (`requiredSecret()` pattern)  
-⏭️ npm audit — acknowledged como optional  
-✅ pgAdmin bind `127.0.0.1` (não exposto)  
-⏭️ TypeScript strict — acknowledged como optional  
-✅ Template `.env.example` para onboarding  
+✅ Nenhuma credencial em código-fonte (`requiredSecret()` pattern)
+⏭️ npm audit — acknowledged como optional
+✅ pgAdmin bind `127.0.0.1` (não exposto)
+⏭️ TypeScript strict — acknowledged como optional
+✅ Template `.env.example` para onboarding
 ✅ Documentação segura com `<POSTGRES_PASSWORD>` placeholders
 
-**Security Score**: 8/10  
+**Security Score**: 8/10
 **Status**: ✅ **PRONTO PARA GITHUB PUBLIC**
 
 ---
@@ -413,13 +414,13 @@ Depois de concluir estas 6 ações:
 | 5   | .env.example created            | ✅ COMPLETED    | `.env.example` at project root                        |
 | 6   | Docs rewritten with security    | ✅ COMPLETED    | `<POSTGRES_PASSWORD>` placeholder in all docs         |
 
-**Verified on**: 2026-07-28  
-**Security Score**: 8/10  
+**Verified on**: 2026-07-28
+**Security Score**: 8/10
 **Status**: ✅ **PRONTO PARA GITHUB PUBLIC**
 
 ---
 
 **Bom trabalho! 🎉**
 
-_Tempo total esperado: 8 horas | Dificuldade: Intermediária_  
+_Tempo total esperado: 8 horas | Dificuldade: Intermediária_
 _Verificado em: 2026-07-28_

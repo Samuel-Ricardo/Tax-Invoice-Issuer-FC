@@ -25,7 +25,7 @@ Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de
 
 ## 📚 Documentação Completa
 
-> Para reconstruir a implantação Azure atual do zero, use o [guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md), a fonte de verdade operacional.
+> **Estado atual — 2026-08-25:** para a implantação Azure, use o [guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md), a fonte de verdade operacional. O [índice de documentação](./docs/INDEX.md) navega pelos documentos atuais e históricos.
 
 ### 🚀 Começar Agora
 
@@ -41,7 +41,7 @@ Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de
 
 ### 🧪 Para QA & Testers
 
-- **[Coleção Postman](./postman/README.md)** - 23 requests, ~42 assertions, 2 environments (Local + Azure)
+- **[Guia Postman](./postman/README.md)** — verificação atual da API, incluindo a expectativa de resposta como array estruturado
 - **[Importar Coleção](./postman/Tax-Invoice-Issuer.postman_collection.json)** - Arquivo JSON
 
 ### ☁️ Deploy atual na Azure
@@ -49,10 +49,11 @@ Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de
 - **[Guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md)** — runbook principal, do zero ao teste hello-world
 - **[Visão geral da arquitetura Azure](./docs/deploy/azure/README.md)** — resumo da topologia, identidades e workflow
 - **[Guia de OIDC](./azure-federated-credential-guide.md)** — configuração da credencial federada do GitHub
+- **[Saga histórica de deployment](./docs/deploy/azure/history/DEPLOYMENT-SAGA.md)** — incidentes, correções e evidências; não é runbook
 
 O [guia manual](./docs/deploy/azure/manual/step-by-step-guide.md) é a fonte de
-verdade para os passos, verificações e troubleshooting. Os nomes da stack de
-aprendizagem bem-sucedida são:
+verdade para os passos, verificações e troubleshooting. A [visão geral Azure](./docs/deploy/azure/README.md)
+é o resumo sincronizado. Os nomes da stack de aprendizagem são:
 
 | Recurso                    | Nome                                                |
 | -------------------------- | --------------------------------------------------- |
@@ -72,13 +73,15 @@ aplicação por `link-app-vnet`, com auto-registration desabilitado. Este é o c
 de PostgreSQL Flexible Server **private access/VNet integration**.
 O Container App tem ingress HTTPS público, com target port `3000`.
 
-O fluxo automatizado é `push` na `main` → build e publicação no GHCR → login
-Azure por OIDC → atualização do Container App no ambiente GitHub `production`.
-O build usa `GITHUB_TOKEN` apenas para publicar no GHCR. O deploy usa os secrets
-duráveis `GHCR_USERNAME` e `GHCR_READ_TOKEN` para os pulls do Container Apps.
+O fluxo automatizado é `push` na `main` → build/push das imagens → validação de
+digests imutáveis → login Azure por OIDC → execução do migration Job → deploy do
+Container App por digest. O deploy só ocorre depois que a migration gate passa.
+O build usa `GITHUB_TOKEN` apenas para publicar no GHCR. O deploy e o migration
+Job usam os secrets duráveis `GHCR_USERNAME` e `GHCR_READ_TOKEN` para pulls.
 Os cinco secrets do ambiente `production` são `AZURE_CLIENT_ID`,
 `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `GHCR_USERNAME` e
-`GHCR_READ_TOKEN`. O workflow não usa `AZURE_CREDENTIALS`.
+`GHCR_READ_TOKEN`; o workflow não usa `AZURE_CREDENTIALS`. A variável de
+repositório `AZURE_MIGRATION_JOB_NAME` identifica o Job existente.
 
 A credencial federada deve usar o subject exato
 `repo:Samuel-Ricardo/Tax-Invoice-Issuer-FC:environment:production`, com issuer
@@ -89,19 +92,31 @@ Secrets User** no Key Vault. São identidades diferentes.
 
 Sempre copie a Application Url atual da página **Overview** do Container App.
 O smoke test é `GET /`, que deve retornar HTTP `200` e
-`{"hello":"world"}`. Não existe `/health`, `/swagger`, `/api-docs` ou
-`/swagger.json`; `npm run docs:swagger` gera apenas um arquivo local.
+`{"hello":"world"}`. `POST /invoice` aceita `month`, `year`, `type` e `format`
+opcional; `format: "pdf"` é aceito intencionalmente como no-op. A resposta de
+sucesso é um array JSON estruturado, serializado uma vez, e não uma string JSON
+escapada. O Postman deve afirmar que o valor parseado é um array. Um resultado
+`cash` `[]` para 2024 é inconclusivo contra o fixture de 2022; o caminho accrual
+observado retornou 3 invoices do fixture. Não existe `/health`, `/swagger`,
+`/api-docs` ou `/swagger.json`; `npm run docs:swagger` gera apenas um arquivo local.
 
-O aplicativo exige uma `DATABASE_URL` completa, incluindo `sslmode=require`,
-armazenada no secret `database-url` do Key Vault e mapeada por
-`kv-database-url`. Variáveis separadas de banco não formam essa URL. O schema e
-`POST /invoice` são opcionais para o hello-world e exigem acesso privado à VNet.
+O aplicativo exige uma `DATABASE_URL` completa, armazenada no secret
+`database-url` do Key Vault e mapeada por `kv-database-url`. Variáveis separadas
+de banco não formam essa URL. O migration Job executa somente
+`migration/create.sql` via `Dockerfile.migrations`/`migration/runner.sh`, não
+executa `migration/versions/`, e faz `DROP SCHEMA sam CASCADE`, recria schema e
+tabelas e semeia o fixture de 2022 em uma transação. Esse reset é intencional:
+cada deployment reseta e resemeia o banco. O `uuid-ossp` deve estar na allowlist
+do Flexible Server e o principal precisa de `CONNECT`, `CREATE` e privilégios
+para apagar/recriar `sam` em `<DATABASE_NAME>`.
 
-O log `[DATABASE] | Connected with PostgreSQL` confirma a conexão. Depois de
-alterar ou recriar o secret, faça Recover/Purge se o nome estiver soft-deleted e
-reinicie o Container App ou crie uma nova revision para reler o valor. Ainda existe
-um defeito separado da aplicação: algumas respostas de erro retornam HTTP `200`
-com `status: 500` no corpo.
+O log `[DATABASE] | Connected with PostgreSQL` confirma a conexão observada.
+GitHub Actions passou, e deployment/migration/conectividade foram verificados nos
+logs. O E2E local foi bloqueado pela ausência de `DATABASE_URL`; não o descreva
+como aprovado. Depois de alterar ou recriar o secret, faça Recover/Purge se o nome
+estiver soft-deleted e reinicie o Container App ou crie uma nova revision para
+reler o valor. Ainda existe um defeito separado: algumas respostas de erro
+retornam HTTP `200` com `status: 500` no corpo.
 
 > ⚠️ `infra_public/` e os defaults de documentos antigos são legados/não atuais.
 > Nomes como `rg-tax-invoice-fc`, `cae-tax-invoice-fc` e
@@ -191,9 +206,12 @@ Content-Type: application/json
   "month": 1,           // 1-12
   "year": 2024,         // Year
   "type": "cash",       // "cash" | "accrual"
-  "format": "pdf"       // Optional
+  "format": "pdf"       // Optional; accepted as a no-op
 }
 ```
+
+`format: "pdf"` is intentionally accepted as a no-op. PDF is intentionally not
+implemented, so no PDF file or PDF response should be expected.
 
 **Response Success (200)**:
 
@@ -436,9 +454,9 @@ npm run test:watch
 
 ### Testing
 
-- **API Testing**: Postman Collection (23 requests, ~42 assertions, 2 environments)
+- **API Testing**: Postman Collection; consulte o [guia atual](./postman/README.md) para expectativas e limitações
 - **Unit Testing**: Jest (estrutura criada)
-- **E2E Testing**: Estrutura criada
+- **E2E Testing**: estrutura existente; a execução local deve ser reportada somente com evidência atual
 
 ---
 

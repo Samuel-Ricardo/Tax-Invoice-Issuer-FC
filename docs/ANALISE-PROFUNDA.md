@@ -1,24 +1,34 @@
 # 🔍 Deep Analysis - Tax Invoice Issuer FC
 
-**Analysis Date**: June 2026  
-**Version**: 1.0.0  
-**Branch**: `feature/test-temp`  
+> **Historical analysis — not the current deployment runbook.** This document
+> preserves the June 2026 analysis, metrics, and findings. For the current Azure
+> topology, workflow, migration behavior, API response shape, and QA evidence,
+> use the [current Azure runbook](./deploy/azure/manual/step-by-step-guide.md),
+> [Azure overview](./deploy/azure/README.md), and [documentation index](./INDEX.md).
+>
+> **Current as of 2026-08-25:** the former double-JSON-encoding observation is
+> historical. Successful invoice responses are now structured arrays serialized
+> once, as recorded by commits `f1b551c` and `1927d73`.
+
+**Analysis Date**: June 2026
+**Version**: 1.0.0
+**Branch**: `feature/test-temp`
 **Analyst**: Avanade Supervisor
 
 ---
 
 ## 📊 Project Overview
 
-| Item                 | Valor                                                                        |
-| -------------------- | ---------------------------------------------------------------------------- |
-| **Name**             | Tax Invoice Issuer FC                                                        |
-| **Objective**        | Invoice issuance system with support for multiple calculation strategies     |
-| **Stack**            | Node.js, TypeScript, Express 5, InversifyJS 7, Zod 4, PostgreSQL, pg-promise |
-| **Architecture**     | Clean Architecture + DDD + Design Patterns                                   |
-| **src/ Files**       | 133 TypeScript files                                                         |
-| **test/ Files**      | 85 TypeScript files                                                          |
-| **Coverage (Stmts)** | 74%                                                                          |
-| **Tests Passing**    | 3/3 suites, 3/3 tests                                                        |
+| Item                       | Valor                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| **Name**                   | Tax Invoice Issuer FC                                                        |
+| **Objective**              | Invoice issuance system with support for multiple calculation strategies     |
+| **Stack**                  | Node.js, TypeScript, Express 5, InversifyJS 7, Zod 4, PostgreSQL, pg-promise |
+| **Architecture**           | Clean Architecture + DDD + Design Patterns                                   |
+| **src/ Files**             | 133 TypeScript files                                                         |
+| **test/ Files**            | 85 TypeScript files                                                          |
+| **Coverage (Stmts)**       | 74%                                                                          |
+| **Historical test result** | 3/3 suites, 3/3 tests (June 2026; not current evidence)                      |
 
 ---
 
@@ -132,7 +142,7 @@ Each module exposes a Factory that encapsulates DI container resolution:
 
 ### 8. Presenter Pattern
 
-- `JsonPresenter` — `JSON.stringify(data)`
+- `JsonPresenter` — returns the structured data; Express serializes it once
 - `CsvPresenter` — Formats as CSV with moment.js
 
 ---
@@ -168,22 +178,20 @@ Content-Type: application/json
 }
 ```
 
-**Response Success (200)** — String JSON:
+**Response Success (200)** — Historical observation:
+
+> This June 2026 analysis recorded an escaped JSON string. That observation is
+> stale: the current response is a structured array serialized once. See commits
+> `f1b551c` and `1927d73` and the current [Postman guide](../postman/README.md).
 
 ```json
-"[{\"date\":\"2022-01-05T13:00:00.000Z\",\"amount\":6000}]"
+[{ "date": "<ISO_DATE>", "amount": 6000 }]
 ```
 
-**Response Error (200)** — Exception captured by `@ErrorHandler`:
-
-```json
-{
-  "error": true,
-  "message": "password authentication failed for user \"postgres\"",
-  "status": 500,
-  "data": undefined
-}
-```
+**Response Error (historical example)** — Exception captured by `@ErrorHandler`.
+The historical message is redacted here; some error paths can still return HTTP
+`200` while the body reports `status: 500`. See the current runbook for this known
+limitation.
 
 > ⚠️ **Note**: Controller always returns HTTP 200. Internal errors are encapsulated in body by `@ErrorHandler`.
 
@@ -221,7 +229,7 @@ Content-Type: application/json
    │  ↓ @Validate → EmailSpecificationZod
    │  ↓ EmailService.sendInvoices(data)
    │
-7. JsonPresenter.present(invoices) → JSON.stringify(invoices)
+7. JsonPresenter.present(invoices) → returns the structured array
    │
 8. res.json(output) → Response 200
 ```
@@ -308,27 +316,21 @@ private isValid(date: Date, month: number, year: number) {
 
 ### 🟡 Medium
 
-| #   | Problem                    | Status       | Details                                         |
-| --- | -------------------------- | ------------ | ----------------------------------------------- |
-| 3   | Missing range validation   | ⚠️ PENDING   | month accepts 0, 13, -1; year accepts negatives |
-| 4   | `console.log` in prod      | ⚠️ PENDING   | `cash.strategy.ts:12`                           |
-| 5   | HTTP Response always 200   | ⚠️ DESIGN    | Internal errors come in body, not status code   |
-| 6   | `JsonPresenter` double-enc | ⚠️ DESIGN    | Express does double-JSON-encode                 |
-| 7   | Isolated DI Containers     | ✅ MITIGATED | Teardown fixed via `CONTROLLER_CONTAINER`       |
+| #   | Problem                     | Status       | Details                                            |
+| --- | --------------------------- | ------------ | -------------------------------------------------- |
+| 3   | Missing range validation    | ⚠️ PENDING   | month accepts 0, 13, -1; year accepts negatives    |
+| 4   | `console.log` in prod       | ⚠️ PENDING   | `cash.strategy.ts:12`                              |
+| 5   | HTTP Response always 200    | ⚠️ DESIGN    | Internal errors come in body, not status code      |
+| 6   | Double encoding observation | ✅ RESOLVED  | Current presenter returns structured data directly |
+| 7   | Isolated DI Containers      | ✅ MITIGATED | Teardown fixed via `CONTROLLER_CONTAINER`          |
 
-#### Bug #6 — Double JSON Encoding
+#### Bug #6 — Double JSON encoding (historical, resolved)
 
-The `JsonPresenter.present()` does `JSON.stringify(data)`, then Express does `res.json(output)` which calls `JSON.stringify()` again. Result: response body is an **escaped JSON string**, not an object:
-
-```
-"[{\"date\":\"2022-01-05T13:00:00.000Z\",\"amount\":6000}]"
-```
-
-Instead of:
-
-```json
-[{ "date": "2022-01-05T13:00:00.000Z", "amount": 6000 }]
-```
+The June 2026 analysis described a presenter that called `JSON.stringify()` before
+Express serialized the response. The current `JsonPresenter` returns the data
+structure directly, so the former escaped-string result is no longer current.
+Successful invoice responses are structured arrays serialized once. See commits
+`f1b551c` and `1927d73`.
 
 ---
 
@@ -504,12 +506,12 @@ npm run code:ci      # format:fix && lint:fix && test:coverage
 
 ### Sprint 1 — Correções Críticas
 
-| Prioridade | Item                                            | Esforço |
-| ---------- | ----------------------------------------------- | ------- |
-| 🔴         | Corrigir lógica invertida nas Strategies        | 1h      |
-| 🔴         | Adicionar validação de range (month 1-12, year) | 30min   |
-| 🟡         | Remover `console.log` de `cash.strategy.ts`     | 5min    |
-| 🟡         | Corrigir double-JSON-encode no Presenter        | 30min   |
+| Prioridade | Item                                                    | Esforço |
+| ---------- | ------------------------------------------------------- | ------- |
+| 🔴         | Corrigir lógica invertida nas Strategies                | 1h      |
+| 🔴         | Adicionar validação de range (month 1-12, year)         | 30min   |
+| 🟡         | Remover `console.log` de `cash.strategy.ts`             | 5min    |
+| 🟡         | Double-JSON-encoding observation (historical; resolved) | —       |
 
 ### Sprint 2 — Testes e Qualidade
 
@@ -611,11 +613,11 @@ O projeto demonstra **excelente conhecimento arquitetural** com Clean Architectu
 
 **Pontos fortes**: Separação de camadas, extensibilidade via Strategy/Specification, DI completo, infraestrutura Docker.
 
-**Pontos de atenção**: Bug crítico na lógica de filtro das Strategies (invertida), falta de validação de range, double-JSON-encode, cobertura de testes pode melhorar (40% funções).
+**Pontos de atenção históricos**: lógica de filtro das Strategies, validação de range e cobertura de testes foram observadas na análise de junho de 2026. A observação de double-JSON-encoding foi resolvida nos commits `f1b551c` e `1927d73`.
 
 **Risco principal**: O bug #1 (lógica invertida) faz com que a aplicação retorne dados **incorretos** — invoices de meses errados.
 
 ---
 
-**Última atualização**: 20 de Junho de 2026  
+**Última atualização**: 20 de Junho de 2026
 **Versão do documento**: 2.0

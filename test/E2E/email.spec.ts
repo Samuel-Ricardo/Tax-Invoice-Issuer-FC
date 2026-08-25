@@ -28,11 +28,7 @@ describe("[E2E] | EMAIL", () => {
 
     expect(response.status).toBe(200);
 
-    // Parse response body if it's a string
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     expect(Array.isArray(invoices)).toBe(true);
   });
@@ -44,11 +40,7 @@ describe("[E2E] | EMAIL", () => {
 
     expect(response.status).toBe(200);
 
-    // Parse response body if it's a string
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     expect(Array.isArray(invoices)).toBe(true);
     expect(invoices.length).toBeGreaterThan(0);
@@ -130,11 +122,7 @@ describe("[E2E] | EMAIL", () => {
 
     expect(response.status).toBe(200);
 
-    // Parse response body if it's a string
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     expect(Array.isArray(invoices)).toBe(true);
 
@@ -158,15 +146,8 @@ describe("[E2E] | EMAIL", () => {
     expect(response1.status).toBe(200);
     expect(response2.status).toBe(200);
 
-    // Parse responses if they're strings
-    const invoices1 =
-      typeof response1.body === "string"
-        ? JSON.parse(response1.body)
-        : response1.body;
-    const invoices2 =
-      typeof response2.body === "string"
-        ? JSON.parse(response2.body)
-        : response2.body;
+    const invoices1 = response1.body;
+    const invoices2 = response2.body;
 
     // Both should return valid invoice arrays
     expect(Array.isArray(invoices1)).toBe(true);
