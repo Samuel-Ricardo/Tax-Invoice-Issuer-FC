@@ -51,19 +51,12 @@ describe("[E2E] | INVOICE", () => {
 
     expect(response.status).toBe(200);
 
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
-    if (Array.isArray(invoices)) {
-      expect(invoices.length).toBeGreaterThan(0);
-      expect(invoices[0]).toHaveProperty("date");
-      expect(invoices[0]).toHaveProperty("amount");
-    } else {
-      expect(invoices).toHaveProperty("date");
-      expect(invoices).toHaveProperty("amount");
-    }
+    expect(Array.isArray(invoices)).toBe(true);
+    expect(invoices.length).toBeGreaterThan(0);
+    expect(invoices[0]).toHaveProperty("date");
+    expect(invoices[0]).toHaveProperty("amount");
   });
 
   it("[E2E] | GENERATE [INVOICE] - Accrual Basis Success", async () => {
@@ -75,10 +68,7 @@ describe("[E2E] | INVOICE", () => {
 
     expect(response.status).toBe(200);
 
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     expect(Array.isArray(invoices)).toBe(true);
   });
@@ -92,19 +82,12 @@ describe("[E2E] | INVOICE", () => {
 
     expect(response.status).toBe(200);
 
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
-    if (Array.isArray(invoices)) {
-      expect(invoices.length).toBeGreaterThan(0);
-      expect(invoices[0]).toHaveProperty("date");
-      expect(invoices[0]).toHaveProperty("amount");
-    } else {
-      expect(invoices).toHaveProperty("date");
-      expect(invoices).toHaveProperty("amount");
-    }
+    expect(Array.isArray(invoices)).toBe(true);
+    expect(invoices.length).toBeGreaterThan(0);
+    expect(invoices[0]).toHaveProperty("date");
+    expect(invoices[0]).toHaveProperty("amount");
   });
 
   // ============================================================================
@@ -405,20 +388,13 @@ describe("[E2E] | INVOICE", () => {
 
     expect(response.status).toBe(200);
 
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     // Deve processar normalmente ignorando extras
-    if (Array.isArray(invoices)) {
-      expect(invoices.length).toBeGreaterThan(0);
-      expect(invoices[0]).toHaveProperty("date");
-      expect(invoices[0]).toHaveProperty("amount");
-    } else {
-      expect(invoices).toHaveProperty("date");
-      expect(invoices).toHaveProperty("amount");
-    }
+    expect(Array.isArray(invoices)).toBe(true);
+    expect(invoices.length).toBeGreaterThan(0);
+    expect(invoices[0]).toHaveProperty("date");
+    expect(invoices[0]).toHaveProperty("amount");
   });
 
   // ============================================================================

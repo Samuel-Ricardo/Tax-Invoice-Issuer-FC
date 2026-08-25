@@ -73,15 +73,7 @@ describe("[E2E] | HTTP", () => {
 
     expect(response.status).toBe(200);
 
-    // Body should be parseable regardless of double-encoding
-    let invoices: any;
-    if (typeof response.body === "string") {
-      expect(() => {
-        invoices = JSON.parse(response.body);
-      }).not.toThrow();
-    } else {
-      invoices = response.body;
-    }
+    const invoices = response.body;
 
     expect(Array.isArray(invoices)).toBe(true);
   });
@@ -93,10 +85,7 @@ describe("[E2E] | HTTP", () => {
 
     expect(response.status).toBe(200);
 
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     if (invoices.length > 0) {
       invoices.forEach((invoice: any) => {
@@ -113,10 +102,7 @@ describe("[E2E] | HTTP", () => {
 
     expect(response.status).toBe(200);
 
-    const invoices =
-      typeof response.body === "string"
-        ? JSON.parse(response.body)
-        : response.body;
+    const invoices = response.body;
 
     if (invoices.length > 0) {
       invoices.forEach((invoice: any) => {
