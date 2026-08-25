@@ -15,4 +15,4 @@ export const INVOICE_RESULT_SINGLE = [
 
 export const INVOICE_RESULT_EMPTY: Invoice[] = [];
 
-export const INVOICE_RESULT_PRESENTED = JSON.stringify(INVOICE_RESULT_LIST);
+export const INVOICE_RESULT_PRESENTED = INVOICE_RESULT_LIST;

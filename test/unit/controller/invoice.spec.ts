@@ -34,7 +34,7 @@ describe("[INVOICE] - CONTROLLER", () => {
     );
   });
 
-  it("[UNIT] | [INVOICE] - CALLS > [SERVICE] & [PRESENTER]", async () => {
+  it("[UNIT] | [INVOICE] - CALLS > [SERVICE] & [PRESENTER] with structured data", async () => {
     const module = TEST_MODULES.APPLICATION.CONTROLLER.INVOICE.SIMULATE();
 
     module.specification.isSatisfiedBy.mockReturnValue(true);
