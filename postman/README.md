@@ -6,6 +6,9 @@
 > for topology, identities, deployment, migration, and infrastructure
 > troubleshooting. The JSON collection and environments are unchanged by this
 > documentation consolidation.
+>
+> For historical incident context, see the [Azure deployment saga](../docs/deploy/azure/history/DEPLOYMENT-SAGA.md).
+> It is not a current operational procedure.
 
 ## Files
 
@@ -168,3 +171,4 @@ runbook](../docs/deploy/azure/manual/step-by-step-guide.md).
 - [Azure deployment overview](../docs/deploy/azure/README.md)
 - [Project documentation index](../docs/INDEX.md)
 - [Project README](../README.md)
+- [Historical Azure deployment saga](../docs/deploy/azure/history/DEPLOYMENT-SAGA.md)

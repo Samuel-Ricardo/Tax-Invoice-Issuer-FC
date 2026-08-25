@@ -7,6 +7,10 @@
 > workflow, migration behavior, and verification boundaries. It does not replace
 > the runbook and contains no secret values.
 
+For historical incident context, see the [Azure deployment saga](./history/DEPLOYMENT-SAGA.md).
+That record is not a current runbook and does not override this page or the
+[manual runbook](./manual/step-by-step-guide.md).
+
 ## Current learning target
 
 | Resource                   | Current value                                  |
@@ -197,3 +201,5 @@ manual runbook.
 - [Postman guide](../../../postman/README.md)
 - [Documentation index](../../INDEX.md)
 - [Project README](../../../README.md)
+- [Historical deployment saga](./history/DEPLOYMENT-SAGA.md) — incident context;
+  not current operational instructions.

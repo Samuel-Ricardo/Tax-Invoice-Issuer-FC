@@ -49,6 +49,7 @@ Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de
 - **[Guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md)** — runbook principal, do zero ao teste hello-world
 - **[Visão geral da arquitetura Azure](./docs/deploy/azure/README.md)** — resumo da topologia, identidades e workflow
 - **[Guia de OIDC](./azure-federated-credential-guide.md)** — configuração da credencial federada do GitHub
+- **[Saga histórica de deployment](./docs/deploy/azure/history/DEPLOYMENT-SAGA.md)** — incidentes, correções e evidências; não é runbook
 
 O [guia manual](./docs/deploy/azure/manual/step-by-step-guide.md) é a fonte de
 verdade para os passos, verificações e troubleshooting. A [visão geral Azure](./docs/deploy/azure/README.md)

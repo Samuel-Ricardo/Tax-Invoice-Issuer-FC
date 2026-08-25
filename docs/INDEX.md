@@ -19,6 +19,7 @@
 | Run API checks with Postman                        | [Postman guide](../postman/README.md)                                        |
 | Review historical technical analysis               | [Deep analysis](./ANALISE-PROFUNDA.md)                                       |
 | Read the historical management summary             | [Executive report](./RELATORIO-EXECUTIVO.md)                                 |
+| Review the consolidated Azure incident history     | [Azure deployment saga](./deploy/azure/history/DEPLOYMENT-SAGA.md)           |
 
 ## Current Azure learning stack
 
@@ -113,6 +114,8 @@ include `uuid-ossp`. See the [migration section of the runbook](./deploy/azure/m
   canonical runbook, current topology, deployment gate, migration truth, API
   verification, and troubleshooting.
 - [Azure deployment overview](./deploy/azure/README.md) — concise current summary.
+- [Azure deployment saga](./deploy/azure/history/DEPLOYMENT-SAGA.md) — historical
+  incident record; not an operational runbook.
 - [Federated credential guide](../azure-federated-credential-guide.md) — OIDC
   subject, issuer, audience, and RBAC.
 - [Postman guide](../postman/README.md) — current URL update and API expectations.

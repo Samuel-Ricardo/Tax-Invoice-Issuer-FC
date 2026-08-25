@@ -12,6 +12,9 @@
 > PAT, secret value, private request identifier, private IP address, or complete
 > `DATABASE_URL` in this repository, a command, a log, a screenshot, or a commit.
 
+For historical context only, see the [Azure deployment saga](../history/DEPLOYMENT-SAGA.md).
+This runbook remains authoritative for current operations.
+
 ## Contents
 
 - [Current topology](#current-topology)
