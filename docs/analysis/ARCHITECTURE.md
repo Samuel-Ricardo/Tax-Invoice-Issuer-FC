@@ -81,21 +81,21 @@ sequenceDiagram
     participant M as Mediator
     participant EC as EmailController
 
-    C->>E: POST /invoice {month, year, type}
+    C->>E: POST /invoice (month, year, type)
     E->>IC: handler(_, body, _)
-    IC->>Z: @Validate → ZodInvoiceSpecification
-    Z-->>IC: ok | throw ValidationDataError(400)
+    IC->>Z: Validate via ZodInvoiceSpecification
+    Z-->>IC: ok or throw ValidationDataError(400)
     IC->>S: service.generate(body)
-    S->>U: execute({ contracts, invoice })
-    U->>DB: ContractRepositorySQL.list() (SELECT * FROM sam.contract)
-    U->>DB: PaymentRepositorySQL.list({contrarId}) per contract
-    U->>U: contract.generateInvoices({month,year,type})<br/>InvoiceGenerationStrategyFactory → cash|accrual
+    S->>U: execute(contracts, invoice)
+    U->>DB: ContractRepositorySQL.list() — SELECT * FROM sam.contract
+    U->>DB: PaymentRepositorySQL.list(contrarId) per contract
+    U->>U: contract.generateInvoices(...) → InvoiceGenerationStrategyFactory → cash or accrual
     U-->>S: Invoice[]
-    S->>M: emit(EVENTS.INVOICE.GENERATED = "invoice_generated", invoices)
+    S->>M: emit("invoice_generated", invoices)
     M->>EC: sendMailOnInvoiceGenereted(invoices)
-    EC->>EC: @Validate(ZodEmailSpecification) → EmailService.sendInvoices
+    EC->>EC: Validate via ZodEmailSpecification → EmailService.sendInvoices
     S-->>IC: invoices
-    IC-->>C: presenter.present → 200 { data: Invoice[] }
+    IC-->>C: presenter.present → 200 ( data: Invoice[] )
 ```
 
 Notes:
