@@ -1,16 +1,16 @@
-# 🏗️ Arquitetura Azure — Tax Invoice Issuer FC
+# 🏗️ Azure Architecture — Tax Invoice Issuer FC
 
-> Decisões técnicas, diagramas e justificativas para o deploy na Azure Cloud.
+> Technical decisions, diagrams, and rationale for the Azure Cloud deployment.
 >
-> **Status: Histórico — não é a fonte atual de implantação.** Este documento
-> preserva o desenho, os nomes e o fluxo de credenciais de uma configuração
-> anterior. Para a topologia confirmada, use o [runbook manual atual](./manual/step-by-step-guide.md),
-> que documenta `-learn`, Azure OIDC, as VNets separadas, o peering bidirecional
-> e a zona DNS privada específica do PostgreSQL.
+> **Status: Historical — not the current deployment source.** This document
+> preserves the design, names, and credential flow of a previous
+> configuration. For the confirmed topology, use the [current manual runbook](./manual/step-by-step-guide.md),
+> which documents `-learn`, Azure OIDC, the separate VNets, bidirectional
+> peering, and the PostgreSQL-specific private DNS zone.
 
 ---
 
-## 📐 Diagrama de Arquitetura
+## 📐 Architecture Diagram
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -82,7 +82,7 @@
 
 ---
 
-## 🔄 Fluxo CI/CD Detalhado
+## 🔄 Detailed CI/CD Flow
 
 ```mermaid
 flowchart TD
@@ -101,78 +101,78 @@ flowchart TD
     D -->|No - PR| Z[End - build only]
 
     E --> E1[Azure Login\nformer Service Principal — historical]
-    E1 --> E2[az containerapp update\nnova imagem]
-    E2 --> E3[✅ Deploy concluído\nAPI atualizada em ~30s]
+    E1 --> E2[az containerapp update\nnew image]
+    E2 --> E3[✅ Deploy completed\nAPI updated in ~30s]
 ```
 
 ---
 
-## 🧱 Recursos Azure — Detalhamento
+## 🧱 Azure Resources — Details
 
 ### 1. Azure Container Apps Environment
 
-**Recurso**: `Microsoft.App/managedEnvironments`
-**Nome**: `cae-tax-invoice-fc`
+**Resource**: `Microsoft.App/managedEnvironments`
+**Name**: `cae-tax-invoice-fc`
 
-O ambiente é o contexto de execução compartilhado para Container Apps. Neste projeto há apenas 1 app, mas o ambiente pode escalar para múltiplos serviços.
+The environment is the shared execution context for Container Apps. This project has only 1 app, but the environment can scale to multiple services.
 
-**Integração com Log Analytics**: todos os logs do container são enviados automaticamente.
+**Log Analytics integration**: all container logs are sent automatically.
 
 ---
 
 ### 2. Container App (API)
 
-**Recurso**: `Microsoft.App/containerApps`
-**Nome**: `ca-tax-invoice-fc-api`
+**Resource**: `Microsoft.App/containerApps`
+**Name**: `ca-tax-invoice-fc-api`
 
-| Configuração  | Valor                    | Motivo                                         |
-| ------------- | ------------------------ | ---------------------------------------------- |
-| CPU           | 0.25 vCPU                | Mínimo suportado — portfolio tem baixo tráfego |
-| Memória       | 0.5 GiB                  | Suficiente para Node.js Express                |
-| Min replicas  | **0**                    | Scale-to-zero = custo $0 em idle               |
-| Max replicas  | 1                        | 1 instância é suficiente para portfolio        |
-| Scale trigger | HTTP (10 req concurrent) | Sobe quando chega tráfego                      |
-| Ingress       | External + HTTPS         | URL pública com TLS automático                 |
+| Setting       | Value                    | Reason                                        |
+| ------------- | ------------------------ | --------------------------------------------- |
+| CPU           | 0.25 vCPU                | Minimum supported — portfolio has low traffic |
+| Memory        | 0.5 GiB                  | Sufficient for Node.js Express                |
+| Min replicas  | **0**                    | Scale-to-zero = $0 cost when idle             |
+| Max replicas  | 1                        | 1 instance is enough for a portfolio          |
+| Scale trigger | HTTP (10 req concurrent) | Scales up when traffic arrives                |
+| Ingress       | External + HTTPS         | Public URL with automatic TLS                 |
 
-**URL pública**: `https://ca-tax-invoice-fc-api.<random>.eastus.azurecontainerapps.io`
+**Public URL**: `https://ca-tax-invoice-fc-api.<random>.eastus.azurecontainerapps.io`
 
-#### Gestão de Secrets
+#### Secrets Management
 
-A connection string do PostgreSQL é armazenada como **Container Apps Secret** (built-in, criptografado, sem custo adicional). Nunca aparece em logs ou variáveis de ambiente visíveis.
+The PostgreSQL connection string is stored as a **Container Apps Secret** (built-in, encrypted, no additional cost). It never appears in logs or visible environment variables.
 
 ```
 Secret name: database-url
 Value: <DATABASE_URL_FROM_KEY_VAULT>
-Referenciado como env var: DATABASE_URL
+Referenced as env var: DATABASE_URL
 ```
 
 ---
 
 ### 3. PostgreSQL Flexible Server
 
-**Recurso**: `Microsoft.DBforPostgreSQL/flexibleServers`
-**Nome**: `psql-tax-invoice-fc`
+**Resource**: `Microsoft.DBforPostgreSQL/flexibleServers`
+**Name**: `psql-tax-invoice-fc`
 
-| Configuração         | Valor         | Motivo                                        |
-| -------------------- | ------------- | --------------------------------------------- |
-| SKU                  | Standard_B1ms | Menor tier disponível (1 vCPU, 2 GiB)         |
-| Tier                 | Burstable     | CPU burst quando necessário, barato em idle   |
-| Versão               | PostgreSQL 15 | LTS estável                                   |
-| Storage              | 32 GiB        | Mínimo razoável                               |
-| HA                   | Disabled      | Portfolio não precisa de alta disponibilidade |
-| Geo-redundant backup | Disabled      | Economia de custo                             |
-| SSL                  | Required      | Segurança obrigatória                         |
+| Setting              | Value         | Reason                                    |
+| -------------------- | ------------- | ----------------------------------------- |
+| SKU                  | Standard_B1ms | Smallest tier available (1 vCPU, 2 GiB)   |
+| Tier                 | Burstable     | CPU burst when needed, cheap when idle    |
+| Version              | PostgreSQL 15 | Stable LTS                                |
+| Storage              | 32 GiB        | Reasonable minimum                        |
+| HA                   | Disabled      | Portfolio does not need high availability |
+| Geo-redundant backup | Disabled      | Cost savings                              |
+| SSL                  | Required      | Mandatory security                        |
 
-**Firewall**: regra `AllowAllAzureIPs` (0.0.0.0 → 0.0.0.0) permite que o Container Apps acesse o banco. Não expõe para a internet pública (apenas IPs internos Azure).
+**Firewall**: the `AllowAllAzureIPs` rule (0.0.0.0 → 0.0.0.0) allows Container Apps to access the database. It does not expose it to the public internet (internal Azure IPs only).
 
 ---
 
 ### 4. Log Analytics Workspace
 
-**Recurso**: `Microsoft.OperationalInsights/workspaces`
-**Nome**: `law-tax-invoice-fc`
+**Resource**: `Microsoft.OperationalInsights/workspaces`
+**Name**: `law-tax-invoice-fc`
 
-Coleta logs de todos os containers automaticamente. Permite queries via Azure Portal para debug.
+Collects logs from all containers automatically. Enables queries via the Azure Portal for debugging.
 
 ```kusto
 // Ver logs da API
@@ -185,37 +185,39 @@ ContainerAppConsoleLogs_CL
 
 ---
 
-## 🔐 Decisões de Segurança (ADR)
+## 🔐 Security Decisions (ADR)
 
 ### ADR-001: GitHub Container Registry vs Azure Container Registry
 
-**Decisão**: Usar `ghcr.io` (GHCR)
-**Motivo**: Gratuito para repositórios públicos, integração nativa com GitHub Actions via `GITHUB_TOKEN` sem secrets adicionais. ACR Basic custa ~$5/mês desnecessariamente para portfolio.
+**Decision**: Use `ghcr.io` (GHCR)
+**Reason**: Free for public repositories, with native GitHub Actions integration via `GITHUB_TOKEN` and no additional secrets. ACR Basic costs ~$5/month — unnecessary for a portfolio.
 
-### ADR-002: Scale-to-Zero para API
+### ADR-002: Scale-to-Zero for the API
 
-**Decisão**: `minReplicas: 0`
-**Motivo**: Portfolio tem tráfego eventual (recrutadores, demos). Com scale-to-zero, o custo em idle é $0. Cold start de 3-8s é aceitável neste contexto.
+**Decision**: `minReplicas: 0`
+**Reason**: The portfolio has occasional traffic (recruiters, demos). With scale-to-zero, the idle cost is $0. A 3-8s cold start is acceptable in this context.
 
-### ADR-003: PostgreSQL B1ms vs Azure Free (sem opção free)
+### ADR-003: PostgreSQL B1ms vs Azure Free (no free option)
 
-**Decisão**: Usar B1ms com Stop/Start
-**Motivo**: Não existe tier gratuito permanente para PostgreSQL na Azure. B1ms a $12.41/mês é o menor SKU. Com Stop/Start manual, paga apenas storage (~$0.37/mês) quando parado.
+**Decision**: Use B1ms with Stop/Start
+**Reason**: There is no permanent free tier for PostgreSQL on Azure. B1ms at $12.41/month is the smallest SKU. With manual Stop/Start, you pay only for storage (~$0.37/month) when stopped.
 
 ### ADR-004: Bicep vs Terraform vs ARM
 
-**Decisão**: Azure Bicep
-**Motivo**: Nativo Azure (sem dependências externas), sintaxe mais limpa que ARM JSON, Microsoft-first. Para portfolio Azure, Bicep demonstra mais senioridade que Terraform para contextos Azure-only.
+**Decision**: Azure Bicep
+**Reason**: Azure-native (no external dependencies), cleaner syntax than ARM JSON, Microsoft-first. For an Azure portfolio, Bicep demonstrates more seniority than Terraform in Azure-only contexts.
 
 ---
 
-## 🌐 Conectividade
+## 🌐 Connectivity
 
 ```
 Internet → Azure Front Door (built-in no Container Apps) → Container App → PostgreSQL
-                                                                              (internal only)
+                                                                               (internal only)
 ```
 
-- Container App expõe porta 3000 via HTTPS (443) com TLS automático
-- PostgreSQL **não** tem ingress externo — acessível apenas dentro da Azure
-- Conexão Container App → PostgreSQL usa SSL obrigatório (`sslmode=require`)
+- The Container App exposes port 3000 via HTTPS (443) with automatic TLS
+- PostgreSQL has **no** external ingress — it is accessible only within Azure
+- The Container App → PostgreSQL connection uses mandatory SSL (`sslmode=require`)
+
+_Translated to English — documentation consolidation, 2026-09._

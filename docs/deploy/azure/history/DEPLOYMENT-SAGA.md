@@ -347,3 +347,5 @@ that belongs in an approved change procedure.
 - [Azure Database for PostgreSQL private access](https://learn.microsoft.com/en-us/azure/postgresql/network/concepts-networking-private)
 - [Azure workload identity federation](https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation)
 - [GitHub Container Registry](https://docs.github.com/en/packages/working-with-the-container-registry)
+
+_Translated to English — documentation consolidation, 2026-09._

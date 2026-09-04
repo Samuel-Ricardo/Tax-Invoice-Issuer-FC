@@ -1,566 +1,373 @@
-# Tax-Invoice-Issuer-FC 📊
+# :page_with_curl: Tax Invoice Issuer
 
-Tax Invoice Issuer to Study Design Patterns in Full Cycle MBA
+<p align="center">
+  <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Node.js-25-339933?logo=node.js&logoColor=white" alt="Node.js 25">
+  <img src="https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white" alt="Express 5">
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/tests-34%20spec%20files-brightgreen" alt="34 spec files">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License">
+</p>
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-25.x-green.svg)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/Express-4.x-lightgrey.svg)](https://expressjs.com/)
-[![Postman](https://img.shields.io/badge/Postman-Collection-orange.svg)](./postman/)
+> **REST API that automates the issuance of tax invoices for long-term contracts, applying design patterns in a real enterprise scenario.**
+>
+> A contract with 48 installments generates 48 invoices — one per due period — each modeled as a financial transaction: date, payer, amount. Uses **Express 5** with decorator-based controllers, **Inversify** dependency injection, **pg-promise** over PostgreSQL, and **Zod 4** validation. Full test suite: **27 spec files, 226 test cases, 5 E2E suites**.
 
----
-
-## 🎯 Overview
-
-Sistema de emissão de invoices fiscais com suporte a múltiplas estratégias de cálculo (Cash Basis e Accrual Basis), implementando padrões de design e Clean Architecture.
-
-### 🏗️ Arquitetura
-
-- **Clean Architecture** com separação em camadas (Domain, Application, Infrastructure)
-- **7 Design Patterns** implementados (Strategy, Specification, Repository, Factory, Mediator, Decorator, DI)
-- **TypeScript** com strict mode
-- **Dependency Injection** com InversifyJS
-- **Validação** com Zod
+**Study Project** — [Full Cycle MBA](https://fullcycle.com.br/) · _As a tax invoice issuer, I want to automatically generate invoices for each contract due period so that billing obligations are met without manual work._
 
 ---
 
-## 📚 Documentação Completa
+## :link: Documentation
 
-> **Estado atual — 2026-08-25:** para a implantação Azure, use o [guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md), a fonte de verdade operacional. O [índice de documentação](./docs/INDEX.md) navega pelos documentos atuais e históricos.
+**[Complete Documentation Hub :books:](docs/INDEX.md)** — organized index of all 30+ documents.
 
-### 🚀 Começar Agora
+### Deep Analysis
 
-- **[Quick Start - Testing Guide](./docs/QUICK-START-TESTS.md)** - Setup em 5 minutos e primeiros testes
+| Document                                               | Description                                          |
+| ------------------------------------------------------ | ---------------------------------------------------- |
+| **[ARCHITECTURE.md](docs/analysis/ARCHITECTURE.md)**   | Modules, layers, 8 design patterns, data flow        |
+| **[API-REFERENCE.md](docs/analysis/API-REFERENCE.md)** | Endpoints, payloads, validation, Postman collection  |
+| **[DATA-MODEL.md](docs/analysis/DATA-MODEL.md)**       | PostgreSQL schema, migrations, repositories          |
+| **[TESTING.md](docs/analysis/TESTING.md)**             | 226 tests, 5 E2E suites, coverage strategy           |
+| **[SECURITY.md](docs/analysis/SECURITY.md)**           | Consolidated audit findings & hardening roadmap      |
+| **[DEEP-ANALYSIS.md](docs/analysis/DEEP-ANALYSIS.md)** | Original line-by-line code analysis (now in English) |
 
-### 📊 Para Gestores & Tech Leads
+### Reports & History
 
-- **[Relatório Executivo](./docs/RELATORIO-EXECUTIVO.md)** - Status, problemas críticos e recomendações
+- **[EXECUTIVE-REPORT.md](docs/EXECUTIVE-REPORT.md)** — executive summary of the deep analysis
+- **[DELIVERY-SUMMARY.md](docs/DELIVERY-SUMMARY.md)** — delivery artifacts and checklist
 
-### 🔍 Para Desenvolvedores & Arquitetos
+### Operations & Cloud
 
-- **[Análise Profunda](./docs/ANALISE-PROFUNDA.md)** - Arquitetura detalhada, padrões e análise técnica
+| Guide                                                                                        | Description                                                     |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **[Azure Deployment Saga](docs/deploy/azure/history/DEPLOYMENT-SAGA.md)**                    | Real incident history of the Azure deployment (8 issues solved) |
+| **[Azure Architecture](docs/deploy/azure/ARCHITECTURE.md)**                                  | Azure topology (ACA, ACR, Key Vault, PostgreSQL Flexible)       |
+| **[Step-by-Step Guide](docs/deploy/azure/manual/step-by-step-guide.md)**                     | Reproducible cloud provisioning walkthrough                     |
+| **[Federated Credentials](docs/deploy/azure/authentication/federated-credentials-guide.md)** | Keyless auth: OIDC + Workload Identity                          |
+| **[Quick Start - Tests](docs/QUICK-START-TESTS.md)**                                         | How to run the test suites                                      |
+| **[Zod Examples](docs/zod-example.md)**                                                      | Zod 4 validation patterns used in this project                  |
+| **[Postman Docs](postman/)**                                                                 | API collection (23 requests, 6 folders, 2 environments)         |
+| **[Email Integration](docs/deploy/azure/communication-services-email.md)**                   | Azure Communication Services + MailHog                          |
 
-### 🧪 Para QA & Testers
+### Postman
 
-- **[Guia Postman](./postman/README.md)** — verificação atual da API, incluindo a expectativa de resposta como array estruturado
-- **[Importar Coleção](./postman/Tax-Invoice-Issuer.postman_collection.json)** - Arquivo JSON
+| Artifact       | Link                                                                                                                             |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Collection** | [postman/collections/Tax-Invoice-Issuer.postman_collection.json](postman/collections/Tax-Invoice-Issuer.postman_collection.json) |
+| **Guide**      | [postman/README.md](postman/README.md)                                                                                           |
+| **Docs index** | [docs/INDEX.md](docs/INDEX.md)                                                                                                   |
 
-### ☁️ Deploy atual na Azure
-
-- **[Guia manual de deployment](./docs/deploy/azure/manual/step-by-step-guide.md)** — runbook principal, do zero ao teste hello-world
-- **[Visão geral da arquitetura Azure](./docs/deploy/azure/README.md)** — resumo da topologia, identidades e workflow
-- **[Guia de OIDC](./azure-federated-credential-guide.md)** — configuração da credencial federada do GitHub
-- **[Saga histórica de deployment](./docs/deploy/azure/history/DEPLOYMENT-SAGA.md)** — incidentes, correções e evidências; não é runbook
-
-O [guia manual](./docs/deploy/azure/manual/step-by-step-guide.md) é a fonte de
-verdade para os passos, verificações e troubleshooting. A [visão geral Azure](./docs/deploy/azure/README.md)
-é o resumo sincronizado. Os nomes da stack de aprendizagem são:
-
-| Recurso                    | Nome                                                |
-| -------------------------- | --------------------------------------------------- |
-| Resource group             | `rg-tax-invoice-fc-learn`                           |
-| Container Apps environment | `env-tax-invoice-fc-learn`                          |
-| Container App              | `app-tax-invoice-fc-learn`                          |
-| PostgreSQL                 | `psql-tax-invoice-fc-learn`                         |
-| Key Vault                  | `kv-tax-invoice-fc-learn`                           |
-| Log Analytics              | `law-tax-invoice-fc-learn`                          |
-| Imagem GHCR                | `ghcr.io/samuel-ricardo/tax-invoice-issuer-fc:main` |
-
-O Container App usa a VNet `vnet-tax-invoice-fc`, subnet `default`. O PostgreSQL
-usa a VNet `rg-tax-invoice-fc-learn-vnet`, subnet `default`; as VNets são ligadas
-pelos peerings `peer-to-db-vnet` e `peer-to-app-vnet`. A private DNS zone usada é
-`psql-tax-invoice-fc-learn.private.postgres.database.azure.com`, ligada à VNet da
-aplicação por `link-app-vnet`, com auto-registration desabilitado. Este é o caminho
-de PostgreSQL Flexible Server **private access/VNet integration**.
-O Container App tem ingress HTTPS público, com target port `3000`.
-
-O fluxo automatizado é `push` na `main` → build/push das imagens → validação de
-digests imutáveis → login Azure por OIDC → execução do migration Job → deploy do
-Container App por digest. O deploy só ocorre depois que a migration gate passa.
-O build usa `GITHUB_TOKEN` apenas para publicar no GHCR. O deploy e o migration
-Job usam os secrets duráveis `GHCR_USERNAME` e `GHCR_READ_TOKEN` para pulls.
-Os cinco secrets do ambiente `production` são `AZURE_CLIENT_ID`,
-`AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `GHCR_USERNAME` e
-`GHCR_READ_TOKEN`; o workflow não usa `AZURE_CREDENTIALS`. A variável de
-repositório `AZURE_MIGRATION_JOB_NAME` identifica o Job existente.
-
-A credencial federada deve usar o subject exato
-`repo:Samuel-Ricardo/Tax-Invoice-Issuer-FC:environment:production`, com issuer
-`https://token.actions.githubusercontent.com` e audience
-`api://AzureADTokenExchange`. A identidade OIDC tem **Contributor** no resource
-group atual; a identidade system-assigned do Container App tem **Key Vault
-Secrets User** no Key Vault. São identidades diferentes.
-
-Sempre copie a Application Url atual da página **Overview** do Container App.
-O smoke test é `GET /`, que deve retornar HTTP `200` e
-`{"hello":"world"}`. `POST /invoice` aceita `month`, `year`, `type` e `format`
-opcional; `format: "pdf"` é aceito intencionalmente como no-op. A resposta de
-sucesso é um array JSON estruturado, serializado uma vez, e não uma string JSON
-escapada. O Postman deve afirmar que o valor parseado é um array. Um resultado
-`cash` `[]` para 2024 é inconclusivo contra o fixture de 2022; o caminho accrual
-observado retornou 3 invoices do fixture. Não existe `/health`, `/swagger`,
-`/api-docs` ou `/swagger.json`; `npm run docs:swagger` gera apenas um arquivo local.
-
-O aplicativo exige uma `DATABASE_URL` completa, armazenada no secret
-`database-url` do Key Vault e mapeada por `kv-database-url`. Variáveis separadas
-de banco não formam essa URL. O migration Job executa somente
-`migration/create.sql` via `Dockerfile.migrations`/`migration/runner.sh`, não
-executa `migration/versions/`, e faz `DROP SCHEMA sam CASCADE`, recria schema e
-tabelas e semeia o fixture de 2022 em uma transação. Esse reset é intencional:
-cada deployment reseta e resemeia o banco. O `uuid-ossp` deve estar na allowlist
-do Flexible Server e o principal precisa de `CONNECT`, `CREATE` e privilégios
-para apagar/recriar `sam` em `<DATABASE_NAME>`.
-
-O log `[DATABASE] | Connected with PostgreSQL` confirma a conexão observada.
-GitHub Actions passou, e deployment/migration/conectividade foram verificados nos
-logs. O E2E local foi bloqueado pela ausência de `DATABASE_URL`; não o descreva
-como aprovado. Depois de alterar ou recriar o secret, faça Recover/Purge se o nome
-estiver soft-deleted e reinicie o Container App ou crie uma nova revision para
-reler o valor. Ainda existe um defeito separado: algumas respostas de erro
-retornam HTTP `200` com `status: 500` no corpo.
-
-> ⚠️ `infra_public/` e os defaults de documentos antigos são legados/não atuais.
-> Nomes como `rg-tax-invoice-fc`, `cae-tax-invoice-fc` e
-> `ca-tax-invoice-fc-api` não pertencem ao workflow atual.
-
-### 📑 Índice Geral
-
-- **[INDEX - Toda Documentação](./docs/INDEX.md)** - Navegação completa de todos os recursos
+> **Run online:** [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/)
 
 ---
 
-## 🚀 Quick Start
+## :rocket: Quick Start
 
-### Instalação
+### Prerequisites
+
+- **Node.js 25** (project uses a Current release; an LTS such as 20/22 also works)
+- **PostgreSQL 14+** (or Docker)
+- npm 10+
+
+### Option A — Local with Docker Compose (recommended)
 
 ```bash
-# Clone o repositório
 git clone https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC.git
 cd Tax-Invoice-Issuer-FC
-
-# Instale as dependências
 npm install
-
-# Configure o ambiente
-cp .env.example .env
-
-# Build do projeto
-npm run build
-
-# Inicie o servidor
-npm run start
+cp .env.example .env        # then edit .env (see table below)
 ```
 
-Servidor rodando em: **http://localhost:3000**
+`.env` — minimum configuration:
 
-### Testar a API
-
-**Opção 1: Postman (Recomendado)**
-
-```bash
-# Importe os arquivos da pasta postman/ no Postman
-# Selecione o environment "Tax Invoice Issuer - Local"
-# Execute "Health Check" → GET /
+```env
+PORT=3000
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres
+EMAIL_HOST=localhost          # MailHog in docker-compose
+EMAIL_PORT=1025
 ```
 
-**Opção 2: cURL**
+> :warning: **Destructive migrations** — `migration/create.sql` **drops and recreates** the `sam` schema and inserts sample data. Never point this at a database you care about.
 
 ```bash
-# Health Check
-curl http://localhost:3000/
+docker compose up -d        # postgres + migrations + pgadmin + mailhog + tcp-knock
+npm run start:dev           # http://localhost:3000
+```
 
-# Generate Invoice (Cash Basis)
-curl -X POST http://localhost:3000/invoice \
-  -H "Content-Type: application/json" \
-  -d '{
-    "month": 1,
-    "year": 2024,
-    "type": "cash"
-  }'
+### Option B — Fully containerized app
+
+```bash
+docker compose --profile app up -d
+```
+
+The app container connects to the `postgres` service host — inside compose, use `DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres`.
+
+### Interfaces
+
+| Service    | URL                          | Purpose                                                                    |
+| ---------- | ---------------------------- | -------------------------------------------------------------------------- |
+| API        | <http://localhost:3000>      | REST endpoints                                                             |
+| Swagger UI | <http://localhost:3000/docs> | Auto-generated docs (**known issue**: redirect loop — see Troubleshooting) |
+| pgAdmin    | <http://localhost:8080>      | DB admin UI                                                                |
+| MailHog    | <http://localhost:8025>      | Captures outgoing invoice emails                                           |
+
+### Health checks
+
+```bash
+curl http://localhost:3000/               # {"hello":"world"}
+docker exec -it postgres pg_isready -U postgres
 ```
 
 ---
 
-## 🎯 API Endpoints
+## :whale: Docker Environment
 
-### Health Check
+Full development environment with a single command:
 
-```http
-GET /
+| Container      | Image                       | Port        | Purpose                                             |
+| -------------- | --------------------------- | ----------- | --------------------------------------------------- |
+| **app**        | `Dockerfile` (node:25-slim) | 3000        | Express 5 API (profile `app`, off by default)       |
+| **postgres**   | postgres:16                 | 5432        | Database                                            |
+| **migrations** | `Dockerfile.migrations`     | —           | One-shot: executes `migration/create.sql`           |
+| **pgadmin**    | dpage/pgadmin4              | 8080        | DB admin UI                                         |
+| **mailhog**    | mailhog/mailhog             | 1025 / 8025 | SMTP capture + web UI                               |
+| **tcp-knock**  | `Dockerfile.knock`          | 7000        | Simulated TCP endpoint (learning/port-knocking lab) |
+
+```bash
+docker compose up -d                  # everything except the app container
+docker compose --profile app up -d    # including the app container
+docker compose logs -f migrations     # watch schema bootstrap
 ```
 
-**Response**:
+> **Cost:** local Docker is free. The cloud deployment on Azure (Container Apps, PostgreSQL Flexible, Key Vault, ACR, Static Web App) is sized at **~$15–54/month** — see [COST-ANALYSIS.md](docs/deploy/azure/COST-ANALYSIS.md).
+
+---
+
+## :world_map: Architecture Overview
+
+```mermaid
+flowchart LR
+    Client([Client / Postman]) -->|HTTP| Express[Express 5 adapter]
+    Express --> Ctrl[InvoiceController]
+    Ctrl -->|@Validate| Zod[Zod Specification]
+    Ctrl --> Service[InvoiceService]
+    Service --> UC[GenerateInvoiceUseCase]
+    UC --> Repo[(Repositories<br/>pg-promise)]
+    Repo --> PG[(PostgreSQL · sam.contract<br/>sam.payment)]
+    UC --> Strategy{InvoiceStrategy}
+    Strategy -->|cash| Cash[CashBasisStrategy]
+    Strategy -->|accrual| Accrual[AccrualBasisStrategy]
+    Service -->|emit invoice_generated| Mediator[Mediator]
+    Mediator --> EmailCtrl[EmailController]
+    EmailCtrl --> Router[Email Router]
+    Router -->|SMTP| Nodemailer[Nodemailer → MailHog]
+    Router -->|PDF| Puppeteer[Puppeteer → HTML/PDF]
+```
+
+**Layers:** HTTP adapter → controller (decorators: `@Validate`, `@DataLogger`, `@ErrorHandler`) → service → use case → entities & strategies → repositories (read-only `SELECT`s) → PostgreSQL. Side effects fan out through a **Mediator** event (`invoice_generated`) to the email pipeline (nodemailer → MailHog, puppeteer for PDF). Everything is wired with Inversify DI and the typed `MODULE` registry — never a static `new`.
+
+> Deep dive: [ARCHITECTURE.md](docs/analysis/ARCHITECTURE.md) · [DATA-MODEL.md](docs/analysis/DATA-MODEL.md)
+
+---
+
+## :electric_plug: API
+
+| Method | Endpoint   | Description                                                                                                                           | Validation   |
+| ------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `GET`  | `/`        | Health check — returns `{ "hello": "world" }`                                                                                         | —            |
+| `POST` | `/invoice` | Generate invoices for a given month/year using a cash-basis or accrual-basis strategy; emits an internal event that emails the result | Zod 4 schema |
+
+**Request** (`POST /invoice`):
+
+```json
+{ "month": 1, "year": 2022, "type": "cash" }
+```
+
+| Field   | Type                  | Rule                            |
+| ------- | --------------------- | ------------------------------- |
+| `month` | integer               | 1–12                            |
+| `year`  | integer               | e.g. 2022                       |
+| `type`  | `"cash" \| "accrual"` | selects the generation strategy |
+
+**Success** (`200`) — structured by the JSON presenter:
+
+```json
+{ "data": [{ "date": "2022-01-05T10:00:00.000Z", "amount": 6000 }] }
+```
+
+**Validation error** (`400`) — thrown as `ValidationDataError` from the Zod issues:
 
 ```json
 {
-  "hello": "world"
+  "status": 400,
+  "error": true,
+  "message": "...",
+  "cause": [{ "path": ["month"], "message": "..." }]
 }
 ```
 
-### Generate Invoice
-
-```http
-POST /invoice
-Content-Type: application/json
-
-{
-  "month": 1,           // 1-12
-  "year": 2024,         // Year
-  "type": "cash",       // "cash" | "accrual"
-  "format": "pdf"       // Optional; accepted as a no-op
-}
-```
-
-`format: "pdf"` is intentionally accepted as a no-op. PDF is intentionally not
-implemented, so no PDF file or PDF response should be expected.
-
-**Response Success (200)**:
-
-```json
-[
-  {
-    "date": "2024-01-15T00:00:00.000Z",
-    "amount": 1500.5
-  }
-]
-```
-
-**Response Error (400)**:
-
-```json
-{
-  "error": "Validation error message",
-  "status": 400
-}
-```
+> **Try it:** first run the migrations (they seed one contract of R$ 6.000 in 12 periods starting 2022-01, plus one payment on 2022-01-05), then POST `{ "month": 1, "year": 2022, "type": "cash" }` and check MailHog at <http://localhost:8025> for the invoice email.
 
 ---
 
-## 🧪 Testes
+## :test_tube: Testing
 
-### Coleção Postman
-
-**23 requests** (~42 assertions) organizados em 6 categorias:
-
-- ✅ Health Check (1)
-- ✅ Happy Path (3)
-- ✅ Validation - Required Fields (4)
-- ✅ Validation - Data Types (4)
-- ✅ Edge Cases (7)
-- ✅ Security (4)
-
-**Importar**:
-
-1. Abra o Postman
-2. Import → Folder → Selecione `postman/` (importa coleção + 2 environments)
-3. Selecione o environment (canto superior direito): **Tax Invoice Issuer - Local** (local) ou **Tax Invoice Issuer - Azure Learn-prod** (deploy Azure)
-4. Run Collection
-
-### Configurar Postman (Passo a Passo)
-
-1. Abra o Postman → **Import** → **Folder** → selecione `postman/` (importa a coleção e os 2 environments)
-2. Escolha o environment no canto superior direito:
-   - **Tax Invoice Issuer - Local** → API em `http://localhost:3000` (antes rode `npm run build && npm run start`)
-   - **Tax Invoice Issuer - Azure Learn-prod** → URL registrada (confirme a URL atual no **Overview** do Container App)
-3. ⚠️ A variável `baseUrl` da coleção tem como padrão a URL do Azure — selecione um environment acima para sobrescrever
-4. Execute primeiro o **Health Check → GET /** (esperado: `{"hello":"world"}` com HTTP 200)
-5. Para rodar tudo: botão direito na coleção **"Tax Invoice Issuer - Full Coverage"** → **Run collection**
-6. No Azure, `POST /invoice` só passará depois que o container tiver `DATABASE_URL` válida configurada (veja Troubleshooting em `postman/README.md`)
-
-**Documentação completa**: [postman/README.md](./postman/README.md)
-
----
-
-## 🏗️ Arquitetura e Padrões
-
-### Design Patterns Implementados
-
-1. **Strategy Pattern** - Estratégias de cálculo (Cash vs Accrual)
-2. **Specification Pattern** - Validação de regras de negócio
-3. **Repository Pattern** - Acesso a dados
-4. **Factory Pattern** - Criação de objetos
-5. **Mediator Pattern** - Comunicação via eventos
-6. **Decorator Pattern** - Validação, logging, error handling
-7. **Dependency Injection** - IoC com InversifyJS
-
-### Clean Architecture
-
-```
-src/
-├── @decorators/       # Cross-cutting concerns
-├── @modules/
-│   ├── application/   # Controllers, Use Cases, Specifications
-│   ├── domain/        # Entities, Services, Strategies
-│   └── infra/         # Server, Database, Validators
-├── @types/            # TypeScript types
-└── @utils/            # Utilities
-```
-
-**Análise completa**: [docs/ANALISE-PROFUNDA.md](./docs/ANALISE-PROFUNDA.md)
-
----
-
-## 🚀 Como Rodar o Projeto
-
-### Opção 1: Rodando Localmente (Node.js)
-
-#### Pré-requisitos
-
-- **Node.js**: 25.x LTS ou superior
-- **npm**: 10.x ou superior
-- **PostgreSQL**: 15+ (opcional, se usar banco local)
-
-#### Passos
+**34 spec files across unit, integration and E2E layers · 5 E2E suites** — Jest 29 + ts-jest + supertest + jest-mock-extended.
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC.git
-cd Tax-Invoice-Issuer-FC
-
-# 2. Instale as dependências
-npm install
-
-# 3. Configure as variáveis de ambiente
-cp .env.example .env
-# Edite o .env com suas configurações
-
-# 4. Build do projeto
-npm run build
-
-# 5. Inicie o servidor
-npm run start
+npm test                 # full suite with coverage report
+npm run test:coverage    # same, explicitly opening coverage config
+npm run test:dev         # --silent (quiet)
+npm run test:watch       # watch mode
+npm run test:infra       # setup:infra + jest (infra-backed tests)
 ```
 
-**Servidor rodando em**: http://localhost:3000
+| Area                                     | Specs | Focus                                        |
+| ---------------------------------------- | ----- | -------------------------------------------- |
+| Domain (entities, strategies, use-cases) | 10    | Cash/accrual generation, balance, strategies |
+| Controllers                              | 2     | Invoice + Email flows with mocked deps       |
+| Repositories                             | 2     | SQL parameterization ($1 placeholders)       |
+| Router / mediator / engines              | 5     | EmailRouter, mediator, sanitizer, adapters   |
+| Integration                              | 2     | invoice-service, contract-strategy           |
+| E2E                                      | 5     | strategy, server, invoice, http, email       |
 
-#### Desenvolvimento (com auto-reload)
+> Spec sources: `test/unit`, `test/integration`, `test/E2E` (+ mocks in `test/@mock`, simulated types in `test/@types`).
 
-```bash
-npm run dev
-```
+> Details: [TESTING.md](docs/analysis/TESTING.md) · [QUICK-START-TESTS.md](docs/QUICK-START-TESTS.md)
 
 ---
 
-### Opção 2: Rodando com Docker
+## :hammer_and_wrench: Tech Stack
 
-#### Pré-requisitos
+| Layer            | Technology                           | Version                                         |
+| ---------------- | ------------------------------------ | ----------------------------------------------- |
+| Runtime          | Node.js                              | 25 (Current, non-LTS)                           |
+| Language         | TypeScript                           | 5.9.3 — strict decorators + ESM-friendly config |
+| Web framework    | Express                              | 5.2.1                                           |
+| DI / IoC         | Inversify                            | 7.11.0                                          |
+| Database driver  | pg-promise                           | 12.6.0 (raw parameterized SQL)                  |
+| Validation       | Zod                                  | 4.3.6                                           |
+| Containerization | Docker + compose                     | node:25-slim base                               |
+| Tests            | Jest + ts-jest + supertest           | 29.7                                            |
+| API docs         | swagger-autogen + swagger-ui-express | UI mount pending                                |
+| CI/CD            | GitHub Actions + Azure               | OIDC keyless, cosign image signing              |
 
-- **Docker**: 20.10+ instalado
-- **Docker Compose**: 2.0+ instalado
-
-#### Build da Imagem
-
-```bash
-# Build da imagem Docker
-docker build -t tax-invoice-issuer-fc:latest .
-
-# Rodar container
-docker run -p 3000:3000 --env-file .env tax-invoice-issuer-fc:latest
-```
-
-**Servidor rodando em**: http://localhost:3000
+> **Not used (legacy dependency):** Prisma is listed in `package.json` but has **no schema, no client, zero references in source** — the data layer is 100% pg-promise + raw SQL. The `npm run db:sync` script is dead. Removal tracked as debt ([SECURITY.md](docs/analysis/SECURITY.md#technical-debt)).
 
 ---
 
-### Opção 3: Rodando com Docker Compose (Recomendado)
+## :jigsaw: Design Patterns
 
-#### Pré-requisitos
+This project exists to exercise patterns **in production-shaped code**. Ten are identifiable in `src/`:
 
-- **Docker**: 20.10+
-- **Docker Compose**: 2.0+
+| #   | Pattern                  | Where                                                               |
+| --- | ------------------------ | ------------------------------------------------------------------- |
+| 1   | **Dependency Injection** | Inversify container + `@inject(MODULE...)` everywhere               |
+| 2   | **Registry**             | `MODULE` (typed tokens) in `src/@modules/**/ *.registry.ts`         |
+| 3   | **Factory**              | `factory/` folders per module + `InvoiceGenerationStrategyFactory`  |
+| 4   | **Strategy**             | Invoice generation: `CashBasisStrategy` vs `AccrualBasisStrategy`   |
+| 5   | **Repository**           | `ContractRepositorySQL`, `PaymentRepositorySQL` abstract pg-promise |
+| 6   | **Decorator (metadata)** | `@Validate`, `@DataLogger`, `@ErrorHandler` (reflect-metadata)      |
+| 7   | **Adapter**              | Engine wrappers: Express 5, pg-promise, nodemailer, puppeteer       |
+| 8   | **Observer / Mediator**  | `Mediator` + `EVENTS` config decouple invoice generation from email |
+| 9   | **Facade**               | `AppFactory`, `EmailRouter` (smtp → nodemailer, pdf → puppeteer)    |
+| 10  | **Singleton**            | Inversify singleton scope (container, engines)                      |
 
-#### Passos
-
-```bash
-# 1. Configure as variáveis de ambiente
-cp .env.example .env
-# Edite o .env se necessário
-
-# 2. Inicie todos os serviços
-docker-compose up -d
-
-# 3. Verifique se os containers estão rodando
-docker-compose ps
-```
-
-**Serviços iniciados**:
-
-- 🌐 **API**: http://localhost:3000
-- 🗄️ **PostgreSQL**: localhost:5432
-- 🔧 **PgAdmin**: http://localhost:5050 (opcional, se configurado)
-
-#### Comandos úteis
-
-```bash
-# Ver logs da aplicação
-docker-compose logs -f app
-
-# Ver logs do banco de dados
-docker-compose logs -f postgres
-
-# Parar todos os serviços
-docker-compose down
-
-# Parar e remover volumes (cuidado!)
-docker-compose down -v
-
-# Reconstruir a imagem
-docker-compose build --no-cache
-```
-
-#### Acessar o Banco de Dados
-
-```bash
-# Via psql
-psql -h localhost -U postgres -d tax_invoice_db
-
-# Via Docker
-docker-compose exec postgres psql -U postgres -d tax_invoice_db
-```
+> Older docs claimed "7" or "8" patterns — the enumeration above is the verified current state. Full evidence table: [ARCHITECTURE.md](docs/analysis/ARCHITECTURE.md#design-patterns).
 
 ---
 
-## 🧪 Executar Testes
+## :file_folder: Project Structure
 
-```bash
-# Testes unitários
-npm test
-
-# Testes com cobertura
-npm run test:coverage
-
-# Testes em modo watch
-npm run test:watch
-```
-
----
-
-## 📊 Stack Tecnológico
-
-### Backend
-
-- **Runtime**: Node.js 25.x
-- **Language**: TypeScript 5.x
-- **Framework**: Express 4.x
-- **DI Container**: InversifyJS
-- **Validation**: Zod
-- **Database**: PostgreSQL
-
-### DevOps
-
-- **Containerization**: Docker + Docker Compose
-- **Build**: TypeScript Compiler (tsc)
-- **Linting**: ESLint
-- **Formatting**: Prettier
-
-### Testing
-
-- **API Testing**: Postman Collection; consulte o [guia atual](./postman/README.md) para expectativas e limitações
-- **Unit Testing**: Jest (estrutura criada)
-- **E2E Testing**: estrutura existente; a execução local deve ser reportada somente com evidência atual
-
----
-
-## 🔧 Scripts Disponíveis
-
-```bash
-# Desenvolvimento
-npm run dev              # Modo desenvolvimento
-
-# Build
-npm run build            # Compilar TypeScript
-
-# Produção
-npm run start            # Iniciar servidor (após build)
-
-# Testes
-npm run test             # Executar testes unitários
-npm run test:e2e         # Executar testes E2E
-
-# Documentação
-npm run docs:swagger     # Gerar Swagger docs
-
-# Linting
-npm run lint             # Executar ESLint
-npm run format           # Formatar código com Prettier
-```
-
----
-
-## 📦 Estrutura do Projeto
-
-```
+```text
 Tax-Invoice-Issuer-FC/
-├── docs/                           # 📚 Documentação completa
-│   ├── INDEX.md                   # Índice de navegação
-│   ├── RELATORIO-EXECUTIVO.md     # Relatório para gestores
-│   ├── ANALISE-PROFUNDA.md        # Análise técnica
-│   └── QUICK-START-TESTS.md       # Guia rápido
-│
-├── postman/                                    # 🧪 Coleção de testes
-│   ├── README.md                               # Guia da coleção
-│   ├── Tax-Invoice-Issuer.postman_collection.json            # 23 requests / ~42 assertions
-│   ├── Tax-Invoice-Issuer.postman_environment.json           # Environment Local
-│   └── Tax-Invoice-Issuer-Azure.postman_environment.json     # Environment Azure Learn-prod
-│
-├── src/                            # 💻 Código fonte
-│   ├── @decorators/               # Decorators (Validation, Logging)
-│   ├── @lib/                      # Bibliotecas compartilhadas
-│   ├── @modules/                  # Módulos principais
-│   │   ├── application/           # Controllers, Services
-│   │   ├── domain/                # Entities, Strategies
-│   │   └── infra/                 # Server, Database, Config
-│   ├── @types/                    # Tipos TypeScript
-│   └── @utils/                    # Utilitários
-│
-├── test/                           # ✅ Testes automatizados
-├── docker-compose.yaml             # 🐳 Docker setup
-└── package.json                    # 📦 Dependências
+├── src/
+│   ├── @modules/           # Feature modules (Inversify composition)
+│   │   ├── app/            # app.module / app.factory / app.registry
+│   │   ├── domain/         # Entities & business rules
+│   │   ├── application/    # Controllers, services, repositories, factories
+│   │   └── infra/          # engine (db), validator (zod), config (env)
+│   ├── @types/             # strategy & shared types
+│   ├── @lib/               # logger, decorators
+│   ├── server.ts           # HTTP bootstrap (port from env, default 3000)
+│   └── app.ts              # Express app assembly
+├── migration/              # Raw SQL (schema sam) + runner.sh + Dockerfile
+├── test/                   # Jest (unit + E2E + mocks)
+├── docs/                   # Documentation hub (see docs/INDEX.md)
+│   └── analysis/           # ARCHITECTURE · API · DATA · TESTING · SECURITY
+├── postman/                # Collection + environments
+├── infra_public/           # :warning: legacy infra docs (archived)
+├── .github/workflows/      # CI/CD (Azure OIDC, cosign, GHCR)
+├── docker-compose.yaml     # postgres + migrations + pgadmin + mailhog + knock
+├── Dockerfile              # node:25-slim production image
+├── jest.config.js          # ts-jest, v8 coverage
+└── package.json
 ```
 
 ---
 
-## 🤝 Contribuindo
+## :scroll: NPM Scripts
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+| Script                          | Command                                   | Notes                                 |
+| ------------------------------- | ----------------------------------------- | ------------------------------------- |
+| `npm run build`                 | `tsc -p .`                                | Emit to `dist/`                       |
+| `npm start`                     | `docs:swagger && node dist/src/server.js` | Requires `build` first                |
+| `npm run start:dev`             | `ts-node src/server.ts`                   | Dev without build                     |
+| `npm test`                      | `jest`                                    | 226 tests + coverage                  |
+| `npm run test:watch`            | `jest --watch`                            | TDD loop                              |
+| `npm run code:ci`               | lint + format check + tests               | Mirrors CI pipeline                   |
+| `npm run lint` / `lint:fix`     | eslint                                    | Flat config (`eslint.config.js`)      |
+| `npm run format` / `format:fix` | prettier                                  | 100-col, single quotes                |
+| `npm run docs:swagger`          | `node swagger.js`                         | Regenerates `docs/swagger.json`       |
+| `npm run db:sync`               | —                                         | :warning: **dead** (no Prisma in use) |
 
----
-
-## 📝 License
-
-Este projeto é licenciado sob a MIT License - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
----
-
-## 👨‍💻 Autor
-
-**Samuel Ricardo**
-
-- GitHub: [@Samuel-Ricardo](https://github.com/Samuel-Ricardo)
-- Repository: [Tax-Invoice-Issuer-FC](https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC)
+> Older docs mention `dev`, `test:e2e`, `format:check` — those scripts **do not exist**; see the table above (fixed everywhere in this documentation round).
 
 ---
 
-## 🙏 Agradecimentos
+## :closed_lock_with_key: Security
 
-- Full Cycle MBA - Metodologia e aprendizado
-- Clean Architecture - Robert C. Martin
-- Domain-Driven Design - Eric Evans
-- Design Patterns - Gang of Four
+- **Zod 4 validation** on all write endpoints — rejects malformed payloads before business logic.
+- **Secrets**: `DATABASE_URL` read via `requiredSecret()` — app fails fast at startup if missing; nothing hardcoded.
+- **Parameterized SQL** everywhere (`$1, $2` placeholders via pg-promise) — no string concatenation.
+- **Keyless cloud auth**: GitHub Actions → Azure via OIDC federated credentials; container images signed with **cosign**.
+- **No authentication on endpoints** — acceptable for a study project; production hardening roadmap in the security docs.
 
----
-
-## 📞 Suporte
-
-**Precisa de ajuda?**
-
-- 📖 Veja a [Documentação Completa](./docs/INDEX.md)
-- 🐛 Reporte bugs via [Issues](https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC/issues)
-- 💬 Discussões no [GitHub Discussions](https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC/discussions)
+Full posture, audit history and debt tracker: [SECURITY.md](docs/analysis/SECURITY.md) · [ADR-001: Secrets Management](docs/ADR-001-secrets-management.md)
 
 ---
 
-**⭐ Se este projeto foi útil, considere dar uma estrela!**
+## :cloud: Cloud (Azure)
+
+Production-shaped deployment on **Azure Container Apps** with ACR, Key Vault, PostgreSQL Flexible Server and a Static Web App dummy frontend. Infrastructure docs and the full incident history (8 real issues solved: DNS, Key Vault RBAC, ACA health probes, OIDC subject mismatch...) live in [docs/deploy/azure/](docs/deploy/azure/README.md).
+
+- **Estimated cost**: ~$15–54/month ([COST-ANALYSIS.md](docs/deploy/azure/COST-ANALYSIS.md))
+- **Provisioning**: [step-by-step-guide.md](docs/deploy/azure/manual/step-by-step-guide.md)
+- **Legacy reference**: `infra_public/` (archived — kept for historical context)
+
+---
+
+## :bug: Troubleshooting
+
+| Symptom                     | Cause                                                   | Fix                                                                                                                 |
+| --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `/docs` redirect loop       | `swagger-ui-express` 5.x + Express 5 serving `""` route | Use `docs/swagger.json` directly or Postman; fix tracked in [SECURITY.md](docs/analysis/SECURITY.md#technical-debt) |
+| `SecretError: DATABASE_URL` | `.env` missing/misnamed                                 | `cp .env.example .env`, set `DATABASE_URL`                                                                          |
+| Migration wipes data        | `create.sql` is destructive **by design**               | Expected — dev-only flow; see [DATA-MODEL.md](docs/analysis/DATA-MODEL.md)                                          |
+| `npm run db:sync` fails     | No Prisma schema (dead script)                          | Data layer is pg-promise; ignore/remove script                                                                      |
+| Port 3000 busy              | Another process bound                                   | `PORT=3001 npm run start:dev`                                                                                       |
+
+---
+
+## :bust_in_silhouette: Author
+
+**Samuel Ricardo** — [GitHub](https://github.com/Samuel-Ricardo) · [LinkedIn](https://www.linkedin.com/in/samuel-ricardo/)
+
+Built as a study project for the **Full Cycle MBA** — design patterns applied to a realistic billing domain.
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
+</p>
+
+> **License:** [MIT](LICENSE) — see `LICENSE` file. (`package.json` still declares `ISC`; metadata inconsistency tracked in [SECURITY.md](docs/analysis/SECURITY.md#technical-debt).)

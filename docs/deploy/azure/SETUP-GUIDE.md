@@ -1,19 +1,19 @@
-# 🚀 Setup Guide — Deploy Azure
+# 🚀 Setup Guide — Azure Deploy
 
-> Guia passo a passo completo para provisionar e configurar o ambiente Azure do zero.
+> Complete step-by-step guide to provision and configure the Azure environment from scratch.
 >
-> **STATUS: LEGADO — NÃO EXECUTAR.** Este guia descreve
-> o fluxo Bicep padrão e nomes antigos, incluindo referências históricas a
-> credenciais que não pertencem ao fluxo atual. A implantação confirmada usa o
-> [runbook manual atual](./manual/step-by-step-guide.md), com recursos `-learn`,
-> Azure OIDC, Key Vault e PostgreSQL Flexible Server private access/VNet
-> integration. Este arquivo é mantido apenas como registro histórico.
+> **STATUS: LEGACY — DO NOT RUN.** This guide describes
+> the standard Bicep flow and old names, including historical references to
+> credentials that do not belong to the current flow. The confirmed deployment uses the
+> [current manual runbook](./manual/step-by-step-guide.md), with `-learn` resources,
+> Azure OIDC, Key Vault, and PostgreSQL Flexible Server private access/VNet
+> integration. This file is kept only as a historical record.
 
 ---
 
-## ✅ Pré-requisitos
+## ✅ Prerequisites
 
-### Ferramentas Necessárias
+### Required Tools
 
 ```bash
 # 1. Azure CLI (v2.50+)
@@ -28,15 +28,15 @@ git --version
 # Linux:   curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 ```
 
-### Contas Necessárias
+### Required Accounts
 
-- ✅ Conta Azure com subscription ativa ([Criar grátis](https://azure.microsoft.com/free) — $200 crédito por 30 dias)
-- ✅ Repositório GitHub: `Samuel-Ricardo/Tax-Invoice-Issuer-FC`
-- ✅ Branch `main` com código atualizado
+- ✅ Azure account with an active subscription ([Create for free](https://azure.microsoft.com/free) — $200 credit for 30 days)
+- ✅ GitHub repository: `Samuel-Ricardo/Tax-Invoice-Issuer-FC`
+- ✅ `main` branch with up-to-date code
 
 ---
 
-## 🔐 FASE 1 — Autenticação Azure
+## 🔐 PHASE 1 — Azure Authentication
 
 ```bash
 # Login interativo
@@ -51,9 +51,9 @@ az account set --subscription "Nome ou ID da Subscription"
 
 ---
 
-## ⚙️ FASE 2 — Provisionar Infraestrutura (IaC)
+## ⚙️ PHASE 2 — Provision Infrastructure (IaC)
 
-### Opção A: Script Automatizado (Recomendado)
+### Option A: Automated Script (Recommended)
 
 ```bash
 # 1. Clone / vá para o repositório
@@ -67,20 +67,20 @@ chmod +x infra/setup-azure.sh
 bash infra/setup-azure.sh
 ```
 
-O script irá:
+The script will:
 
-- ✅ Criar o Resource Group `rg-tax-invoice-fc`
-- ✅ Fazer deploy do Bicep (Container Apps + PostgreSQL + Log Analytics)
-- ✅ Criar o Service Principal para GitHub Actions
-- ✅ Imprimir os secrets que você precisará configurar
+- ✅ Create the Resource Group `rg-tax-invoice-fc`
+- ✅ Deploy the Bicep templates (Container Apps + PostgreSQL + Log Analytics)
+- ✅ Create the Service Principal for GitHub Actions
+- ✅ Print the secrets you will need to configure
 
-**Tempo estimado**: ~5-8 minutos
+**Estimated time**: ~5-8 minutes
 
 ---
 
-### Opção B: Deploy Manual via CLI
+### Option B: Manual Deploy via CLI
 
-Se preferir executar passo a passo:
+If you prefer to run it step by step:
 
 ```bash
 # 1. Criar Resource Group
@@ -101,25 +101,25 @@ az deployment group create \
 
 ---
 
-## 🔑 FASE 3 — Configurar GitHub Secrets (HISTÓRICO — NÃO EXECUTAR)
+## 🔑 PHASE 3 — Configure GitHub Secrets (HISTORICAL — DO NOT RUN)
 
-> **Registro histórico:** o fluxo abaixo usava um Service Principal com
-> `AZURE_CREDENTIALS`. Não copie, gere ou configure esse secret. O fluxo atual
-> usa os secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` e
-> `AZURE_SUBSCRIPTION_ID` com login OIDC; consulte o [runbook atual](./manual/step-by-step-guide.md).
+> **Historical record:** the flow below used a Service Principal with
+> `AZURE_CREDENTIALS`. Do not copy, generate, or configure that secret. The current
+> flow uses the `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and
+> `AZURE_SUBSCRIPTION_ID` secrets with OIDC login; see the [current runbook](./manual/step-by-step-guide.md).
 
-O texto abaixo preserva o procedimento histórico apenas para auditoria:
+The text below preserves the historical procedure for audit purposes only:
 
-**Navegue para**: `github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC` → Settings → Secrets and variables → Actions
+**Navigate to**: `github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC` → Settings → Secrets and variables → Actions
 
-### Secrets Necessários
+### Required Secrets
 
-| Secret                  | Valor                                      | Como obter                          |
+| Secret                  | Value                                      | How to obtain                       |
 | ----------------------- | ------------------------------------------ | ----------------------------------- |
-| `AZURE_CREDENTIALS`     | `<REDACTED_LEGACY_SERVICE_PRINCIPAL_JSON>` | Saída histórica do `setup-azure.sh` |
+| `AZURE_CREDENTIALS`     | `<REDACTED_LEGACY_SERVICE_PRINCIPAL_JSON>` | Historical `setup-azure.sh` output  |
 | `AZURE_SUBSCRIPTION_ID` | `<AZURE_SUBSCRIPTION_ID>`                  | `az account show --query id -o tsv` |
 
-### Como criar o Secret manualmente (histórico, não executar)
+### How to create the Secret manually (historical, do not run)
 
 ```bash
 # Gerar AZURE_CREDENTIALS manualmente (histórico; não executar)
@@ -130,7 +130,7 @@ az ad sp create-for-rbac \
   --sdk-auth
 ```
 
-O output JSON histórico (não copie nem cole; valores omitidos):
+The historical JSON output (do not copy or paste; values omitted):
 
 ```json
 {
@@ -144,31 +144,31 @@ O output JSON histórico (não copie nem cole; valores omitidos):
 
 ---
 
-## 🔄 FASE 4 — Primeiro Deploy (HISTÓRICO — NÃO EXECUTAR)
+## 🔄 PHASE 4 — First Deploy (HISTORICAL — DO NOT RUN)
 
-> Este push e os comandos seguintes pertencem ao fluxo legado. Não use este
-> procedimento para a implantação atual; siga o [runbook atual](./manual/step-by-step-guide.md).
+> This push and the following commands belong to the legacy flow. Do not use this
+> procedure for the current deployment; follow the [current runbook](./manual/step-by-step-guide.md).
 
-Com a infraestrutura pronta e os secrets configurados:
+With the infrastructure ready and the secrets configured:
 
 ```bash
 # Fazer push para main para acionar o deploy
 git push origin main
 ```
 
-**Acompanhar o deploy**:
+**Follow the deployment**:
 
-1. Acesse `github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC/actions`
-2. Clique no último workflow run
-3. Veja os jobs `build` e `deploy` em tempo real
+1. Go to `github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC/actions`
+2. Click the latest workflow run
+3. Watch the `build` and `deploy` jobs in real time
 
-**Tempo estimado do pipeline**: ~3-5 minutos
+**Estimated pipeline time**: ~3-5 minutes
 
 ---
 
-## ✔️ FASE 5 — Verificação
+## ✔️ PHASE 5 — Verification
 
-### Obter a URL da API
+### Get the API URL
 
 ```bash
 az containerapp show \
@@ -196,9 +196,9 @@ curl -s -X POST "$API_URL/invoice" \
 
 ---
 
-## 🔧 Comandos de Gestão
+## 🔧 Management Commands
 
-### Monitoramento
+### Monitoring
 
 ```bash
 # Ver logs em tempo real
@@ -222,7 +222,7 @@ az monitor metrics list \
   --metric "CpuPercentage"
 ```
 
-### Gestão do PostgreSQL (Economia de Custo)
+### PostgreSQL Management (Cost Savings)
 
 ```bash
 # ⏸️  PARAR o banco (economiza ~$12/mês, paga só storage)
@@ -243,7 +243,7 @@ az postgres flexible-server show \
   -o table
 ```
 
-### Atualizar Imagem Manualmente
+### Update the Image Manually
 
 ```bash
 # Forçar update para a tag latest
@@ -255,7 +255,7 @@ az containerapp update \
 
 ---
 
-## 🗑️ Cleanup (Remover tudo)
+## 🗑️ Cleanup (Remove Everything)
 
 ```bash
 # ⚠️  CUIDADO: Remove TODOS os recursos e dados
@@ -271,7 +271,7 @@ echo "Resource Group marcado para deleção. Processo concluído em ~5 minutos."
 
 ## 🐛 Troubleshooting
 
-### Problema: Container App não inicia
+### Problem: Container App won't start
 
 ```bash
 # Ver logs de erro
@@ -284,7 +284,7 @@ az containerapp logs show \
 # Acesse: https://github.com/Samuel-Ricardo/Tax-Invoice-Issuer-FC/pkgs/container/tax-invoice-issuer-fc
 ```
 
-### Problema: Erro de conexão com PostgreSQL
+### Problem: PostgreSQL connection error
 
 ```bash
 # Verificar se o banco está rodando
@@ -300,7 +300,7 @@ az containerapp secret list \
   --resource-group rg-tax-invoice-fc
 ```
 
-### Problema: GitHub Actions falha no deploy
+### Problem: GitHub Actions fails on deploy
 
 ```bash
 # Verificar se o Service Principal tem permissão
@@ -310,16 +310,16 @@ az role assignment list \
   --output table
 ```
 
-### Cold Start (API demora ~5-8s no primeiro request)
+### Cold Start (API takes ~5-8s on the first request)
 
-Isso é comportamento esperado com `minReplicas: 0`. Para minimizar:
+This is expected behavior with `minReplicas: 0`. To minimize it:
 
-- Faça um request de "aquecimento" antes de demonstrar
-- Ou configure `minReplicas: 1` (adiciona ~$2-3/mês)
+- Send a "warm-up" request before demonstrating
+- Or set `minReplicas: 1` (adds ~$2-3/month)
 
 ---
 
-## 📊 Verificação Final — Checklist
+## 📊 Final Verification — Checklist
 
 ```
 ✅ Resource Group criado: rg-tax-invoice-fc
@@ -332,3 +332,5 @@ Isso é comportamento esperado com `minReplicas: 0`. Para minimizar:
 ✅ Health check respondendo: GET https://<fqdn>/
 ✅ Endpoint de invoice funcionando: POST https://<fqdn>/invoice
 ```
+
+_Translated to English — documentation consolidation, 2026-09._

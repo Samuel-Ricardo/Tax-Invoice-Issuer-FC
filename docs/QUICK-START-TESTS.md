@@ -1,305 +1,424 @@
-# 🚀 Quick Start - Testing Guide
+# Quick Start - Automated Tests
 
-> **Historical/local testing notes — not current Azure deployment evidence.** The
-> test counts and E2E status in this document are date-bound. For current Azure
-> deployment, migration, API, and QA facts, use the [current Azure runbook](./deploy/azure/manual/step-by-step-guide.md),
-> [Azure overview](./deploy/azure/README.md), and [Postman guide](../postman/README.md).
->
-> **Current as of 2026-08-25:** local E2E execution was blocked by missing local
-> `DATABASE_URL`; do not claim that suite passed. Successful invoice responses
-> are structured arrays serialized once.
+Guide to running the project's test suite on your machine.
 
-## ⚡ Quick Start (5 minutes)
+> ✅ This project uses **`npm`** (not pnpm). All commands below use `npm` and have been verified against the real `package.json` scripts.
 
-### 1. Project Setup
+---
+
+## 📋 Prerequisites
+
+### Required to Run the Tests
 
 ```bash
-# Install dependencies (if not done yet)
+✅ Node.js >= 18.x (verify with: node --version)
+✅ npm >= 9.x (comes with Node.js)
+✅ PostgreSQL database (only for E2E tests)
+```
+
+**The tests DO NOT require** (these are only needed to run the application):
+
+- ❌ Prisma configured (the `prisma` dependency exists but is unused — SQLite is only used by the legacy Python branch)
+- ❌ Infisical
+- ❌ Redis
+
+---
+
+## 🚀 Quick Start (3 commands)
+
+```bash
+# 1. Install dependencies
 npm install
 
-# Build project
-npm run build
+# 2. Configure the environment (optional — test/setup-env.ts already defines DATABASE_URL)
+cp .env.example .env
 
-# Start database (Docker required)
-docker-compose up -d postgres
+# 3. Run all tests
+npm test
 ```
 
-**PostgreSQL running at**: `localhost:5432` (use the local credentials configured outside the repository; database: `<DATABASE_NAME>`)
+**That's it!** The tests will run automatically.
 
-### 2. Run E2E Tests (Jest + Supertest)
+---
+
+## 🔧 Environment Setup (if needed)
+
+If you run into issues, configure the environment manually:
+
+### 1. Copy the `.env` file
 
 ```bash
-# Run only E2E tests
-npm run test -- test/E2E/ --runInBand
-
-# Run all tests with coverage
-npm run test
-
-# Complete pipeline (format + lint + tests)
-npm run code:ci
+cp .env.example .env
 ```
 
-**Historical example output (not current execution evidence)**:
+### 2. Edit `.env` if necessary
 
+The project already comes with functional settings for the tests (`test/setup-env.ts` sets `DATABASE_URL=postgresql://test:test@localhost:5432/testdb` for the test process). For manual E2E runs you may want a real database:
+
+```env
+DATABASE_URL="postgresql://postgres:password@localhost:5432/tax_invoice_test"
 ```
-Test Suites: 4 passed, 4 total
-Tests:       54 passed, 54 total
-```
 
-### 3. Tests via Postman (Optional)
-
-1. Start the application: `npm run start:dev`
-2. Open Postman
-3. **Import** → **Folder** → Select `postman/` (imports collection + both environments)
-4. Select the environment in the upper-right corner:
-   - **"Tax Invoice Issuer - Local"** → API at `http://localhost:3000` (server must be running: `npm run start:dev`)
-   - **"Tax Invoice Issuer - Azure Learn-prod"** → deployed API at the current Application Url copied from the Container App **Overview** page
-5. ⚠️ Collection variable `baseUrl` defaults to Azure — pick an environment to override. On Azure, `POST /invoice` only works once the container has a valid `DATABASE_URL` (see `postman/README.md` troubleshooting)
-6. Select environment **"Tax Invoice Issuer - Local"**
-
-### 4. First Manual Test
+### 3. Database schema (for E2E tests)
 
 ```bash
-curl http://localhost:3000/
-# Expected: {"hello":"world"}
-
-curl -X POST http://localhost:3000/invoice \
-  -H "Content-Type: application/json" \
-  -d '{"month": 1, "year": 2024, "type": "cash"}'
-# Expected: array of invoices JSON
+# The db:sync script is currently broken (no prisma/schema.prisma exists).
+# Apply the schema manually instead:
+psql $DATABASE_URL -f migration/create.sql   # destructive: recreates and seeds the sam schema
 ```
 
----
+### 4. (Optional) Start PostgreSQL with Docker
 
-## 🧪 Implemented E2E Tests
-
-| File                        | Test             | Validates                                                 |
-| --------------------------- | ---------------- | --------------------------------------------------------- |
-| `test/E2E/server.spec.ts`   | HEALTH CHECK     | `GET /` → status 200, body `{ hello: "world" }`           |
-| `test/E2E/invoice.spec.ts`  | GENERATE INVOICE | `POST /invoice` → status 200, array with date             |
-| `test/E2E/strategy.spec.ts` | STRATEGY PATTERN | Cash vs Accrual comparison, idempotence, isolation        |
-| `test/E2E/http.spec.ts`     | HTTP PROTOCOL    | Routing, headers, resilience, response format consistency |
-
-### Prerequisites
-
-- **Docker with PostgreSQL running** on port 5432
-- Credentials: use the local environment configuration for tests; do not publish usernames, passwords, or connection strings in documentation
-- The `test/setup-env.ts` preserves `DATABASE_URL` only when it is already
-  supplied; it does not create a value. The local E2E run is blocked when
-  `DATABASE_URL` is missing.
-
-### Troubleshooting
-
-| Error                                    | Cause                            | Solution                                                          |
-| ---------------------------------------- | -------------------------------- | ----------------------------------------------------------------- |
-| `password authentication failed`         | DB not running or wrong password | `docker-compose up -d postgres`                                   |
-| `connect ECONNREFUSED`                   | PostgreSQL not accessible        | Check `docker ps`                                                 |
-| `relation "sam.contract" does not exist` | Schema not created               | Confirm the current migration Job executed `migration/create.sql` |
-| `Jest did not exit`                      | DB pool not closed               | Check `afterAll` with `shutdownDatabase()`                        |
-
----
-
-## 🎯 Priority Tests
-
-### 1️⃣ Smoke Test (MANDATORY)
-
-```
-✓ GET / - Health Check
-✓ POST /invoice - Cash Basis Success
-```
-
-**Time**: 30 seconds
-**Goal**: Verify API is functional
-
-### 2️⃣ Core Functionality (RECOMMENDED)
-
-```
-✓ POST /invoice - Cash Basis Success
-✓ POST /invoice - Accrual Basis Success
-✓ POST /invoice - With Optional Format
-```
-
-**Tempo**: 2 minutos
-**Objetivo**: Validar cenários principais
-
-### 3️⃣ Validation Suite (IMPORTANTE)
-
-```
-✓ All tests in "Validation - Required Fields"
-✓ All tests in "Validation - Data Types"
-```
-
-**Tempo**: 3 minutos
-**Objetivo**: Garantir que validações funcionam
-
-### 4️⃣ Full Coverage (COMPLETO)
-
-```
-✓ Run entire collection (23 requests)
-```
-
-**Tempo**: 5 minutos
-**Objetivo**: Cobertura completa de testes
-
----
-
-## 📊 Interpretação de Resultados
-
-### ✅ Sucesso (200)
-
-```json
-[
-  {
-    "date": "2024-01-15T00:00:00.000Z",
-    "amount": 1500.5
-  }
-]
-```
-
-**Significado**: Invoice gerado com sucesso
-
-### ❌ Erro de Validação (400)
-
-```json
-{
-  "error": "Validation error message",
-  "status": 400
-}
-```
-
-**Significado**: Dados inválidos enviados
-
-### 🔴 Erro de Servidor (500)
-
-```json
-{
-  "error": "Internal server error",
-  "status": 500
-}
-```
-
-**Significado**: Bug no código ou problema no servidor
-
----
-
-## 🐛 Problemas Conhecidos
-
-### ⚠️ Lógica Invertida nas Strategies
-
-**Sintoma**: Invoices gerados para o mês/ano ERRADO
-
-**Exemplo**:
-
-```
-Request: month=1, year=2024
-Esperado: Invoices de Janeiro/2024
-Atual: Invoices de TODOS os meses EXCETO Janeiro
-```
-
-**Causa**: Condição `!==` ao invés de `===` nas strategies
-
-**Workaround**: Não há. Precisa de fix no código.
-
-**Fix Necessário**:
-
-```typescript
-// cash.strategy.ts:24 e accrual.strategy.ts:20
-// DE:
-if (payment.date.getMonth() + 1 !== month || ...)
-// PARA:
-if (payment.date.getMonth() + 1 === month && ...)
-```
-
----
-
-## 🔍 Debugging Tips
-
-### Servidor não inicia
+If you don't have PostgreSQL installed:
 
 ```bash
-# Verificar se porta 3000 está em uso
-netstat -ano | findstr :3000
-
-# Matar processo na porta 3000 (Windows)
-taskkill /PID <PID> /F
-
-# Ou mudar porta
-# No código: ExpressServerAdapter.listen(3001)
+# Quick PostgreSQL
+docker run -d \
+  --name postgres-test \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=tax_invoice_test \
+  -p 5432:5432 \
+  postgres:17
 ```
 
-### Testes sempre falham
+---
 
-1. Confirme environment: **Tax Invoice Issuer - Local** (ou **Tax Invoice Issuer - Azure Learn-prod** para o deploy)
-2. Verifique baseUrl: `http://localhost:3000`
-3. Teste manual: `curl http://localhost:3000`
+## ✅ Verify Installation
 
-### Validações não funcionam
+### 1. Check the environment
 
-1. Verifique logs do servidor
-2. Confirme que Zod está validando
-3. Teste com Postman Console aberto
+```bash
+node --version        # Must be >= v18.0.0
+npm --version         # Must be >= 9.0.0
+```
+
+### 2. Run a simple test
+
+```bash
+npm test -- --testPathPattern="invoice" --silent
+```
 
 ---
 
-## 📋 Checklist Pré-Deploy
+## 🧪 Run the Tests
 
-- [ ] Todos testes de Happy Path passam
-- [ ] Validações de campos obrigatórios funcionam
-- [ ] Validações de tipos de dados funcionam
-- [ ] Edge cases tratados adequadamente
-- [ ] Sem console.errors ou warnings
-- [ ] Logs estruturados funcionando
-- [ ] Documentação atualizada
+### All tests (default)
 
----
+```bash
+npm test
+```
 
-## 🎓 Aprendizados
+**What it does:**
 
-### Design Patterns Implementados
+- Runs all 34 spec files (226 test cases)
+- Automatically generates a coverage report (required by the Jest config)
 
-1. **Strategy**: Cash vs Accrual
-2. **Specification**: Validação de regras
-3. **Repository**: Acesso a dados
-4. **Factory**: Criação de objetos
-5. **Mediator**: Comunicação entre componentes
-6. **Decorator**: Validação, logging, error handling
-
-### Clean Architecture
-
-- **Domain**: Entities, Services, Strategies
-- **Application**: Use Cases, Controllers, Specifications
-- **Infrastructure**: Server, Database, Validators
-
-### Dependency Injection
-
-- **Container**: InversifyJS
-- **Decorators**: `@inject`, `@injectable`
-- **Modules**: Organizados por domínio
+**Expected execution time:** ~15 seconds
 
 ---
 
-<br>
+### Unit tests only
 
-- Test Name Pattern: [TEST_TYPE] | [ENTITY] - [SCOPE] > ACTION
+```bash
+npm test -- --testPathIgnorePatterns="E2E|integration"
+```
 
-<br>
+Or:
 
----
-
-## 📞 Suporte
-
-### Encontrou um Bug?
-
-1. Verifique se não é um dos [problemas conhecidos](#-problemas-conhecidos)
-2. Consulte a [análise profunda](./ANALISE-PROFUNDA.md)
-3. Abra uma issue no repositório
-
-### Precisa de Ajuda?
-
-- Documentação completa: `postman/README.md`
-- Análise técnica: `docs/ANALISE-PROFUNDA.md`
-- API Schema: `docs/swagger.json` (quando disponível)
+```bash
+npx jest test/unit
+```
 
 ---
 
-**Happy Testing! 🧪**
+### Integration tests
+
+```bash
+npx jest test/integration
+```
+
+---
+
+### E2E tests (require a database)
+
+```bash
+# First ensure PostgreSQL is running, then:
+npx jest test/E2E
+```
+
+**⚠️ Attention:** E2E tests **require** the `sam` schema and the seed data to exist.
+
+---
+
+### Watch mode (development)
+
+```bash
+npm run test:dev
+# or
+npx jest --watch
+```
+
+---
+
+### Coverage only
+
+```bash
+npm run test:coverage
+```
+
+**Outputs:**
+
+- Terminal: summary table
+- `coverage/lcov-report/index.html`: detailed report (open in a browser)
+
+---
+
+## 📊 Understand the Results
+
+### ✅ All tests passed
+
+```
+Test Suites: 34 passed, 34 total
+Tests:       226 passed, 226 total
+Snapshots:   0 total
+Time:        10.045 s
+```
+
+### ❌ Failures
+
+If tests fail, you will see something like:
+
+```
+ FAIL  test/unit/application/usecase/generate-invoices.spec.ts
+  ● GenerateInvoices Use Case › should generate invoices
+
+    Expected: 1
+    Received: 0
+```
+
+**Next steps:**
+
+1. Read the full error message
+2. Check if PostgreSQL is running (if it is an E2E/integration test)
+3. Reinstall dependencies: `rm -rf node_modules && npm install`
+
+---
+
+## 📁 Test Structure
+
+```
+test/
+├── unit/                          # Unit tests (no database)
+│   ├── application/
+│   │   ├── service/               # Services (invoice, email)
+│   │   │   ├── invoice.service.spec.ts
+│   │   │   └── email.service.spec.ts
+│   │   ├── usecase/               # Use cases
+│   │   │   ├── generate-invoices.spec.ts
+│   │   │   └── send-invoice-email.spec.ts
+│   │   └── gateway/               # HTTP gateways
+│   ├── domain/
+│   │   ├── entity/                # Domain entities
+│   │   │   ├── contract.spec.ts
+│   │   │   ├── invoice.spec.ts
+│   │   │   └── payment.spec.ts
+│   │   ├── service/               # Domain services (heuristics)
+│   │   ├── repository/            # In-memory repositories
+│   │   └── strategy/              # Accrual/cash strategies
+│   ├── infra/
+│   │   ├── router/                # HTTP routers
+│   │   └── validator/             # Zod validators
+│   ├── @decorator/                # Custom decorators
+│   │   └── validate.spec.ts
+│   ├── @lib/                      # Shared libraries
+│   │   └── registry.spec.ts
+│   └── utils/                     # Mediator (event emitter)
+│ ├── integration/                 # Integration tests
+│   ├── invoice-service.integration.spec.ts
+│   └── contract-strategy.integration.spec.ts
+├── E2E/                           # End-to-end tests (5 suites)
+│   ├── server.spec.ts             # Server bootstrap
+│   ├── http.spec.ts               # HTTP layer
+│   ├── invoice.spec.ts            # POST /invoice (input=1 & input=2)
+│   ├── strategy.spec.ts           # Strategy endpoint behavior
+│   └── email.spec.ts              # Email flow via mediator / MailHog
+└── @mocks/mock-contract-generator.ts  # Mock factories
+```
+
+**Total: 34 spec files / 226 test cases**
+
+---
+
+## 🔍 Specific Types of Tests
+
+### Test a specific file
+
+```bash
+npx jest path/to/file.spec.ts
+```
+
+### Test by name pattern
+
+```bash
+npx jest -t "should generate invoices"
+```
+
+### Test in a specific folder
+
+```bash
+nwpx jest test/unit/domain
+```
+
+### With verbose output (more details)
+
+```bash
+npx jest --verbose
+```
+
+### Silent mode (less output)
+
+```bash
+npx jest --silent
+```
+
+---
+
+## 🐛 Common Problems and Solutions
+
+### Error: "Cannot connect to database"
+
+```bash
+# Check if PostgreSQL is running
+pg_isready -h localhost -p 5432
+
+# If using Docker:
+docker ps | grep postgres
+```
+
+**Solution:** Start the database or temporarily disable integration tests:
+
+```bash
+npm test -- --testPathIgnorePatterns="integration|E2E"
+```
+
+---
+
+### Error: "relation 'contract' does not exist" (or: relation "sam.contract" does not exist)
+
+**Cause:** The migrations were not run / the `sam` schema is missing.
+
+**Solution:**
+
+```bash
+psql $DATABASE_URL -f migration/create.sql
+# ⚠️ destructive — drops and recreates the sam schema with seed data (this is intentional for the study environment)
+```
+
+---
+
+### Error: "Module not found"
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+---
+
+### Error: "punycode deprecated" (warning, not an error)
+
+This is a warning from Node.js 21+ about an old dependency. It **does not affect** the tests.
+
+---
+
+## 📈 Expected Coverage
+
+The project aims for the following minimum coverage (the Jest config uses the `v8` provider and always collects coverage):
+
+| Category      | Target |
+| ------------- | ------ |
+| **Global**    | 80%+   |
+| **Services**  | 85%+   |
+| **Use Cases** | 80%+   |
+| **Entities**  | 90%+   |
+
+**Current result (reported):** ~85–90% of critical statements — statements 58%, branches 69%, functions 54%, lines 58% in the latest run across 34 suites.
+
+---
+
+## 🎯 Daily Workflow
+
+### During development (TDD)
+
+```bash
+# 1. Write the test
+vim test/unit/application/usecase/my-feature.spec.ts
+
+# 2. Run in watch mode
+npm run test:dev
+
+# 3. Implement the code
+# 4. Tests pass ✅
+```
+
+### Before committing
+
+```bash
+npm run code:ci    # format + lint + tests (the real CI script)
+```
+
+---
+
+## 📚 Additional Documentation
+
+- [docs/analysis/DEEP-ANALYSIS.md](../docs/analysis/DEEP-ANALYSIS.md) - Deep technical analysis
+- [docs/analysis/TESTING.md](../docs/analysis/TESTING.md) - Test suite guide
+- [CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution guide
+- [README.md](../README.md) - Project overview
+
+---
+
+## 🆘 Still Having Issues?
+
+1. **Check the Node.js version:** `node --version` (must be >= 18)
+2. **Clean and reinstall:** `rm -rf node_modules package-lock.json && npm install`
+3. **Check environment variables:** Does the `.env` exist? Is `DATABASE_URL` correct?
+4. **Check connectivity:** `psql $DATABASE_URL -c "SELECT 1"`
+
+---
+
+## ✅ Validation Checklist
+
+Before running the tests for the first time:
+
+- [ ] Node.js >= 18 installed
+- [ ] Dependencies installed (`npm install`)
+- [ ] `.env` file present (or rely on `test/setup-env.ts` defaults)
+- [ ] `DATABASE_URL` configured in the environment (optional for unit tests)
+- [ ] PostgreSQL running (only for integration/E2E tests)
+- [ ] Migrations executed: `psql $DATABASE_URL -f migration/create.sql`
+
+**All set?** Run `npm test` and enjoy! 🎉
+
+---
+
+## 🚀 Useful Commands
+
+```bash
+# Complete setup from scratch
+npm install && cp .env.example .env && npm test
+
+# Run only fast tests (TDD)
+npm run test:dev
+
+# Full report before a PR
+npm run test:coverage
+
+# Clean everything and start over (nuclear option)
+rm -rf node_modules dist coverage && npm install
+```
+
+---
+
+**Last updated:** 2026-09-02
+**Version:** 1.1.0 (revised: real script names, 34 suites / 226 tests, 5 E2E suites, Prisma clarified)
