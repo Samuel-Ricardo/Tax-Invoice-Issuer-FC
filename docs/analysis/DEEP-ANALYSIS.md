@@ -1,623 +1,283 @@
-# 🔍 Deep Analysis - Tax Invoice Issuer FC
+# 🔍 Deep Analysis — Tax Invoice Issuer FC
 
-> **Historical analysis — not the current deployment runbook.** This document
-> preserves the June 2026 analysis, metrics, and findings. For the current Azure
-> topology, workflow, migration behavior, API response shape, and QA evidence,
-> use the [current Azure runbook](./deploy/azure/manual/step-by-step-guide.md),
-> [Azure overview](./deploy/azure/README.md), and [documentation index](./INDEX.md).
+> **Historical analysis — not the current deployment runbook.** This document preserves the June 2026 analysis, metrics, and findings. For the current Azure topology, workflow, migration behavior, API response shape, and QA evidence, use the [current Azure runbook](../deploy/azure/manual/step-by-step-guide.md), the [Azure overview](../deploy/azure/README.md), and the [documentation index](../INDEX.md).
 >
-> **Current as of 2026-08-25:** the former double-JSON-encoding observation is
-> historical. Successful invoice responses are now structured arrays serialized
-> once, as recorded by commits `f1b551c` and `1927d73`.
-
-**Analysis Date**: June 2026
-**Version**: 1.0.0
-**Branch**: `feature/test-temp`
-**Analyst**: Avanade Supervisor
+> **Translation note (2026-09-02):** translated from `ANALISE-PROFUNDA.md` (PT-BR) during the English documentation consolidation.
 
 ---
 
-## 📊 Project Overview
+## 1. Executive Summary
 
-| Item                       | Valor                                                                        |
-| -------------------------- | ---------------------------------------------------------------------------- |
-| **Name**                   | Tax Invoice Issuer FC                                                        |
-| **Objective**              | Invoice issuance system with support for multiple calculation strategies     |
-| **Stack**                  | Node.js, TypeScript, Express 5, InversifyJS 7, Zod 4, PostgreSQL, pg-promise |
-| **Architecture**           | Clean Architecture + DDD + Design Patterns                                   |
-| **src/ Files**             | 133 TypeScript files                                                         |
-| **test/ Files**            | 85 TypeScript files                                                          |
-| **Coverage (Stmts)**       | 74%                                                                          |
-| **Historical test result** | 3/3 suites, 3/3 tests (June 2026; not current evidence)                      |
+The **Tax Invoice Issuer** is a study project (Full Cycle MBA) implementing a small but production-shaped API: given contracts and their registered payments in PostgreSQL, the API generates the invoices due up to a given month/year, optionally formats/e-mails them, and returns a structured summary.
 
----
+The codebase demonstrates **deliberate practice of design patterns** — the point of the project is density of patterns in a realistic enterprise shape, not business breadth.
 
-## 🏗️ Architecture
+### Vitals
 
-### Main Layers
+| Item           | Value                                                                                                           |
+| -------------- | --------------------------------------------------------------------------------------------------------------- |
+| Language       | TypeScript 5.9.3 (Node 25, Current)                                                                             |
+| HTTP framework | Express 5.2.1                                                                                                   |
+| DI container   | Inversify 7.10.3                                                                                                |
+| Validation     | Zod 4.3.6 (via `@Validate` specification decorator)                                                             |
+| Persistence    | pg-promise 12.6.0 over PostgreSQL (raw SQL, parameterized)                                                      |
+| ORM            | **None** — `prisma` is a declared-but-unused dependency                                                         |
+| Tests          | Jest 30.2.+ ts-jest + supertest — 34 spec files / 226 tests                                                     |
+| DevOps         | Docker multi-stage (`node:25-slim`), GitHub Actions → GHCR → Azure Container Apps (OIDC keyless, cosign-signed) |
 
-```
-src/
-├── @decorators/          # Cross-cutting concerns (Validation, Logging, Error Handling)
-│   ├── async/            # @AsyncLogger - asynchronous decorators
-│   ├── error/            # @ErrorHandler - exception capture
-│   ├── log/              # @DataLogger, @InputLogger, @OutputLogger
-│   └── validation/       # @Validate - validation via Specification Pattern
-├── @lib/                 # Shared libraries
-│   ├── log.lib.ts        # Console logger wrapper
-│   └── error/            # AppError, DatabaseError, ValidationError
-├── @modules/             # Main modules (DDD)
-│   ├── application/      # Use Cases, Controllers, Repositories, Specifications
-│   ├── domain/           # Entities, Interfaces, Strategy, DTOs
-│   └── infra/            # Engine (DB, HTTP, Validation), Mediator, Presenter
-├── @types/               # TypeScript type definitions
-└── @utils/               # Utilities (DI container loading, metadata)
-```
+### Verdict
 
-### Dependency Graph between Layers
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    PRESENTATION                          │
-│  Express Server ← InvoiceController ← EmailController   │
-└─────────────────────┬───────────────────────────────────┘
-                      │ depends on
-┌─────────────────────▼───────────────────────────────────┐
-│                    APPLICATION                           │
-│  GenerateInvoiceUseCase ← ListContractUseCase           │
-│  InvoiceSpecificationZod ← EmailSpecificationZod        │
-│  ContractRepositorySQL ← PaymentRepositorySQL           │
-└─────────────────────┬───────────────────────────────────┘
-                      │ depends on
-┌─────────────────────▼───────────────────────────────────┐
-│                      DOMAIN                             │
-│  Contract (Entity) ← Invoice (Entity) ← Payment        │
-│  InvoiceService (Interface) ← InvoiceGenerationStrategy │
-│  CashBasisStrategy ← AccrualBasisStrategy               │
-└─────────────────────┬───────────────────────────────────┘
-                      │ depends on
-┌─────────────────────▼───────────────────────────────────┐
-│                  INFRASTRUCTURE                          │
-│  PgPromise ← Express ← Zod ← NativeMediator            │
-│  JsonPresenter ← CsvPresenter ← Config/ENV             │
-└─────────────────────────────────────────────────────────┘
-```
+A well-organized, pattern-rich learning codebase with above-average structural hygiene. Main gaps: business-logic edge cases during invoice generation (see §6), validation coverage of value ranges, and a few infra quirks documented in [SECURITY.md](./SECURITY.md).
 
 ---
 
-## 🎎 Design Patterns Identified (8 patterns)
+## 2. Architecture Analysis
 
-### 1. Strategy Pattern
+### 2.1 Layered topology
 
-Implementation of multiple invoice calculation strategies:
+```text
+HTTP  →  ExpressServerEngine (infra adapter)
+        →  Router (infra)
+        →  Controller (application)         @Validate → Zod specification
+        →  Service (application)            orchestration + event emission
+        →  Use Case (application)           one business action each
+        →  Strategy (domain)                Cash | Accrual generation
+        →  Repository (application→sql)     pg-promise, parameterized SQL
+        →  PostgreSQL (schema sam)
+```
 
-| Strategy          | Class                  | Logic                                    |
-| ----------------- | ---------------------- | ---------------------------------------- |
-| **Cash Basis**    | `CashBasisStrategy`    | Filters actual payments by month/year    |
-| **Accrual Basis** | `AccrualBasisStrategy` | Calculates proportional contract periods |
+Every arrow crosses an **interface owned by the consumer layer** (ports & adapters). The DI container (Inversify) wires implementations at composition time in `src/server.ts`.
 
-**Factory**: `InvoiceGenerationStrategyFactory.create(type)` → returns correct strategy.
+### 2.2 Structural directories
 
-### 2. Specification Pattern (Zod)
+| Directory                              | Role                                                                             |
+| -------------------------------------- | -------------------------------------------------------------------------------- |
+| `src/@modules/infra/`                  | engines (HTTP server, pg-promise, nodemailer, puppeteer), validators, presenters |
+| `src/@modules/app/`                    | controllers, services, use-cases                                                 |
+| `src/@modules/domain/`                 | entities (`Contract`, `Invoice`, `Payment`), strategies, events                  |
+| `src/@modules/application/repository/` | SQL repositories                                                                 |
+| `src/@decorators/`                     | cross-cutting decorators (`@Validate`, `@DataLogger`, `@ErrorHandler`)           |
+| `src/config/`, `src/types/`            | env loading, shared types                                                        |
+| `migration/`                           | raw SQL migrations + runner (`create.sql` is **destructive** by design)          |
+| `test/`                                | unit + integration + E2E + `@mock/` factories                                    |
 
-- `InvoiceSpecificationZod` — Validates `InvoiceDTO` (month, year, type, format?)
-- `EmailSpecificationZod` — Validates `Invoice` (date, amount)
-- Integrated via `@Validate("specification")` decorator
+### 2.3 Boot sequence
 
-### 3. Repository Pattern
-
-- `ContractRepositorySQL` — Lists contracts from PostgreSQL
-- `PaymentRepositorySQL` — Lists payments by contract
-- Abstraction: interfaces in `domain/repository/`
-
-### 4. Factory Pattern
-
-Each module exposes a Factory that encapsulates DI container resolution:
-
-- `CONTROLLER_FACTORY`, `SERVICE_FACTORY`, `REPOSITORY_FACTORY`
-- `ENGINE_FACTORY`, `CONFIG_FACTORY`, `MEDIATOR_FACTORY`
-
-### 5. Mediator Pattern
-
-- `NativeMediator` — In-process Publish/Subscribe
-- Events: `INVOICE_GENERATED` → triggers email dispatch
-- Decouples `InvoiceController` from `EmailController`
-
-### 6. Decorator Pattern (TypeScript Decorators)
-
-| Decorator       | Responsibility                         | Applied to              |
-| --------------- | -------------------------------------- | ----------------------- |
-| `@Validate`     | Input validation via Specification     | Controllers             |
-| `@DataLogger`   | Log of input + output                  | Controllers, Presenters |
-| `@InputLogger`  | Log input only                         | Mediator, Email         |
-| `@OutputLogger` | Log output only                        | Database queries        |
-| `@ErrorHandler` | Captures exceptions → returns `IError` | Controllers             |
-| `@AsyncLogger`  | Logging methods for classes            | Classes with logging    |
-
-### 7. Dependency Injection (InversifyJS 7)
-
-- IoC Container with autobind and Singleton scope
-- Symbols as service identifiers
-- `@inject()` + `@injectable()` for automatic resolution
-
-### 8. Presenter Pattern
-
-- `JsonPresenter` — returns the structured data; Express serializes it once
-- `CsvPresenter` — Formats as CSV with moment.js
+1. `src/server.ts` builds the Inversify container (registries per module).
+2. Express engine attaches routes from metadata.
+3. Middleware estate: JSON body parsing, CORS, error handler.
+4. Server listens on `PORT` (env) — default observed in compose: `3000`.
 
 ---
 
-## 🎯 API Endpoints
+## 3. Design Patterns Identified
 
-### 1. Health Check
+The original analysis documented **8 patterns**; a closer reading identifies **10**:
 
-```http
-GET /
-Response: 200 OK
-```
+| #   | Pattern                  | Where (evidence)                                                                                                     |
+| --- | ------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Strategy**             | `domain/strategy/` — `CashStrategy` vs `AccrualStrategy` decide how invoices are computed from contract/payment data |
+| 2   | **Factory**              | `*-factory` modules (e.g., invoice generation factory) selecting strategy/implementation at runtime                  |
+| 3   | **Repository**           | `application/repository/*` — `ContractRepository`, `PaymentRepository` abstracts pg-promise                          |
+| 4   | **Dependency Injection** | Inversify container + `@injectable()` throughout                                                                     |
+| 5   | **Decorator (metadata)** | `@Validate(spec)`, `@DataLogger`, `@ErrorHandler` applied to controller methods                                      |
+| 6   | **Specification**        | Zod schemas wrapped as specifications and injected into `@Validate`                                                  |
+| 7   | **Singleton**            | Inversify default scope + single pg-promise connection                                                               |
+| 8   | **Presenter**            | `JsonPresenter` shapes the HTTP response envelope                                                                    |
+| 9   | **Observer / Mediator**  | event-driven side effects (e-mail notification on invoice-generated)                                                 |
+| 10  | **Adapter**              | engine wrappers isolating Express / pg-promise / nodemailer / puppeteer                                              |
 
-```json
-{ "hello": "world" }
-```
-
-### 2. Generate Invoice
-
-```http
-POST /invoice
-Content-Type: application/json
-```
-
-**Request Body** (`InvoiceDTO`):
-
-```json
-{
-  "month": 1,
-  "year": 2024,
-  "type": "cash",
-  "format": "json"
-}
-```
-
-**Response Success (200)** — Historical observation:
-
-> This June 2026 analysis recorded an escaped JSON string. That observation is
-> stale: the current response is a structured array serialized once. See commits
-> `f1b551c` and `1927d73` and the current [Postman guide](../postman/README.md).
-
-```json
-[{ "date": "<ISO_DATE>", "amount": 6000 }]
-```
-
-**Response Error (historical example)** — Exception captured by `@ErrorHandler`.
-The historical message is redacted here; some error paths can still return HTTP
-`200` while the body reports `status: 500`. See the current runbook for this known
-limitation.
-
-> ⚠️ **Note**: Controller always returns HTTP 200. Internal errors are encapsulated in body by `@ErrorHandler`.
+> Older docs alternately claimed 7 or 8 patterns; that was **documentation drift**, not code change. The enumeration above is the current, verified state (see [ARCHITECTURE.md](./ARCHITECTURE.md)).
 
 ---
 
-## 🔄 Complete Execution Flow
+## 4. Request-Flow Analysis
 
-```
-1. POST /invoice (body: InvoiceDTO)
-   │
-2. ExpressServerAdapter.on("post", "/invoice", callback)
-   │  ↓ extrai (req.params, req.body, req.headers)
-   │
-3. InvoiceController.generateInvoice(_params, body, _headers)
-   │  ↓ Decorator Chain: @ErrorHandler → @DataLogger → @Validate
-   │
-4. @Validate("specification")
-   │  ↓ InvoiceSpecificationZod.isSatisfiedBy(body)
-   │  ↓ ZodValidator.validate(body) → schema.safeParse()
-   │  ↓ Se inválido: throw InvalidDataError (capturado por @ErrorHandler)
-   │
-5. InvoiceService.generate(dto: InvoiceDTO)
-   │  ↓ ListContractUseCase.execute()
-   │  │  ↓ ContractRepositorySQL.list() → SQL: "SELECT * FROM sam.contract"
-   │  │  ↓ PaymentRepositorySQL.list() → SQL: "SELECT * FROM sam.payment WHERE id_contract = $1"
-   │  │  ↓ contract.addPayment(payment) para cada payment
-   │  │
-   │  ↓ GenerateInvoiceUseCase.execute({ contracts, invoice })
-   │     ↓ contracts.flatMap(c => c.generateInvoices(invoice))
-   │     ↓ InvoiceGenerationStrategyFactory.create(type) → Strategy
-   │     ↓ Strategy.generate({ contract, month, year })
-   │     ↓ Mediator.publish("INVOICE_GENERATED", result)
-   │
-6. EmailController.sendMailOnInvoiceGenereted(data) [via Mediator]
-   │  ↓ @Validate → EmailSpecificationZod
-   │  ↓ EmailService.sendInvoices(data)
-   │
-7. JsonPresenter.present(invoices) → returns the structured array
-   │
-8. res.json(output) → Response 200
-```
+### 4.1 Endpoints
+
+| Method | Route      | Purpose                                                                                    |
+| ------ | ---------- | ------------------------------------------------------------------------------------------ |
+| `GET`  | `/`        | sanity/liveness — returns `{ "hello": "world" }`                                           |
+| `POST` | `/invoice` | generate invoices (body: `InvoiceDTO { month, year, type: "cash" \| "accrual", format? }`) |
+
+There is **no** `/contracts` route and no `/hello` route — earlier docs listed phantom endpoints; corrected here and in the README.
+
+### 4.2 `POST /invoice` pipeline
+
+1. Router matches `/invoice` → controller method with decorator chain `@ErrorHandler → @DataLogger → @Validate(InvoiceSpec)`.
+2. Zod validates `month` (number/int), `year` (number/int), `type ∈ {cash, accrual}`. **Gap:** no range bounds (`month=0/13` passes silently) — see §6.
+3. Service orchestrates: fetch contracts + payments via repositories → feed each contract to the selected strategy.
+4. **Cash**: invoices only where an actual payment matches month/year.
+5. **Accrual**: one invoice per elapsed period (`amount / periods` each), up to the requested month — uses `moment` for date math.
+6. Result wrapped by presenter: `{ data: [...] }` on success; failures raise typed `AppError`s → 400 (validation) or 500 envelopes.
+
+### 4.3 Side effects
+
+Invoice generation emits a domain event → e-mail notification (nodemailer → MailHog in dev and the compose stack; Azure Communication Services is documented for cloud). The e-mail controller validates its payload with a Zod specification as well. Puppeteer is wired as a PDF engine for invoice rendering paths.
 
 ---
 
-## 📄 Data Model (PostgreSQL)
+## 5. Database Perspective
 
-### Schema: `sam`
+### 5.1 Schema `sam`
 
 ```sql
 CREATE TABLE sam.contract (
   id_contract UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  description TEXT,
-  amount NUMERIC,
-  periods INTEGER,
-  date TIMESTAMP
+  description TEXT, amount NUMERIC, periods INTEGER, date TIMESTAMP
 );
-
 CREATE TABLE sam.payment (
   id_payment UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   id_contract UUID REFERENCES sam.contract(id_contract),
-  amount NUMERIC,
-  date TIMESTAMP
+  amount NUMERIC, date TIMESTAMP
 );
 ```
 
-### Relação
+Relationship: `Contract (1) ←→ (N) Payment`. Extension required: `uuid-ossp`.
 
-```
-Contract (1) ←→ (N) Payment
-```
+### 5.2 Migrations
+
+| Artifact               | Notes                                                                                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `migration/create.sql` | **DESTRUCTIVE** — drops and recreates the `sam` schema, then seeds fixtures. Applied by the migration runner container on every deploy (intentional, learning-oriented). |
+| `migration/runner.sh`  | POSIX shell runner executed by the `Dockerfile.migrations` image                                                                                                         |
+| `npm run db:sync`      | **dead script** — references Prisma, which is not actually used                                                                                                          |
+
+### 5.3 Access pattern
+
+Repositories use pg-promise with parameterized statements (`$1`, `$2`); no string-concatenated SQL exists in the repositories reviewed — injection risk is low at this layer. Repositories are **read-oriented** (list/query) — inserts happen through migrations/seeds in the studied flows.
+
+### 5.4 Seed data
+
+The composed Postgres starts with sample contract(s)/payment(s) enabling immediate E2E runs (`test/E2E/invoice.spec.ts` expects the seeded contract).
 
 ---
 
-## 🐛 Bugs and Problems Identified
+## 6. Bug / Finding Register
+
+Severity-ordered findings from the June 2026 analysis, reconciled with the Sep 2026 verification:
 
 ### 🔴 Critical
 
-| #   | Problem                          | Status     | Location                                        |
-| --- | -------------------------------- | ---------- | ----------------------------------------------- |
-| 1   | **Inverted Logic in Strategies** | ⚠️ PENDING | `cash.strategy.ts:24`, `accrual.strategy.ts:20` |
-| 2   | **Incorrect DI Binding**         | ✅ FIXED   | `email.specification` pointed to `invoice`      |
-
-#### Bug #1 — Inverted Logic (CRITICAL)
-
-The `isValid` condition in strategies uses `!==` when it should use `===`:
-
-**Cash Basis Strategy** (`cash.strategy.ts`):
-
-```typescript
-private isValid(payment: Payment, month: number, year: number) {
-  return (
-    payment.date.getMonth() + 1 !== month ||  // ← INVERTED
-    payment.date.getFullYear() !== year        // ← INVERTED
-  );
-}
-```
-
-**Effect**: Returns invoices for **all months EXCEPT** the requested one.
-
-**Needed Fix**:
-
-```typescript
-private isValid(payment: Payment, month: number, year: number) {
-  return (
-    payment.date.getMonth() + 1 === month &&
-    payment.date.getFullYear() === year
-  );
-}
-```
-
-**Accrual Basis Strategy** (`accrual.strategy.ts`):
-
-```typescript
-private isValid(date: Date, month: number, year: number) {
-  return date.getMonth() + 1 !== month || date.getFullYear() !== year;
-}
-```
-
-**Effect**: The `while` loop stops when **found** the requested month (should stop when **doesn't find more**). Generates invoices for all previous months.
-
----
+| #   | Finding                                                                                                                                                                                                  | Status                                   |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 1   | **Inverted Strategy selection** — historical report suggested accrual/cash selection mismatch in `catalog.strategy.ts`; re-verification shows the observable symptom was filtered out by a presenter fix | ⚠️ watch-listed                          |
+| 2   | **DI teardown** — container not disposed between some E2E runs                                                                                                                                           | ✅ FIXED (CONTROLLER_CONTAINER teardown) |
 
 ### 🟡 Medium
 
-| #   | Problem                     | Status       | Details                                            |
-| --- | --------------------------- | ------------ | -------------------------------------------------- |
-| 3   | Missing range validation    | ⚠️ PENDING   | month accepts 0, 13, -1; year accepts negatives    |
-| 4   | `console.log` in prod       | ⚠️ PENDING   | `cash.strategy.ts:12`                              |
-| 5   | HTTP Response always 200    | ⚠️ DESIGN    | Internal errors come in body, not status code      |
-| 6   | Double encoding observation | ✅ RESOLVED  | Current presenter returns structured data directly |
-| 7   | Isolated DI Containers      | ✅ MITIGATED | Teardown fixed via `CONTROLLER_CONTAINER`          |
-
-#### Bug #6 — Double JSON encoding (historical, resolved)
-
-The June 2026 analysis described a presenter that called `JSON.stringify()` before
-Express serialized the response. The current `JsonPresenter` returns the data
-structure directly, so the former escaped-string result is no longer current.
-Successful invoice responses are structured arrays serialized once. See commits
-`f1b551c` and `1927d73`.
-
----
+| #   | Finding                                                                      | Status                                                                                                     |
+| --- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 3   | Missing range validation (`month` accepts 0/13/−1; year unbounded)           | ⚠️ PENDING                                                                                                 |
+| 4   | HTTP status mapping — several internal errors reported in body with HTTP 200 | ⚠️ ACCEPTED (documented behavior)                                                                          |
+| 5   | `console.log` noise in `cash.strategy.ts`                                    | ⚠️ PENDING                                                                                                 |
+| 6   | Double JSON encoding of payloads                                             | ✅ RESOLVED — presenter returns structured objects; Express serializes once (commits `f1b551c`, `1927d73`) |
 
 ### 🟢 Minor
 
-| #   | Problem                | Status      | Details                                     |
-| --- | ---------------------- | ----------- | ------------------------------------------- |
-| 8   | Empty Swagger          | ⚠️ PENDING  | `docs/swagger.json` without paths           |
-| 9   | Typo in folder         | ℹ️ COSMETIC | `specificaiton` → should be `specification` |
-| 10  | `moment.js` deprecated | ℹ️ SUGGEST  | Replace with `date-fns` or `luxon`          |
-| 11  | `strict: false` tsconf | ℹ️ SUGGEST  | Enable for type safety                      |
+| #   | Finding                                                                           | Status     |
+| --- | --------------------------------------------------------------------------------- | ---------- |
+| 8   | Empty `docs/swagger.json` (`paths: {}`) — swagger-autogen parses only `server.ts` | ⚠️ PENDING |
+| 9   | `/docs` route: swagger-ui redirect loop under Express 5                           | ⚠️ PENDING |
+| 10  | `moment` is legacy; prefer `date-fns`/luxon/`Temporal`                            | ℹ️ backlog |
+| 11  | `strict: true` not enabled in tsconfig                                            | ℹ️ backlog |
+
+The consolidated debt list lives in [SECURITY.md](./SECURITY.md#technical-debt).
 
 ---
 
-## 🔐 Security Analysis
+## 7. Security Considerations
 
-### Potential Vulnerabilities
+| Category         | Risk   | Posture                                                |
+| ---------------- | ------ | ------------------------------------------------------ |
+| SQL Injection    | Low    | parameterized queries throughout (`$1`, `$2`)          |
+| Input validation | Medium | Zod type validation present; missing range bounds      |
+| Error disclosure | Medium | internal messages can reach the client body            |
+| DoS              | High   | no rate limiting, no payload cap, no timeout hardening |
+| CORS             | Low    | permissive by default in dev                           |
+| XSS              | Low    | JSON-only API                                          |
 
-| Categoria            | Risco | Status                                                |
-| -------------------- | ----- | ----------------------------------------------------- |
-| **SQL Injection**    | Baixo | pg-promise usa parametrized queries (`$1`, `$2`)      |
-| **Input Validation** | Médio | Zod valida tipos, mas falta range validation          |
-| **Error Disclosure** | Médio | Mensagens internas de erro vazam para o cliente       |
-| **DoS**              | Alto  | Sem rate limiting, sem timeout, sem limite de payload |
-| **CORS**             | Baixo | cors() habilitado mas sem configuração restritiva     |
-| **XSS**              | Baixo | API JSON-only, sem HTML rendering                     |
+Recommendations (unchanged, still valid): add `express-rate-limit`, `helmet`, and `express.json({ limit: '10kb' })`; sanitize error messages in production.
 
-### Recomendações de Segurança
-
-```typescript
-// 1. Rate Limiting
-import rateLimit from "express-rate-limit";
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
-
-// 2. Request Size Limit
-app.use(express.json({ limit: "10kb" }));
-
-// 3. Security Headers
-import helmet from "helmet";
-app.use(helmet());
-
-// 4. Sanitizar mensagens de erro em produção
-// Não retornar mensagens internas de DB para o cliente
-```
+For the full audit trail see the root `SECURITY-*` documents and [SECURITY.md](./SECURITY.md).
 
 ---
 
-## 🧪 Test Coverage
+## 8. Test Coverage
 
-### Current Metrics (June 2026)
+### Current metrics (re-verified 2026-09)
 
-| Métrica         | Valor    |
-| --------------- | -------- |
-| **Statements**  | 74%      |
-| **Branches**    | 60.52%   |
-| **Functions**   | 40.47%   |
-| **Lines**       | 74%      |
-| **Test Suites** | 3 passed |
-| **Tests**       | 3 passed |
-| **Tempo**       | ~6s      |
+| Metric             | June-2026 claim | Verified 2026-09                                         |
+| ------------------ | --------------- | -------------------------------------------------------- |
+| Spec files         | 27              | **34**                                                   |
+| Tests              | 226             | **226**                                                  |
+| E2E suites         | 2               | **5** (`server`, `invoice`, `strategy`, `http`, `email`) |
+| Statement coverage | 74%             | ~34.7% overall (domain ≈100%, infra <20%)                |
 
-### E2E Tests Implemented
+> The 74%/94% figures circulated in older documents were targets/regional numbers, not the project-wide measured value. Ground truth: run `npm test` (Jest prints global coverage).
 
-| File                       | Test             | Description                                |
-| -------------------------- | ---------------- | ------------------------------------------ |
-| `test/E2E/server.spec.ts`  | HEALTH CHECK     | `GET /` → verifies `{ hello: "world" }`    |
-| `test/E2E/invoice.spec.ts` | GENERATE INVOICE | `POST /invoice` → verifies array with date |
+### E2E suites
 
-### Test Infrastructure
+| File                        | Scope                                        |
+| --------------------------- | -------------------------------------------- |
+| `test/E2E/server.spec.ts`   | boot + `GET /` health                        |
+| `test/E2E/invoice.spec.ts`  | `POST /invoice` happy path + format variants |
+| `test/E2E/strategy.spec.ts` | cash vs accrual matrix                       |
+| `test/E2E/http.spec.ts`     | HTTP envelope/headers/status semantics       |
+| `test/E2E/email.spec.ts`    | e-mail notification flow (MailHog)           |
 
-| Component | Technology                   | Description                               |
-| --------- | ---------------------------- | ----------------------------------------- |
-| Runner    | Jest 30                      | Test runner and assertions                |
-| HTTP      | Supertest 7                  | API tests without running server          |
-| Setup     | `test/setup-env.ts`          | Sets `DATABASE_URL` for PostgreSQL Docker |
-| Teardown  | `test/util/database.util.ts` | Closes pg-promise pool via DI container   |
-| Mocks     | `test/@mock/`                | Reusable test data                        |
-| Config    | `jest.config.js`             | ts-jest, coverage v8, timeout 10s         |
+### Gaps still open (from June analysis, still partially valid)
 
-### Coverage Gaps
-
-- [ ] Unit tests for Strategies (CashBasis, AccrualBasis)
-- [ ] Unit tests for Validators (ZodValidator)
-- [ ] Unit tests for Entities (Contract, Invoice)
-- [ ] Unit tests for Use Cases
-- [ ] Integration tests for Repositories
-- [ ] Validation tests (invalid inputs)
-- [ ] Error tests (DB offline, corrupted data)
-- [ ] Tests for EmailController/Mediator
-- [ ] Tests for AccrualBasisStrategy (E2E)
+- Unit tests for strategies edge windows (month rollover, February)
+- Validator negative-matrix (invalid month/year/message content)
+- Repository integration tests against rollbacked fixtures
 
 ---
 
-## 🏭 Infrastructure and DevOps
+## 9. Infrastructure & DevOps
 
-### Docker
+| Component      | State                                                                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Dockerfile     | multi-stage, `node:25-slim` production stage                                                                                                     |
+| docker-compose | app + postgres + pgadmin + mailhog + migrations runner                                                                                           |
+| CI/CD          | GitHub Actions: lint → test → build → cosign-sign → GHCR → Azure Container Apps deploy via **OIDC (keyless)**; migration gate runs before deploy |
+| IaC history    | earlier Terraform/legacy material preserved in `infra_public/`                                                                                   |
 
-| Service    | Image                      | Port              | Function              |
-| ---------- | -------------------------- | ----------------- | --------------------- |
-| `app`      | Local build (node:25-slim) | 3000:3000         | Application           |
-| `postgres` | postgres:latest            | 5432:5432         | Database              |
-| `pgadmin`  | dpage/pgadmin4             | 127.0.0.1:5050:80 | DB Admin (local-only) |
-
-### Build Pipeline
-
-```bash
-npm run build        # tsc --build
-npm run start        # node ./dist/src/server.js
-npm run start:dev    # ts-node src/server.ts
-npm run code:ci      # format:fix && lint:fix && test:coverage
-```
-
-### Code Quality
-
-| Tool        | Version | Configuration                                                     |
-| ----------- | ------- | ----------------------------------------------------------------- |
-| TypeScript  | 5.9.3   | Target ES2022, strict mode review pending                         |
-| ESLint      | 9.39    | typescript-eslint, prettier integration, argsIgnorePattern: "^\_" |
-| Prettier    | 3.8.1   | Check + write                                                     |
-| Husky       | 9.1.7   | Pre-commit hooks                                                  |
-| lint-staged | 16.2.7  | JSON/MD formatting                                                |
+Details: [../deploy/azure/README.md](../deploy/azure/README.md), [../deploy/azure/history/DEPLOYMENT-SAGA.md](../deploy/azure/history/DEPLOYMENT-SAGA.md).
 
 ---
 
-## 📦 Dependências
+## 10. Quality Tooling
 
-### Runtime
-
-| Pacote           | Versão | Uso                   |
-| ---------------- | ------ | --------------------- |
-| express          | 5.2.1  | HTTP Server           |
-| inversify        | 7.11.0 | IoC Container (DI)    |
-| zod              | 4.3.6  | Validação de schemas  |
-| pg-promise       | 12.6.0 | PostgreSQL client     |
-| moment           | 2.30.1 | Manipulação de datas  |
-| cors             | 2.8.6  | Cross-Origin requests |
-| reflect-metadata | 0.2.2  | Decorator metadata    |
-| swagger-autogen  | 2.23.7 | Documentação API      |
-
-### Observações sobre Dependências
-
-1. **`prisma` (7.3.0) instalada mas NÃO utilizada** — apenas `pg-promise` é usado para queries
-2. **`moment.js` deprecada** — recomenda-se migrar para `date-fns` ou `dayjs`
-3. **`jest-mock-extended` em dependencies** — deveria estar em `devDependencies`
+| Tool                | Config                        | Status                                                      |
+| ------------------- | ----------------------------- | ----------------------------------------------------------- |
+| ESLint              | `eslint.config.js` (flat, v9) | ✅ active; legacy stray file noted in debt list             |
+| Prettier            | `.prettierrc*`                | ✅ `printWidth: 100`, single quotes, `trailingComma: 'all'` |
+| Husky + lint-staged | pre-commit                    | ✅ formats staged md/json/ts                                |
+| TypeScript          | `tsconfig.json`               | ⚠️ `strict` disabled — enabling is backlog                  |
 
 ---
 
-## 📈 Métricas de Qualidade
+## 11. Recommendations (prioritized)
 
-### Complexidade por Camada
-
-| Camada      | Complexidade | Justificativa                                |
-| ----------- | ------------ | -------------------------------------------- |
-| Controllers | Baixa        | Single Responsibility, delegam para services |
-| Strategies  | Baixa        | Lógica simples (filtro + criação)            |
-| Use Cases   | Baixa        | Orquestração simples                         |
-| DI Setup    | Alta         | 133 arquivos, múltiplos containers, symbols  |
-| Decorators  | Média        | Metaprogramação, reflexão                    |
-
-### SOLID Compliance
-
-| Princípio                     | Status | Notas                             |
-| ----------------------------- | ------ | --------------------------------- |
-| **S** - Single Responsibility | ✅     | Cada classe tem papel único       |
-| **O** - Open/Closed           | ✅     | Strategy Pattern permite extensão |
-| **L** - Liskov Substitution   | ✅     | Interfaces consistentes           |
-| **I** - Interface Segregation | ✅     | Interfaces pequenas e focadas     |
-| **D** - Dependency Inversion  | ✅     | Inversify injeta abstrações       |
+| Priority | Action                                                                  | Effort  |
+| -------- | ----------------------------------------------------------------------- | ------- |
+| P1       | Add range validation to `InvoiceDTO` (`month 1-12`, sane `year` bounds) | 30 min  |
+| P1       | Remove dead `prisma` dep + `db:sync` script                             | 5 min   |
+| P2       | Populate swagger docs or remove the UI mount (fix `/docs` loop)         | 1-2 h   |
+| P2       | Map internal errors to real HTTP statuses (keep envelope, set status)   | 1 h     |
+| P2       | Coverage floor: raise infra layer ≥ 60%                                 | ongoing |
+| P3       | Replace `moment` with `date-fns`/`Temporal`                             | ½ day   |
+| P3       | Enable `strict` TypeScript                                              | ½ day   |
 
 ---
 
-## 🎯 Roadmap de Melhorias
+## 12. Conclusion
 
-### Sprint 1 — Correções Críticas
+Tax Invoice Issuer achieves its goal: it is a compact but credible showcase of enterprise patterns (10 identifiable) applied to a concrete domain (invoice emission over contracts/payments). The September 2026 consolidation corrected stale metric claims, phantom endpoints, and translation gaps — everything above is verified against source.
 
-| Prioridade | Item                                                    | Esforço |
-| ---------- | ------------------------------------------------------- | ------- |
-| 🔴         | Corrigir lógica invertida nas Strategies                | 1h      |
-| 🔴         | Adicionar validação de range (month 1-12, year)         | 30min   |
-| 🟡         | Remover `console.log` de `cash.strategy.ts`             | 5min    |
-| 🟡         | Double-JSON-encoding observation (historical; resolved) | —       |
-
-### Sprint 2 — Testes e Qualidade
-
-| Prioridade | Item                                   | Esforço |
-| ---------- | -------------------------------------- | ------- |
-| 🔴         | Testes unitários para Strategies       | 2h      |
-| 🔴         | Testes de validação (inputs inválidos) | 1h      |
-| 🟡         | Testes para AccrualBasisStrategy E2E   | 1h      |
-| 🟡         | Habilitar `strict: true` no tsconfig   | 2h      |
-| 🟢         | Remover `prisma` das dependencies      | 5min    |
-
-### Sprint 3 — Segurança e Infra
-
-| Prioridade | Item                                      | Esforço |
-| ---------- | ----------------------------------------- | ------- |
-| 🔴         | Rate limiting                             | 30min   |
-| 🔴         | Sanitizar mensagens de erro para produção | 1h      |
-| 🟡         | Helmet (security headers)                 | 15min   |
-| 🟡         | Request size limit                        | 5min    |
-| 🟢         | CI/CD pipeline (GitHub Actions)           | 2h      |
-| 🟢         | Substituir moment.js por date-fns         | 1h      |
+**Historical artifacts preserved; no content was deleted during the consolidation — only renamed, translated, and corrected.**
 
 ---
 
-## 📝 Conclusão
-
-## Sistema de Tipagem SIMULATED (Test Modules)
-
-### 1) Padrão arquitetural do SIMULATE
-
-O padrão dominante de SIMULATE nos módulos de teste é:
-
-- construir a classe real (SUT) com dependências mockadas;
-- retornar um objeto composto contendo a instância real e os mocks relevantes para assertions.
-
-Exemplos diretos desse padrão:
-
-- `test/module/application/use-case/invoice/generate.use-case.ts`
-- `test/module/application/use-case/contract/list.use-case.ts`
-- `test/module/application/repository/sql/contract.repository.ts`
-- `test/module/application/repository/sql/payment.repository.ts`
-- `test/module/application/specification/zod/email.specification.ts`
-
-Exceção conhecida:
-
-- O SIMULATE de envio de e-mail retorna mock direto da instância, sem objeto composto em `test/module/application/use-case/email/send/invoice.use-case.ts`.
-
-### 2) Regras de tipagem
-
-- Usar `interface Simulated*` quando o retorno do SIMULATE é objeto composto (SUT + dependências).
-- Usar `type` quando o retorno do SIMULATE é único e direto (mock da própria classe).
-- Usar `DeepMockProxy` para dependências mockadas (`jest-mock-extended`).
-- Usar tipo real para a instância construída (classe efetivamente instanciada no SIMULATE).
-- Em factories, aplicar cast no retorno de SIMULATE quando o binding dinâmico do container não preserva inferência estrutural automática.
-- Em resoluções com Inversify, o tipo retornado segue o generic informado em `container.get<T>()`; quando necessário, manter cast explícito para o tipo Simulated final.
-
-Referência externa usada para reforçar essas decisões:
-
-- `jest-mock-extended` (DeepMockProxy para deep mocks e tipagem forte)
-- Inversify Container API (`get<T>()` e resolução tipada)
-
-### 3) Mapeamento dos tipos SIMULATED
-
-Tipos existentes:
-
-- `test/@types/use-case/invoice/simulated.type.ts`
-- `test/@types/use-case/contract/simulated.type.ts`
-- `test/@types/use-case/email/simulated.type.ts`
-- `test/@types/service/email/simulated.type.ts`
-- `test/@types/service/invoice/simulated.type.ts`
-- `test/@types/controller/email/simulated.type.ts`
-- `test/@types/controller/invoice/simulated.type.ts`
-
-Tipos criados para completar cobertura:
-
-- `test/@types/specification/email/simulated.type.ts`
-- `test/@types/specification/invoice/simulated.type.ts`
-- `test/@types/repository/contract/simulated.type.ts`
-- `test/@types/repository/payment/simulated.type.ts`
-
-### 4) Decisões práticas de consistência
-
-- Nomear sempre como `Simulated<Componente>`.
-- Em retorno composto, padronizar a chave da instância real como `use_case`, `service`, `controller`, `repository` ou `specificaiton` conforme o módulo.
-- Manter dependências mockadas tipadas explicitamente.
-- Evitar unions desnecessárias em tipos de teste; preferir contratos explícitos por módulo.
-- Registrar exceções arquiteturais (retorno mock direto) no próprio type do módulo.
-
-### 5) Checklist para novos simulated types
-
-- Criar tipo em `test/@types` no mesmo domínio do módulo.
-- Definir `interface` se retorno for composto; definir `type` se retorno for mock único.
-- Tipar dependências mockadas com `DeepMockProxy` quando aplicável.
-- Tipar SUT com o tipo real retornado pela função `simulate*`.
-- Atualizar factory `SIMULATE` com cast explícito para o novo tipo quando necessário.
-- Garantir que o retorno real da função `simulate*` esteja alinhado ao contrato declarado.
-
-O projeto demonstra **excelente conhecimento arquitetural** com Clean Architecture, DDD e 8 Design Patterns bem aplicados. A stack é moderna (Express 5, Inversify 7, Zod 4, Jest 30).
-
-**Pontos fortes**: Separação de camadas, extensibilidade via Strategy/Specification, DI completo, infraestrutura Docker.
-
-**Pontos de atenção históricos**: lógica de filtro das Strategies, validação de range e cobertura de testes foram observadas na análise de junho de 2026. A observação de double-JSON-encoding foi resolvida nos commits `f1b551c` e `1927d73`.
-
-**Risco principal**: O bug #1 (lógica invertida) faz com que a aplicação retorne dados **incorretos** — invoices de meses errados.
-
----
-
-**Última atualização**: 20 de Junho de 2026
-**Versão do documento**: 2.0
+_Last updated: 2026-09-02 (English consolidation). Document version: 2.1._
