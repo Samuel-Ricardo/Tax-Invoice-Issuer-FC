@@ -148,21 +148,21 @@ docker compose logs -f migrations     # watch schema bootstrap
 
 ```mermaid
 flowchart LR
-    Client([Client / Postman]) -->|HTTP| Express[Express 5 adapter]
-    Express --> Ctrl[InvoiceController]
-    Ctrl -->|@Validate| Zod[Zod Specification]
-    Ctrl --> Service[InvoiceService]
-    Service --> UC[GenerateInvoiceUseCase]
-    UC --> Repo[(Repositories<br/>pg-promise)]
-    Repo --> PG[(PostgreSQL · sam.contract<br/>sam.payment)]
-    UC --> Strategy{InvoiceStrategy}
-    Strategy -->|cash| Cash[CashBasisStrategy]
-    Strategy -->|accrual| Accrual[AccrualBasisStrategy]
-    Service -->|emit invoice_generated| Mediator[Mediator]
-    Mediator --> EmailCtrl[EmailController]
-    EmailCtrl --> Router[Email Router]
-    Router -->|SMTP| Nodemailer[Nodemailer → MailHog]
-    Router -->|PDF| Puppeteer[Puppeteer → HTML/PDF]
+    Client(["Client / Postman"]) -->|HTTP| Express["Express 5 adapter"]
+    Express --> Ctrl["InvoiceController"]
+    Ctrl -->|"validates"| Zod["Zod Specification"]
+    Ctrl --> Service["InvoiceService"]
+    Service --> UC["GenerateInvoiceUseCase"]
+    UC --> Repo[("Repositories - pg-promise")]
+    Repo --> PG[("PostgreSQL: sam.contract / sam.payment")]
+    UC --> Strategy{"InvoiceStrategy"}
+    Strategy -->|"cash"| Cash["CashBasisStrategy"]
+    Strategy -->|"accrual"| Accrual["AccrualBasisStrategy"]
+    Service -->|"emits invoice_generated"| Mediator["Mediator"]
+    Mediator --> EmailCtrl["EmailController"]
+    EmailCtrl --> Router["Email Router"]
+    Router -->|"SMTP"| Nodemailer["Nodemailer to MailHog"]
+    Router -->|"PDF"| Puppeteer["Puppeteer to HTML/PDF"]
 ```
 
 **Layers:** HTTP adapter → controller (decorators: `@Validate`, `@DataLogger`, `@ErrorHandler`) → service → use case → entities & strategies → repositories (read-only `SELECT`s) → PostgreSQL. Side effects fan out through a **Mediator** event (`invoice_generated`) to the email pipeline (nodemailer → MailHog, puppeteer for PDF). Everything is wired with Inversify DI and the typed `MODULE` registry — never a static `new`.
