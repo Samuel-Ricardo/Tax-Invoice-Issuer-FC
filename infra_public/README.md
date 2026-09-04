@@ -4,27 +4,28 @@
 > This Bicep/IaC material is retained for historical context and does not
 > provision the current `-learn` topology. Use the [current Azure runbook](../docs/deploy/azure/manual/step-by-step-guide.md)
 > and [Azure overview](../docs/deploy/azure/README.md) instead.
+> _Translated to English as part of the 2026 documentation consolidation._
 
-Infraestrutura como Código (IaC) para deploy seguro no Azure usando Bicep.
+Infrastructure as Code (IaC) for secure deployment on Azure using Bicep.
 
-## 🔐 Segurança
+## 🔐 Security
 
-**IMPORTANTE**: Esta é a versão **PUBLIC** da infraestrutura. Todos os secrets e credenciais sensíveis são:
+**IMPORTANT**: This is the **PUBLIC** version of the infrastructure. All sensitive secrets and credentials are:
 
-- ✅ Armazenados no **Azure Key Vault** (não no git)
-- ✅ Injetados em **runtime** nas aplicações
-- ✅ **NUNCA** commitados no repositório
-- ✅ Gerenciados via **Managed Identity** (sem SDK auth)
+- ✅ Stored in **Azure Key Vault** (not in git)
+- ✅ Injected at **runtime** into the applications
+- ✅ **NEVER** committed to the repository
+- ✅ Managed via **Managed Identity** (no SDK auth)
 
-**NÃO EXISTA** um arquivo `infra/` neste repositório:
+There must be **NO** `infra/` directory in this repository:
 
-- Se estiver vendo um, é porque está sendo executado **localmente**
-- O `infra/` está em `.gitignore` e contém dados sensíveis
-- Use `infra_public/` para deploy público
+- If you see one, it is because it is being run **locally**
+- `infra/` is in `.gitignore` and contains sensitive data
+- Use `infra_public/` for public deployment
 
 ---
 
-## 📋 Arquitetura
+## 📋 Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -59,12 +60,12 @@ Infraestrutura como Código (IaC) para deploy seguro no Azure usando Bicep.
 
 ## 🚀 Deployment
 
-### Pré-requisitos
+### Prerequisites
 
-- **Azure CLI** instalado (`az cli`)
+- **Azure CLI** installed (`az cli`)
 - **Logged in**: `az login`
-- **Bicep CLI**: instalado automaticamente com Azure CLI v2.3+
-- **jq**: para parsear JSON (para shell script)
+- **Bicep CLI**: installed automatically with Azure CLI v2.3+
+- **jq**: to parse JSON (for the shell script)
 
 ```bash
 # Verificar instalação
@@ -72,7 +73,7 @@ az --version
 az bicep version
 ```
 
-### Rápido Start
+### Quick Start
 
 ```bash
 # 1. Clone e abra a pasta infra_public
@@ -92,10 +93,10 @@ bash setup-azure.sh
 # ⏳ Aguarde ~5 minutos para conclusão
 ```
 
-**Saída histórica esperada:**
+**Expected historical output:**
 
-> Este bloco descreve a saída do setup legado. Não copie credenciais nem trate
-> esses nomes como recursos atuais; use o [runbook atual](../docs/deploy/azure/manual/step-by-step-guide.md).
+> This block describes the output of the legacy setup. Do not copy credentials or treat
+> these names as current resources; use the [current runbook](../docs/deploy/azure/manual/step-by-step-guide.md).
 
 ```
 ✅ SETUP CONCLUÍDO!
@@ -111,14 +112,14 @@ bash setup-azure.sh
 
 ---
 
-## 🔐 Gerenciamento de Secrets
+## 🔐 Secrets Management
 
-### Arquitetura de Segurança
+### Security Architecture
 
-1. **Azure Key Vault** armazena todas as credenciais
-2. **Container Apps** usa **Managed Identity** para acessar Key Vault
-3. **Variáveis de ambiente** recebem secrets em runtime (não hardcoded)
-4. **Nenhum secret é printado** em logs ou terminal
+1. **Azure Key Vault** stores all credentials
+2. **Container Apps** uses **Managed Identity** to access Key Vault
+3. **Environment variables** receive secrets at runtime (not hardcoded)
+4. **No secret is printed** to logs or the terminal
 
 ### Accessing Secrets Programmatically
 
@@ -148,10 +149,10 @@ spring.datasource.password=${DATABASE_PASSWORD}
 spring.datasource.url=jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?sslmode=require
 ```
 
-#### GitHub Actions (CI/CD) — HISTÓRICO — NÃO EXECUTAR
+#### GitHub Actions (CI/CD) — HISTORICAL — DO NOT RUN
 
-> O exemplo abaixo usa o antigo login por Service Principal. O workflow atual
-> usa Azure OIDC e não usa `AZURE_CREDENTIALS`.
+> The example below uses the old Service Principal login. The current workflow
+> uses Azure OIDC and does not use `AZURE_CREDENTIALS`.
 
 ```yaml
 - name: Deploy to Azure
@@ -168,11 +169,11 @@ spring.datasource.url=jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATA
 
 ---
 
-## 📝 Customização
+## 📝 Customization
 
-### Mudando Parâmetros
+### Changing Parameters
 
-Edite `main.parameters.json`:
+Edit `main.parameters.json`:
 
 ```json
 {
@@ -187,7 +188,7 @@ Edite `main.parameters.json`:
 }
 ```
 
-Ou passe como variáveis de ambiente:
+Or pass them as environment variables:
 
 ```bash
 export AZURE_LOCATION="westus2"
@@ -195,7 +196,7 @@ export CONTAINER_IMAGE="your-image:tag"
 bash setup-azure.sh
 ```
 
-### Escalar Container App
+### Scale Container App
 
 ```bash
 az containerapp update \
@@ -205,7 +206,7 @@ az containerapp update \
   --max-replicas 3
 ```
 
-### Pausar PostgreSQL (Economia)
+### Pause PostgreSQL (Savings)
 
 ```bash
 # Pausa (economiza ~$12/mês, paga só storage)
@@ -221,9 +222,9 @@ az postgres flexible-server start \
 
 ---
 
-## 🧪 Testando a Infraestrutura
+## 🧪 Testing the Infrastructure
 
-### 1. Verificar Deploy Status
+### 1. Check Deployment Status
 
 ```bash
 az deployment group show \
@@ -231,7 +232,7 @@ az deployment group show \
   --name main
 ```
 
-### 2. Testar Conectividade ao PostgreSQL
+### 2. Test PostgreSQL Connectivity
 
 ```bash
 # Do seu computador com az cli
@@ -240,7 +241,7 @@ psql -h psql-tax-invoice-fc.postgres.database.azure.com \
      -d invoicesdb
 ```
 
-### 3. Monitorar Logs da API
+### 3. Monitor API Logs
 
 ```bash
 az containerapp logs show \
@@ -248,7 +249,7 @@ az containerapp logs show \
   --resource-group rg-tax-invoice-fc
 ```
 
-### 4. Healthcheck da API
+### 4. API Healthcheck
 
 ```bash
 # Substituir URL pela sua
@@ -257,26 +258,26 @@ curl https://ca-tax-invoice-fc-api.<random>.eastus.azurecontainerapps.io/health
 
 ---
 
-## ⚠️ Segurança: Checklist
+## ⚠️ Security: Checklist
 
-### Antes de Fazer Deploy
+### Before Deploying
 
-- [ ] Nenhuma senha é hardcoded (verificar `main.bicep`)
-- [ ] Key Vault está ativado
-- [ ] Container App tem Managed Identity habilitada
-- [ ] Firewall do PostgreSQL permite apenas Azure services
+- [ ] No password is hardcoded (check `main.bicep`)
+- [ ] Key Vault is enabled
+- [ ] Container App has Managed Identity enabled
+- [ ] PostgreSQL firewall allows only Azure services
 
-### Depois de Deploy
+### After Deploying
 
-- [ ] Testar conexão do app ao PostgreSQL
-- [ ] Verificar logs por erros de conexão
-- [ ] Confirmar que secrets **não aparecem em logs**
-- [ ] Adicionar GitHub Secrets para CI/CD
+- [ ] Test the app connection to PostgreSQL
+- [ ] Check logs for connection errors
+- [ ] Confirm that secrets **do not appear in logs**
+- [ ] Add GitHub Secrets for CI/CD
 
-### Para CI/CD (GitHub Actions) — HISTÓRICO — NÃO EXECUTAR
+### For CI/CD (GitHub Actions) — HISTORICAL — DO NOT RUN
 
-> O fluxo atual usa OIDC. O nome `AZURE_CREDENTIALS` abaixo é mantido somente
-> como referência histórica e não deve ser criado ou preenchido.
+> The current flow uses OIDC. The name `AZURE_CREDENTIALS` below is kept only
+> as a historical reference and must not be created or populated.
 
 ```bash
 # 1. Salvar credenciais do Service Principal
@@ -299,39 +300,39 @@ test -s .deployment-output/sp-credentials.json
 
 ---
 
-## 📊 Custo Estimado
+## 📊 Estimated Cost
 
-| Serviço         | Custo       | Notas                       |
-| --------------- | ----------- | --------------------------- |
-| Container Apps  | $0          | Scale-to-zero quando idle   |
-| PostgreSQL B1ms | $12.41/mês  | Pode pausar para poupar 95% |
-| Log Analytics   | $0          | Free tier (5GB/day)         |
-| Key Vault       | $0.60/mês   | $0.60 por 10k operações     |
-| **Total**       | **$13/mês** | Pode reduzir pausando DB    |
+| Service         | Cost          | Notes                            |
+| --------------- | ------------- | -------------------------------- |
+| Container Apps  | $0            | Scale-to-zero when idle          |
+| PostgreSQL B1ms | $12.41/month  | Can be paused to save 95%        |
+| Log Analytics   | $0            | Free tier (5GB/day)              |
+| Key Vault       | $0.60/month   | $0.60 per 10k operations         |
+| **Total**       | **$13/month** | Can be reduced by pausing the DB |
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Erro: "Invalid Key Vault ID"
+### Error: "Invalid Key Vault ID"
 
 ```
 Error: The Resource 'Microsoft.KeyVault/vaults/...' under resource group 'rg-...' was not found.
 ```
 
-**Solução**: Key Vault não foi criado. Verifique:
+**Solution**: The Key Vault was not created. Check:
 
 ```bash
 az keyvault show --name kv-tax-invoice-fc -g rg-tax-invoice-fc
 ```
 
-### Erro: "PostgreSQL connection refused"
+### Error: "PostgreSQL connection refused"
 
 ```
 Error connecting to database
 ```
 
-**Solução**: Verificar credenciais no Key Vault:
+**Solution**: Check the credentials in Key Vault:
 
 ```bash
 az keyvault secret show \
@@ -339,7 +340,7 @@ az keyvault secret show \
   --name postgres-password
 ```
 
-### Container App não inicia
+### Container App does not start
 
 ```bash
 # Ver logs detalhados
@@ -357,7 +358,7 @@ az containerapp show \
 
 ---
 
-## 🗑️ Cleanup (Remover Tudo)
+## 🗑️ Cleanup (Remove Everything)
 
 ```bash
 # ⚠️ Isto DELETA toda a infraestrutura
@@ -371,7 +372,7 @@ echo "✅ Resource Group agendado para deleção"
 
 ---
 
-## 📚 Referências
+## 📚 References
 
 - [Azure Bicep Docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/)
 - [Container Apps Docs](https://learn.microsoft.com/en-us/azure/container-apps/)
@@ -382,18 +383,18 @@ echo "✅ Resource Group agendado para deleção"
 
 ## 📝 License
 
-MIT — Veja LICENSE na raiz do repositório
+MIT — See LICENSE at the repository root
 
 ---
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-1. **Nunca** commitar secrets ou credenciais
-2. **Sempre** usar Key Vault para dados sensíveis
-3. Testar em resource group de dev antes de produção
-4. Seguir padrão SOLID e clean code
+1. **Never** commit secrets or credentials
+2. **Always** use Key Vault for sensitive data
+3. Test in a dev resource group before production
+4. Follow SOLID principles and clean code
 
 ---
 
-**Última atualização**: 2026-07-12
-**Versão**: 1.0.0 (Public)
+**Last updated**: 2026-07-12
+**Version**: 1.0.0 (Public)
