@@ -1,77 +1,77 @@
-# 💰 Análise de Custos Azure — Tax Invoice Issuer FC
+# 💰 Azure Cost Analysis — Tax Invoice Issuer FC
 
-> Análise detalhada de custos com preços validados diretamente na documentação oficial da Microsoft.
-> Otimizado para projeto de portfolio com budget de **~$50/mês**.
+> Detailed cost analysis with prices validated directly against official Microsoft documentation.
+> Optimized for a portfolio project with a budget of **~$50/month**.
 >
-> **Status: Histórico — não é uma estimativa atual da implantação.** Os valores
-> abaixo usam premissas antigas, incluindo região, nomes e capacidade de storage.
-> Use o [runbook manual atual](./manual/step-by-step-guide.md) para a topologia
-> confirmada e valide preços, quotas e consumo na calculadora oficial antes de
-> tomar decisões de custo.
+> **Status: Historical — not a current estimate of the deployment.** The values
+> below use outdated assumptions, including region, names, and storage capacity.
+> Use the [current manual runbook](./manual/step-by-step-guide.md) for the confirmed
+> topology, and validate prices, quotas, and consumption in the official calculator
+> before making any cost decisions.
 
 ---
 
-## 📊 Resumo Executivo
+## 📊 Executive Summary
 
-| Cenário                              | Custo/mês | Quando usar                                |
-| ------------------------------------ | --------- | ------------------------------------------ |
-| **Portfolio ativo** (demonstrando)   | ~$15/mês  | Período de busca de emprego / entrevistas  |
-| **Portfolio pausado** (banco parado) | ~$2/mês   | Banco parado, API em scale-to-zero         |
-| **Orçamento total disponível**       | $50/mês   | —                                          |
-| **Margem de segurança**              | ~$35/mês  | Outros projetos, domínio customizado, etc. |
+| Scenario                                | Cost/month | When to use                            |
+| --------------------------------------- | ---------- | -------------------------------------- |
+| **Active portfolio** (demonstrating)    | ~$15/month | Job-hunting period / interviews        |
+| **Paused portfolio** (database stopped) | ~$2/month  | Database stopped, API in scale-to-zero |
+| **Total available budget**              | $50/month  | —                                      |
+| **Safety margin**                       | ~$35/month | Other projects, custom domain, etc.    |
 
 ---
 
-## 🔍 Detalhamento por Serviço
+## 🔍 Breakdown by Service
 
 ### 1. Azure Container Apps (Consumption Plan)
 
-**Preço validado**: [azure.microsoft.com/en-us/pricing/details/container-apps](https://azure.microsoft.com/en-us/pricing/details/container-apps/)
+**Validated price**: [azure.microsoft.com/en-us/pricing/details/container-apps](https://azure.microsoft.com/en-us/pricing/details/container-apps/)
 
-| Recurso              | Free Tier (por subscription/mês) | Preço após free |
-| -------------------- | -------------------------------- | --------------- |
-| vCPU-seconds (ativo) | 180.000 vCPU-s                   | $0.000024/s     |
-| GiB-seconds (ativo)  | 360.000 GiB-s                    | $0.000003/s     |
-| Requests             | 2.000.000 req                    | $0.40/milhão    |
+| Resource              | Free Tier (per subscription/month) | Price after free |
+| --------------------- | ---------------------------------- | ---------------- |
+| vCPU-seconds (active) | 180,000 vCPU-s                     | $0.000024/s      |
+| GiB-seconds (active)  | 360,000 GiB-s                      | $0.000003/s      |
+| Requests              | 2,000,000 req                      | $0.40/million    |
 
-#### Cálculo para Portfolio
+#### Calculation for the Portfolio
 
-Nossa configuração: 0.25 vCPU + 0.5 GiB, scale-to-zero.
+Our configuration: 0.25 vCPU + 0.5 GiB, scale-to-zero.
 
-**Cenário realista** (5 visitas/dia de recrutadores, ~30s de uso ativo/visita):
+**Realistic scenario** (5 recruiter visits/day, ~30s of active use per visit):
 
-- Tempo ativo/mês: 5 visitas × 30s × 30 dias = 4.500 segundos
-- vCPU consumidos: 4.500 × 0.25 = **1.125 vCPU-s** (free tier: 180.000)
-- GiB consumidos: 4.500 × 0.5 = **2.250 GiB-s** (free tier: 360.000)
-- Requests: ~500/mês (free tier: 2.000.000)
+- Active time/month: 5 visits × 30s × 30 days = 4,500 seconds
+- vCPU consumed: 4,500 × 0.25 = **1,125 vCPU-s** (free tier: 180,000)
+- GiB consumed: 4,500 × 0.5 = **2,250 GiB-s** (free tier: 360,000)
+- Requests: ~500/month (free tier: 2,000,000)
 
-**Resultado: $0.00/mês** — 100% dentro do free tier. ✅
+**Result: $0.00/month** — 100% within the free tier. ✅
 
 ---
 
 ### 2. Azure Database for PostgreSQL Flexible Server
 
-**Preço validado**: [azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server](https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/)
+**Validated price**: [azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server](https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/)
 
-| SKU                  | vCPU | RAM   | Preço/mês  |
-| -------------------- | ---- | ----- | ---------- |
-| **B1ms (escolhido)** | 1    | 2 GiB | **$12.41** |
-| B2ms                 | 2    | 8 GiB | $99.28     |
-| B2s                  | 2    | 4 GiB | $49.64     |
+| SKU               | vCPU | RAM   | Price/month |
+| ----------------- | ---- | ----- | ----------- |
+| **B1ms (chosen)** | 1    | 2 GiB | **$12.41**  |
+| B2ms              | 2    | 8 GiB | $99.28      |
+| B2s               | 2    | 4 GiB | $49.64      |
 
-**Storage**: $0.115/GiB/mês
+**Storage**: $0.115/GiB/month
 
-- 32 GiB configurados = **$3.68/mês** (incluído no preço do servidor)
+- 32 GiB configured = **$3.68/month** (included in the server price)
 
-#### Economia com Stop/Start
+#### Savings with Stop/Start
 
-Quando o banco está **parado** (`Stopped` state), você paga apenas pelo storage:
+When the database is **stopped** (`Stopped` state), you pay only for storage:
 
-| Estado                 | Custo                   |
-| ---------------------- | ----------------------- |
-| Running (B1ms)         | $12.41/mês              |
-| **Stopped**            | ~$3.68/mês (só storage) |
-| **Economia ao pausar** | ~$8.73/mês (~70%)       |
+| State                   | Cost                        |
+| ----------------------- | --------------------------- |
+| Running (B1ms)          | $12.41/month                |
+| **Stopped**             | ~$3.68/month (storage only) |
+| **Savings when paused** | ~$8.73/month (~70%)         |
 
 ```bash
 # Pausar antes de dormir / quando não estiver demonstrando
@@ -84,123 +84,125 @@ az postgres flexible-server stop \
 
 ### 3. GitHub Container Registry (GHCR)
 
-| Tipo                | Custo     |
-| ------------------- | --------- |
-| Repositório público | **$0.00** |
-| Storage (público)   | **$0.00** |
-| Transfer (público)  | **$0.00** |
+| Type              | Cost      |
+| ----------------- | --------- |
+| Public repository | **$0.00** |
+| Storage (public)  | **$0.00** |
+| Transfer (public) | **$0.00** |
 
-Não há custo para imagens em repositórios públicos no GitHub. ✅
+There is no cost for images in public repositories on GitHub. ✅
 
 ---
 
 ### 4. GitHub Actions
 
-| Tipo                | Custo                         |
-| ------------------- | ----------------------------- |
-| Repositório público | **$0.00**                     |
-| Minutes limit       | Unlimited para repos públicos |
+| Type              | Cost                       |
+| ----------------- | -------------------------- |
+| Public repository | **$0.00**                  |
+| Minutes limit     | Unlimited for public repos |
 
-Não há custo para CI/CD em repositórios públicos no GitHub. ✅
+There is no cost for CI/CD on public repositories on GitHub. ✅
 
 ---
 
 ### 5. Log Analytics Workspace
 
-| Recurso        | Free Tier      | Custo após   |
-| -------------- | -------------- | ------------ |
-| Data ingestion | 5 GB/dia       | $2.30/GB     |
-| Data retention | 31 dias grátis | $0.10/GB/mês |
+| Resource       | Free Tier    | Cost after     |
+| -------------- | ------------ | -------------- |
+| Data ingestion | 5 GB/day     | $2.30/GB       |
+| Data retention | 31 days free | $0.10/GB/month |
 
-**Para portfolio**: geração de logs muito abaixo de 5 GB/dia. **Custo: $0.00/mês** ✅
-
----
-
-## 💵 Planilha de Custos
-
-### Cenário 1: Portfolio Ativo (recomendado para período de entrevistas)
-
-| Serviço                     | Custo/mês       | Notas            |
-| --------------------------- | --------------- | ---------------- |
-| Azure Container Apps        | $0.00           | Free tier        |
-| PostgreSQL B1ms (running)   | $12.41          | Banco ativo 24/7 |
-| Storage PostgreSQL (32 GiB) | Incluso         | No preço do B1ms |
-| GHCR                        | $0.00           | Repo público     |
-| GitHub Actions              | $0.00           | Repo público     |
-| Log Analytics               | $0.00           | Free tier        |
-| **TOTAL**                   | **~$12–13/mês** |                  |
+**For a portfolio**: log generation is far below 5 GB/day. **Cost: $0.00/month** ✅
 
 ---
 
-### Cenário 2: Portfolio Pausado (economia máxima)
+## 💵 Cost Spreadsheet
 
-| Serviço              | Custo/mês   | Notas                             |
-| -------------------- | ----------- | --------------------------------- |
-| Azure Container Apps | $0.00       | Scale-to-zero                     |
-| PostgreSQL (stopped) | ~$3.68      | Apenas storage (32 GiB × $0.115)  |
-| GHCR                 | $0.00       | —                                 |
-| GitHub Actions       | $0.00       | —                                 |
-| **TOTAL**            | **~$4/mês** | Banco pode ser retomado em ~2 min |
+### Scenario 1: Active Portfolio (recommended during interview periods)
 
----
-
-### Cenário 3: Com Domínio Customizado (opcional)
-
-Se quiser usar um domínio próprio (`api.meuportfolio.com`):
-
-| Item                    | Custo                                |
-| ----------------------- | ------------------------------------ |
-| Azure DNS Zone          | ~$0.50/mês                           |
-| Domínio (ex: Namecheap) | ~$1/mês                              |
-| SSL                     | $0.00 (automático no Container Apps) |
-| **Adicional**           | **~$1.50/mês**                       |
+| Service                     | Cost/month        | Notes                |
+| --------------------------- | ----------------- | -------------------- |
+| Azure Container Apps        | $0.00             | Free tier            |
+| PostgreSQL B1ms (running)   | $12.41            | Database active 24/7 |
+| PostgreSQL Storage (32 GiB) | Included          | In the B1ms price    |
+| GHCR                        | $0.00             | Public repo          |
+| GitHub Actions              | $0.00             | Public repo          |
+| Log Analytics               | $0.00             | Free tier            |
+| **TOTAL**                   | **~$12–13/month** |                      |
 
 ---
 
-## 📈 Comparação com Alternativas
+### Scenario 2: Paused Portfolio (maximum savings)
 
-| Plataforma                  | Setup       | Custo/mês | Impressão Portfolio         |
-| --------------------------- | ----------- | --------- | --------------------------- |
-| **Azure Container Apps** ✅ | IaC + CI/CD | ~$12-15   | ⭐⭐⭐⭐⭐ Enterprise cloud |
-| Railway                     | Simples     | ~$5-10    | ⭐⭐⭐ Startup friendly     |
-| Render                      | Simples     | ~$7-14    | ⭐⭐⭐ Startup friendly     |
-| Heroku                      | Simples     | ~$7-25    | ⭐⭐ Legado                 |
-| AWS EC2 t3.micro            | Complexo    | ~$8-15    | ⭐⭐⭐⭐ Enterprise         |
-| GCP Cloud Run               | Médio       | ~$0-5     | ⭐⭐⭐⭐ Enterprise         |
-| DigitalOcean                | Médio       | ~$6-12    | ⭐⭐⭐ Startup              |
-
-**Por que Azure vale o investimento?** Avanade, Accenture, Microsoft Partners e a maioria das grandes empresas brasileiras usam Azure. Demonstrar domínio da plataforma + Bicep + Container Apps diferencia candidatos.
+| Service              | Cost/month    | Notes                          |
+| -------------------- | ------------- | ------------------------------ |
+| Azure Container Apps | $0.00         | Scale-to-zero                  |
+| PostgreSQL (stopped) | ~$3.68        | Storage only (32 GiB × $0.115) |
+| GHCR                 | $0.00         | —                              |
+| GitHub Actions       | $0.00         | —                              |
+| **TOTAL**            | **~$4/month** | Database can resume in ~2 min  |
 
 ---
 
-## 🧮 Calculadora de Custo Personalizada
+### Scenario 3: With Custom Domain (optional)
 
-Acesse a calculadora oficial: [azure.microsoft.com/en-us/pricing/calculator](https://azure.microsoft.com/en-us/pricing/calculator/?services=container-apps,postgresql)
+If you want to use your own domain (`api.meuportfolio.com`):
 
-Serviços para adicionar:
+| Item                     | Cost                                |
+| ------------------------ | ----------------------------------- |
+| Azure DNS Zone           | ~$0.50/month                        |
+| Domain (e.g., Namecheap) | ~$1/month                           |
+| SSL                      | $0.00 (automatic on Container Apps) |
+| **Additional**           | **~$1.50/month**                    |
+
+---
+
+## 📈 Comparison with Alternatives
+
+| Platform                    | Setup       | Cost/month | Portfolio Impression        |
+| --------------------------- | ----------- | ---------- | --------------------------- |
+| **Azure Container Apps** ✅ | IaC + CI/CD | ~$12-15    | ⭐⭐⭐⭐⭐ Enterprise cloud |
+| Railway                     | Simple      | ~$5-10     | ⭐⭐⭐ Startup friendly     |
+| Render                      | Simple      | ~$7-14     | ⭐⭐⭐ Startup friendly     |
+| Heroku                      | Simple      | ~$7-25     | ⭐⭐ Legacy                 |
+| AWS EC2 t3.micro            | Complex     | ~$8-15     | ⭐⭐⭐⭐ Enterprise         |
+| GCP Cloud Run               | Medium      | ~$0-5      | ⭐⭐⭐⭐ Enterprise         |
+| DigitalOcean                | Medium      | ~$6-12     | ⭐⭐⭐ Startup              |
+
+**Why is Azure worth the investment?** Avanade, Accenture, Microsoft Partners, and most large Brazilian companies use Azure. Demonstrating mastery of the platform + Bicep + Container Apps sets candidates apart.
+
+---
+
+## 🧮 Custom Cost Calculator
+
+Access the official calculator: [azure.microsoft.com/en-us/pricing/calculator](https://azure.microsoft.com/en-us/pricing/calculator/?services=container-apps,postgresql)
+
+Services to add:
 
 - Container Apps (Consumption)
 - Azure Database for PostgreSQL (Flexible Server, B1ms, East US)
 
 ---
 
-## 💡 Dicas de Economia
+## 💡 Money-Saving Tips
 
-1. **Use `az postgres flexible-server stop`** quando não estiver demonstrando — economiza ~$8/mês
-2. **Mantenha `minReplicas: 0`** no Container App — economiza ~$2-3/mês vs `minReplicas: 1`
-3. **Não use Azure Container Registry** — GHCR é gratuito para repos públicos e já está configurado
-4. **Desative geo-redundant backup** no PostgreSQL — já configurado como `Disabled`
-5. **Desative High Availability** no PostgreSQL — já configurado como `Disabled`
-6. **Use East US** como região — geralmente os preços mais baixos na Azure
+1. **Use `az postgres flexible-server stop`** when you're not demonstrating — saves ~$8/month
+2. **Keep `minReplicas: 0`** on the Container App — saves ~$2-3/month vs `minReplicas: 1`
+3. **Don't use Azure Container Registry** — GHCR is free for public repos and is already configured
+4. **Disable geo-redundant backup** on PostgreSQL — already configured as `Disabled`
+5. **Disable High Availability** on PostgreSQL — already configured as `Disabled`
+6. **Use East US** as the region — generally the lowest prices on Azure
 
 ---
 
-## 📅 Estimativa Anual
+## 📅 Annual Estimate
 
-| Cenário                        | Custo/mês | Custo/ano |
-| ------------------------------ | --------- | --------- |
-| Ativo o ano todo               | ~$13      | ~$156     |
-| Ativo 6 meses, pausado 6 meses | ~$8.5     | ~$102     |
-| Pausado (só storage)           | ~$4       | ~$48      |
+| Scenario                         | Cost/month | Cost/year |
+| -------------------------------- | ---------- | --------- |
+| Active all year                  | ~$13       | ~$156     |
+| Active 6 months, paused 6 months | ~$8.5      | ~$102     |
+| Paused (storage only)            | ~$4        | ~$48      |
 
-Dentro do seu budget de $50/mês, há espaço confortável para manter o projeto ativo sem preocupações.
+Within your $50/month budget, there is comfortable room to keep the project active with no worries.
+
+_Translated to English — documentation consolidation, 2026-09._
